@@ -82,6 +82,7 @@ export default function useDatePicker(options) {
   })
 
   const week = useWeek({
+    events,
     browsing,
     now,
     weekStartsOn

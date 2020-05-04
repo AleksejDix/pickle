@@ -32,7 +32,6 @@ export default function useHour(options) {
     }
   })
 
-  console.log(quarters)
 
   const sixth = each({
     start: start.value,

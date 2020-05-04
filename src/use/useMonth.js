@@ -54,7 +54,6 @@ export default function useMonth(options) {
 
   const days = computed(() => each(monthInterval.value).map(scheduleDay))
 
-  console.log(days)
 
   const startFirstWeek = computed(() => startOfWeek(start.value, {
     weekStartsOn: 1

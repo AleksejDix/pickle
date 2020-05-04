@@ -68,17 +68,19 @@
           }}</span>
         </TimeInterval>
 
-        <Month :picker="picker">
+
+        <WeekDayNames :picker="picker">
           <template #name="{day}">
             {{ format(day, "EE") }}
-          </template> 
+          </template>
+        </WeekDayNames>
+
+        <Month :picker="picker">
           <template #default="{day}">
             {{ format(day, "d") }}
           </template>
         </Month>
-      </div>
 
-      <div class="border rounded">
         <TimeInterval :picker="picker" type="week">
           <span class="text-white"
             >{{ format(picker.browsing, "wo") }} week</span
@@ -89,13 +91,14 @@
         </TimeInterval>
 
         <Week :picker="picker">
-          <template #name="{day}">
-            {{ format(day, "EE") }}
-          </template>
           <template #default="{day}">
             {{ format(day, "d") }}
           </template>
         </Week>
+      </div>
+
+      <div class="border rounded">
+   
       </div>
     </div>
 
@@ -176,6 +179,7 @@ import TimeInterval from "./TimeInterval";
 import useDatePicker from "./../use/useDatePicker.js";
 import useCurrentDateTime from "./../use/useCurrentDateTime";
 import Week from "./Week";
+import WeekDayNames from "./WeekDayNames";
 import Month from "./Month";
 import YearMonth from "./YearMonth";
 import YearQuarter from "./YearQuarter";
@@ -200,9 +204,10 @@ export default {
   components: {
     TimeInterval,
     Week,
+    WeekDayNames,
     Month,
     YearMonth,
-    YearQuarter
+    YearQuarter,
   }
 };
 </script>
