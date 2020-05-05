@@ -1,6 +1,6 @@
 <template>
 <div class=" p-2">
-  <div class="grid gap-2">
+  <div class="grid grid-cols-4 gap-2">
     <button  
       :key="yearQuarter"
       @click="picker.pick(yearQuarter)" 

@@ -1,24 +1,18 @@
 <template>
-  <div class="my-calendar p-8">
 
+  <div class="my-calendar p-8">
+         <pre>{{ picker.selected }}</pre>
+
+        <p>
+          Browing: <strong>{{ picker.browsing }}</strong>
+        </p>
+
+        <button class="button" @click="picker.pick(now)">
+          now
+        </button>
     <div class="grid grid-cols-4 gap-4">
       <div>
-
-    <pre>{{ picker.selected }}</pre>
-
-    <p>
-      Browing: <strong>{{ picker.browsing }}</strong>
-    </p>
-
-    <button class="button" @click="picker.pick(now)">
-      now
-    </button>
-
-
-    <pre>{{
-      picker.events
-    }}</pre>
-
+   
 
         <TimeInterval :picker="picker" type="millenium">
           {{ Math.floor(format(picker.browsing, "yyyy") / 1000) }} Millenium
@@ -33,7 +27,7 @@
         </TimeInterval>
       </div>
 
-      <div class="border rounded">
+      <div class="border rounded p-2">
         <TimeInterval :picker="picker" type="year">
           {{ format(picker.browsing, "yyyy") }} Year
         </TimeInterval>
@@ -45,7 +39,7 @@
         </YearMonth>
       </div>
 
-      <div class="border rounded">
+      <div class="border rounded p2">
         <TimeInterval :picker="picker" type="yearQuarter">
           <span class="text-white">{{ format(picker.browsing, "QQQQ") }}</span>
           <span class="inline-block px-2 text-orange-500">{{
@@ -55,19 +49,18 @@
 
         <YearQuarter :picker="picker">
           <template #default="{yearQuarter}">
-            {{ format(yearQuarter, "QQQQ") }}
+            {{ format(yearQuarter, "QQQ") }}
           </template>
         </YearQuarter>
       </div>
 
-      <div class="border rounded">
+      <div class="border rounded p-2">
         <TimeInterval :picker="picker" type="month">
           <span class="text-white">{{ format(picker.browsing, "MMMM") }}</span>
           <span class="inline-block px-2 text-orange-500">{{
             format(picker.browsing, "yyyy")
           }}</span>
         </TimeInterval>
-
 
         <WeekDayNames :picker="picker">
           <template #name="{day}">
@@ -97,9 +90,7 @@
         </Week>
       </div>
 
-      <div class="border rounded">
-   
-      </div>
+      <div class="border rounded"></div>
     </div>
 
     <TimeInterval :picker="picker" type="day">
@@ -124,7 +115,9 @@
           class="day"
           @click="picker.pick(quarter)"
           :class="{
-            selected: picker.selected && picker.hourQuarter.isSame(picker.selected, quarter)
+            selected:
+              picker.selected &&
+              picker.hourQuarter.isSame(picker.selected, quarter)
           }"
         >
           {{ format(quarter, "mm") }}
@@ -154,7 +147,8 @@
             class="day"
             :class="{
               'bg-passive': picker.isToday(day),
-              'bg-active': picker.selected && picker.isSameDay(picker.selected, day)
+              'bg-active':
+                picker.selected && picker.isSameDay(picker.selected, day)
             }"
           >
             {{ format(day, "d") }}
@@ -162,7 +156,6 @@
         </li>
       </ul>
     </transition>
-
 
     <div class="my-calendar-header">
       <button @click="picker.day.prev()">&larr;</button>
@@ -191,7 +184,7 @@ export default {
   setup() {
     const { now } = useCurrentDateTime();
     const events = ref([]);
-    const selected = ref('')
+    const selected = ref("");
 
     const picker = useDatePicker({
       now,
@@ -207,7 +200,7 @@ export default {
     WeekDayNames,
     Month,
     YearMonth,
-    YearQuarter,
+    YearQuarter
   }
 };
 </script>
