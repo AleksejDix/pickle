@@ -1,98 +1,65 @@
 import {
-  computed
+  computed,
+  isRef,
+  ref,
 } from 'vue'
 
 import {
-  isSameMonth,
   add,
   sub,
   startOfMonth,
   endOfMonth,
-  startOfWeek,
-  endOfWeek,
   getDay,
-  isWithinInterval,
-  isSameDay
 } from "date-fns";
 
-import {
-  each
-} from './each'
+import {same} from './usePickle'
+
+const isSame = (a,b) => same(a,b, 'month')
 export default function useMonth(options) {
 
-  const isSame = computed(() => isSameMonth(options.now.value, options.browsing.value))
-  const start = computed(() => startOfMonth(options.browsing.value))
-  const end = computed(() => endOfMonth(options.browsing.value))
+  const now = isRef(options.now) ? options.now : ref(options.now)
+  const browsing = isRef(options.browsing) ? options.browsing : ref(options.browsing)
 
-  const monthInterval = computed(() => ({
-    start: start.value,
-    end: end.value,
-    step: {
-      days: 1
-    }
-  }))
+  const isNow = computed(() => isSame(now.value, browsing.value))
+  const start = computed(() => startOfMonth(browsing.value))
+  const end = computed(() => endOfMonth(browsing.value))
+  const number = computed(() => format(browsing.value))
+  const raw = computed(() => browsing.value)
+  const timespan = computed(() => ({start: start.value, end: end.value}))
+  const name = computed(() => number.value)
 
-  const scheduleDay = (date) => {
-    const events = options.events.value
-      .filter(event => isWithinInterval(date, event)).map(({
-        start,
-        end
-      }) => ({
-        isStart: isSameDay(date, start),
-        isEnd: isSameDay(date, end),
-        isWithing: isWithinInterval(date, {
-          start,
-          end
-        })
-      }))
-
-    return {
-      date,
-      events,
-    }
+  const format = (date) => {
+    return +date.getMonth() + 1
   }
 
-  const days = computed(() => each(monthInterval.value).map(scheduleDay))
-
-
-  const startFirstWeek = computed(() => startOfWeek(start.value, {
-    weekStartsOn: 1
-  }))
-  const endLastWeek = computed(() => endOfWeek(end.value, {
-    weekStartsOn: 1
-  }))
-
-  const weekDays = computed(() => each({
-    start: startFirstWeek.value,
-    end: endLastWeek.value,
-    step: {
-      days: 1
-    }
-  }))
-
-  const weekDay = () => {
-    const day = getDay(start.value)
-    return day === 0 ? 7 : day
-  }
-
-  const prev = () => {
-    options.browsing.value = sub(options.browsing.value, {
-      months: 1
-    })
-  }
-  const next = () => {
+  const future = () => {
     options.browsing.value = add(options.browsing.value, {
       months: 1
     })
   }
 
+  const past = () => {
+    options.browsing.value = sub(options.browsing.value, {
+      months: 1
+    })
+  }
+
+  const weekDay = computed(() => {
+    const day = getDay(start.value)
+    return day === 0 ? 7 : day
+  })
+
   return {
-    isSameMonth,
-    next,
-    prev,
+    future,
+    past,
+    timespan,
+    isNow,
+    number,
+    name, 
+    format,
+    raw,
     isSame,
-    days,
-    weekDay,
-    weekDays
+    browsing,
+    weekDay
   }
 }

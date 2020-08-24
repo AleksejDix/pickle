@@ -6,7 +6,7 @@ import {
   add,
   sub,
   startOfHour,
-  endOfHour
+  endOfHour,
 } from "date-fns";
 
 import {
@@ -18,6 +18,13 @@ export default function useHour(options) {
   const isSame = computed(() => isSameHour(options.now.value, options.browsing.value))
   const start = computed(() => startOfHour(options.browsing.value))
   const end = computed(() => endOfHour(options.browsing.value))
+
+  const format = (date) => {
+    return date.getHours()
+  }
+
+  const number = computed(() => format(options.browsing.value))
+
 
   const minutes = each({
     start: start.value,
@@ -31,7 +38,6 @@ export default function useHour(options) {
       minutes: 15
     }
   })
-
 
   const sixth = each({
     start: start.value,
@@ -61,6 +67,9 @@ export default function useHour(options) {
     isNow,
     minutes,
     quarters,
-    sixth
+    sixth,
+    isSameHour,
+    format,
+    number
   }
 }

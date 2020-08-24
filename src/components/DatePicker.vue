@@ -1,206 +1,96 @@
 <template>
-
-  <div class="my-calendar p-8">
-         <pre>{{ picker.selected }}</pre>
-
-        <p>
-          Browing: <strong>{{ picker.browsing }}</strong>
-        </p>
-
-        <button class="button" @click="picker.pick(now)">
-          now
+  <div>
+    <article class="mx-auto max-w-md border rounded-lg p-3 shadow">
+      <header>
+        <button>
+          <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+            <path
+              d="M5 3a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2V5a2 2 0 00-2-2H5zM5 11a2 2 0 00-2 2v2a2 2 0 002 2h2a2 2 0 002-2v-2a2 2 0 00-2-2H5zM11 5a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V5zM14 11a1 1 0 011 1v1h1a1 1 0 110 2h-1v1a1 1 0 11-2 0v-1h-1a1 1 0 110-2h1v-1a1 1 0 011-1z"
+            ></path>
+          </svg>
         </button>
-    <div class="grid grid-cols-4 gap-4">
-      <div>
-   
 
-        <TimeInterval :picker="picker" type="millenium">
-          {{ Math.floor(format(picker.browsing, "yyyy") / 1000) }} Millenium
-        </TimeInterval>
-
-        <TimeInterval :picker="picker" type="century">
-          {{ Math.floor(format(picker.browsing, "yyyy") / 100) }} Century
-        </TimeInterval>
-
-        <TimeInterval :picker="picker" type="decade">
-          {{ Math.floor(format(picker.browsing, "yyyy") / 10) * 10 }} Decade
-        </TimeInterval>
-      </div>
-
-      <div class="border rounded p-2">
-        <TimeInterval :picker="picker" type="year">
-          {{ format(picker.browsing, "yyyy") }} Year
-        </TimeInterval>
-
-        <YearMonth :picker="picker">
-          <template #default="{month}">
-            {{ format(month, "MMMM") }}
-          </template>
-        </YearMonth>
-      </div>
-
-      <div class="border rounded p2">
-        <TimeInterval :picker="picker" type="yearQuarter">
-          <span class="text-white">{{ format(picker.browsing, "QQQQ") }}</span>
-          <span class="inline-block px-2 text-orange-500">{{
-            format(picker.browsing, "yyyy")
-          }}</span>
-        </TimeInterval>
-
-        <YearQuarter :picker="picker">
-          <template #default="{yearQuarter}">
-            {{ format(yearQuarter, "QQQ") }}
-          </template>
-        </YearQuarter>
-      </div>
-
-      <div class="border rounded p-2">
-        <TimeInterval :picker="picker" type="month">
-          <span class="text-white">{{ format(picker.browsing, "MMMM") }}</span>
-          <span class="inline-block px-2 text-orange-500">{{
-            format(picker.browsing, "yyyy")
-          }}</span>
-        </TimeInterval>
-
-        <WeekDayNames :picker="picker">
-          <template #name="{day}">
-            {{ format(day, "EE") }}
-          </template>
-        </WeekDayNames>
-
-        <Month :picker="picker">
-          <template #default="{day}">
-            {{ format(day, "d") }}
-          </template>
-        </Month>
-
-        <TimeInterval :picker="picker" type="week">
-          <span class="text-white"
-            >{{ format(picker.browsing, "wo") }} week</span
-          >
-          <span class="inline-block px-2 text-orange-500">{{
-            format(picker.browsing, "yyyy")
-          }}</span>
-        </TimeInterval>
-
-        <Week :picker="picker">
-          <template #default="{day}">
-            {{ format(day, "d") }}
-          </template>
-        </Week>
-      </div>
-
-      <div class="border rounded"></div>
-    </div>
-
-    <TimeInterval :picker="picker" type="day">
-      {{ format(picker.browsing, "d EEEE") }} Day
-    </TimeInterval>
-
-    <TimeInterval :picker="picker" type="hour">
-      {{ format(picker.browsing, "HH") }} Hour
-    </TimeInterval>
-
-    <TimeInterval :picker="picker" type="minute">
-      {{ format(picker.browsing, "mm") }} Minute
-    </TimeInterval>
-
-    <ul class="list-reset flex ">
-      <li v-for="quarter in picker.hour.quarters" :key="quarter">
-        <span
-          class="dot"
-          :class="{ highlight: picker.hourQuarter.isNow(quarter) }"
-        ></span>
-        <button
-          class="day"
-          @click="picker.pick(quarter)"
-          :class="{
-            selected:
-              picker.selected &&
-              picker.hourQuarter.isSame(picker.selected, quarter)
-          }"
-        >
-          {{ format(quarter, "mm") }}
-        </button>
-      </li>
-    </ul>
-
-    <ul class="list-reset flex ">
-      <li v-for="second in picker.minute.seconds" :key="second">
-        <span
-          class="dot"
-          :class="{ highlight: picker.minute.isNow(second) }"
-        ></span>
-        {{ format(second, "s") }}
-      </li>
-    </ul>
-
-    <transition name="fade" mode="out-in">
-      <ul class="list-reset month-grid" :key="picker.browsing">
-        <li
-          v-for="day in picker.month.weekDays"
-          @click="picker.pick(day)"
-          :key="day"
-        >
-          <button
-            :disabled="!picker.isSameMonth(picker.browsing, day)"
-            class="day"
-            :class="{
-              'bg-passive': picker.isToday(day),
-              'bg-active':
-                picker.selected && picker.isSameDay(picker.selected, day)
-            }"
-          >
-            {{ format(day, "d") }}
-          </button>
-        </li>
-      </ul>
-    </transition>
-
-    <div class="my-calendar-header">
-      <button @click="picker.day.prev()">&larr;</button>
-      <span :class="{ highlight: picker.day.isSame }"
-        >day {{ format(picker.browsing, "E, d, dddd") }}</span
-      >
-      <button @click="picker.day.next()">&rarr;</button>
-    </div>
+        <div>
+          <PickleUnit :timeunit="year" v-model:picked="pickle.picked" />
+          <transition name="fade" mode="out-in">
+            <PickleGrid
+              :columns="3"
+              :gap="12"
+              :key="year.name"
+              :timeunit="yearMonths"
+              v-model:picked="pickle.picked"
+            >
+              <template #default="{unit, index}">
+                <h1
+                  :class="{ 'text-orange-500': unit.isNow.value }"
+                  class="text-white text-xl py-2  capitalize leading-normal tracking-wide"
+                >
+                  {{ pickle.f(unit.raw.value, { month: "long" }) }}
+                </h1>
+                <PickleGrid
+                  :offset="unit.weekDay.value"
+                  :columns="7"
+                  :timeunit="monthDays[index]"
+                  v-model:picked="pickle.picked"
+                >
+                  <template #default="{unit}">
+                    <PickleCell :unit="unit" />
+                  </template>
+                </PickleGrid>
+              </template>
+            </PickleGrid>
+          </transition>
+        </div>
+      </header>
+    </article>
   </div>
 </template>
+
 <script>
-import TimeInterval from "./TimeInterval";
-
-import useDatePicker from "./../use/useDatePicker.js";
-import useCurrentDateTime from "./../use/useCurrentDateTime";
-import Week from "./Week";
-import WeekDayNames from "./WeekDayNames";
-import Month from "./Month";
-import YearMonth from "./YearMonth";
-import YearQuarter from "./YearQuarter";
-
-import { ref } from "vue";
-import { format } from "date-fns";
+import { usePickle } from "@/use/usePickle"
+import { ref, watch, computed } from "vue"
+import PickleUnit from "./PickleUnit"
+import PickleGrid from "./PickleGrid"
+import PickleCell from "./PickleCell"
+import useYear from "./../use/useYear"
+// import useDay from "../use/useDay";
 
 export default {
-  setup() {
-    const { now } = useCurrentDateTime();
-    const events = ref([]);
-    const selected = ref("");
-
-    const picker = useDatePicker({
-      now,
-      events,
-      selected
-    });
-
-    return { picker, format, now };
-  },
+  props: ["date"],
   components: {
-    TimeInterval,
-    Week,
-    WeekDayNames,
-    Month,
-    YearMonth,
-    YearQuarter
+    PickleUnit,
+    PickleGrid,
+    PickleCell
+  },
+  setup(props, context) {
+    const now = ref(new Date())
+
+    const pickle = usePickle({
+      now,
+      date: props.date,
+      locale: "en"
+    })
+
+    const year = useYear(pickle)
+
+    const yearMonths = computed(() => pickle.divide(year, "month"))
+
+    const monthDays = computed(() =>
+      yearMonths.value.map((month) => pickle.divide(month, "day"))
+    )
+
+    watch(
+      () => pickle.picked.value,
+      (n) => {
+        context.emit("update:date", n)
+      }
+    )
+
+    const select = (n) => {
+      context.emit("update:date", n)
+    }
+
+    return { select, pickle, year, yearMonths, monthDays }
   }
-};
+}
 </script>

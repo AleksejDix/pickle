@@ -1,52 +1,61 @@
 import {
-  computed
+  computed,
+  isRef,
+  ref
 } from 'vue'
+
 import {
   isSameQuarter,
   add,
   sub,
   startOfQuarter,
   endOfQuarter,
-  getDay
+  
 } from "date-fns";
 
-import {
-  each
-} from './each'
-export default function useYear(options) {
+import {same} from './usePickle'
 
-  const isSame = computed(() => isSameQuarter(options.now.value, options.browsing.value))
+const isSame = (a,b) => same(a,b, 'yearQuarter')
 
-  const start = computed(() => startOfQuarter(options.browsing.value))
-  const end = computed(() => endOfQuarter(options.browsing.value))
+export default function useYearQuarter(options) {
 
-  const days = computed(() => each({
-    start: start.value,
-    end: end.value,
-    step: {
-      days: 1
-    }
-  }))
+  const now = isRef(options.now) ? options.now : ref(options.now)
+  const browsing = isRef(options.browsing) ? options.browsing : ref(options.browsing)
 
-  const weekDay = () => getDay(start.value)
+  const isNow = computed(() => isSameQuarter(now.value, browsing.value))
+  const start = computed(() => startOfQuarter(browsing.value))
+  const end = computed(() => endOfQuarter(browsing.value))
+  const number = computed(() => format(browsing.value))
+  const raw = computed(() => browsing.value)
+  const timespan = computed(() => ({start: start.value, end: end.value}))
+  const name = computed(() => `Quartal ${number.value}`)
 
-  const prev = () => {
-    options.browsing.value = sub(options.browsing.value, {
+  const format = (date) => {
+    return Math.ceil(+date.toLocaleDateString('en-US', { month: "numeric" }) / 3)
+  }
+
+  const future = () => {
+    browsing.value = add(browsing.value, {
       months: 3
     })
   }
-  const next = () => {
-    options.browsing.value = add(options.browsing.value, {
+
+  const past = () => {
+    browsing.value = sub(browsing.value, {
       months: 3
     })
   }
 
   return {
-    next,
-    prev,
+    future,
+    past,
+    timespan,
+    isNow,
+    number,
+    name,
+    format,
+    raw,
     isSame,
-    days,
-    weekDay,
-    isSameQuarter
+    browsing
   }
 }

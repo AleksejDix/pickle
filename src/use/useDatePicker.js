@@ -1,13 +1,15 @@
 import {
   isToday,
   isSameDay,
-  isSameMonth
+  isSameMonth,
+  isSameHour
 } from "date-fns";
 
 import {
   ref,
   unref,
 } from 'vue'
+
 
 import useMillenium from "./../use/useMillenium.js";
 import useCentury from "./../use/useCentury.js";
@@ -23,26 +25,13 @@ import useMinute from "./../use/useMinute.js";
 
 export default function useDatePicker(options) {
 
+  const now = ref(new Date())
+  const browsing = ref(unref(now))
+  const selected = ref(options.selected.value ? unref(options.selected) : unref(now))
+
   const weekStartsOn = ref(options.weekStartsOn)
 
-  const browsing = ref(unref(options.now))
-
-  const selected = ref(options.selected.value ? unref(options.selected) : unref(options.now))
-
-
-  const now = options.now
-  const events = ref([{
-      start: new Date(2020, 4, 8),
-      end: new Date(2020, 4, 20),
-    },
-    {
-      start: new Date(2020, 4, 12),
-      end: new Date(2020, 4, 22)
-    }, {
-      start: new Date(2020, 4, 10),
-      end: new Date(2020, 4, 13)
-    }
-  ])
+  const events = ref(options.events)
 
   const millenium = useMillenium({
     browsing,
@@ -118,10 +107,31 @@ export default function useDatePicker(options) {
     browsing.value = e
   }
 
+  const pickHour = (e) => {
+    if (isSameHour(selected.value, e)) {
+      selected.value = null
+    } else {
+      selected.value = e
+    }
+    browsing.value = e
+  }
+
   const pickSecond = (e) => {
     events.value.push({
-      start: selected.value,
-      end: e
+      timespan: {
+        start: selected.value,
+        end: e
+      }
+    })
+    browsing.value = e
+  }
+
+  const pickSecondHour = (e) => {
+    events.value.push({
+      timespan: {
+        start: selected.value,
+        end: e
+      }
     })
     browsing.value = e
   }
@@ -143,7 +153,9 @@ export default function useDatePicker(options) {
     minute,
     browsing,
     pick,
+    pickHour,
     pickSecond,
+    pickSecondHour,
     now,
     events,
     selected

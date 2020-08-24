@@ -4,7 +4,7 @@ export default function useCurrentDateTime() {
 
   watchEffect((stop) => {
   
-      const intervalId = setInterval(() => now.value = new Date(), 1000 );
+      const intervalId = setInterval(() => now.value = new Date(), 4000 );
 
       stop(() => {
         clearInterval(intervalId);

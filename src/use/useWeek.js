@@ -1,81 +1,60 @@
 import {
-  computed
+  computed,
+  isRef,
+  ref,
 } from 'vue'
+
 import {
-  isSameWeek,
   add,
   sub,
   startOfWeek,
   endOfWeek,
-  getDay,
-  isWithinInterval,
-  isSameDay
+  getWeek
 } from "date-fns";
 
-import {
-  each
-} from './each'
-export default function useWeek(options = {
-  weekStartsOn: 1
-}) {
+import {same} from './usePickle'
 
-  const isSame = computed(() => isSameWeek(options.now.value, options.browsing.value))
+const isSame = (a,b) => same(a,b, 'week')
 
-  const start = computed(() => startOfWeek(options.browsing.value, {
-    weekStartsOn: 1
-  }))
-  const end = computed(() => endOfWeek(options.browsing.value, {
-    weekStartsOn: 1
-  }))
+export default function useWeek(options) {
 
-  const weekInterval = computed(() => ({
-    start: start.value,
-    end: end.value,
-    step: {
-      days: 1
-    }
-  }))
+  const now = isRef(options.now) ? options.now : ref(options.now)
+  const browsing = isRef(options.browsing) ? options.browsing : ref(options.browsing)
 
-  const scheduleDay = (date) => {
-    const events = options.events.value
-      .filter(event => isWithinInterval(date, event)).map(({
-        start,
-        end
-      }) => ({
-        isStart: isSameDay(date, start),
-        isEnd: isSameDay(date, end),
-        isWithing: isWithinInterval(date, {
-          start,
-          end
-        })
-      }))
+  const isNow = computed(() => isSame(now.value, browsing.value))
+  const start = computed(() => startOfWeek(options.browsing.value, { weekStartsOn: 1 }))
+  const end = computed(() => endOfWeek(options.browsing.value, { weekStartsOn: 1 }))
+  const number = computed(() => format(browsing.value))
+  const raw = computed(() => browsing.value)
+  const timespan = computed(() => ({start: start.value, end: end.value}))
+  const name = computed(() => number.value)
 
-    return {
-      date,
-      events,
-    }
+  const format = (date) => {
+    return getWeek(date, { weekStartsOn: 1 })
   }
 
-  const days = computed(() => each(weekInterval.value).map(scheduleDay))
-
-  const weekDay = (day) => getDay(day)
-
-  const prev = () => {
-    options.browsing.value = sub(options.browsing.value, {
-      weeks: 1
-    })
-  }
-  const next = () => {
+  const future = () => {
     options.browsing.value = add(options.browsing.value, {
       weeks: 1
     })
   }
 
+  const past = () => {
+    options.browsing.value = sub(options.browsing.value, {
+      weeks: 1
+    })
+  }
+
   return {
-    next,
-    prev,
+    future,
+    past,
+    timespan,
+    isNow,
+    number,
+    name, 
+    format,
+    raw,
     isSame,
-    weekDay,
-    days
+    browsing
   }
 }

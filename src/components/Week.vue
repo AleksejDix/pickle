@@ -1,6 +1,6 @@
 <template>
   <transition name="fade" mode="out-in">
-    <div :key="picker.browsing" class="grid grid-cols-7 row-gap-1">
+    <div class="grid grid-cols-7 row-gap-1" :key="picker.week.number">
       <div
         class="relative padding-t-full"
         :key="day.date"
@@ -64,10 +64,10 @@
 <script>
 export default {
   props: ["picker"]
-};
+}
 </script>
 
-<style >
+<style>
 .padding-t-full {
   padding-top: 100%;
 }

@@ -1,58 +1,67 @@
 import {
-  computed
+  computed,
+  isRef,
+  ref,
 } from 'vue'
+
 import {
-  isSameYear,
   add,
   sub,
   startOfYear,
-  endOfYear
+  endOfYear,
+  getDay
 } from "date-fns";
 
-import {
-  each
-} from './each'
+import {same} from './usePickle'
 
+const isSame = (a,b) => same(a,b, 'year')
 export default function useYear(options) {
 
-  const isSame = computed(() => isSameYear(options.now.value, options.browsing.value))
+  const now = isRef(options.now) ? options.now : ref(options.now)
+  const browsing = isRef(options.browsing) ? options.browsing : ref(options.browsing)
 
-  const start = computed(() => startOfYear(options.browsing.value))
-  const end = computed(() => endOfYear(options.browsing.value))
+  const isNow = computed(() => isSame(now.value, browsing.value))
 
-  const months = computed(() => each({
-    start: start.value,
-    end: end.value,
-    step: {
-      months: 1
-    }
-  }))
+  const start = computed(() => startOfYear(browsing.value))
+  const end = computed(() => endOfYear(browsing.value))
+  
+  const number = computed(() => format(browsing.value))
+  const raw = computed(() => browsing.value)
+  
+  const timespan = computed(() => ({start: start.value, end: end.value}))
+  const name = computed(() => number.value)
+  
+  const format = (date) => {
+    return date.getFullYear()
+  }
 
-  const quartals = computed(() => each({
-    start: start.value,
-    end: end.value,
-    step: {
-      months: 3
-    }
-  }))
-
-
-  const prev = () => {
-    options.browsing.value = sub(options.browsing.value, {
+  const future = () => {
+    browsing.value = add(browsing.value, {
       years: 1
     })
   }
-  const next = () => {
-    options.browsing.value = add(options.browsing.value, {
+  const past = () => {
+    browsing.value = sub(browsing.value, {
       years: 1
     })
   }
+
+  const weekDay = computed(() => {
+    const day = getDay(start.value)
+    return day === 0 ? 7 : day
+  })
 
   return {
-    next,
-    prev,
+    future,
+    past,
+    timespan,
+    isNow,
+    number,
+    name, 
+    format,
+    raw,
     isSame,
-    months,
-    quartals
+    browsing,
+    weekDay
   }
 }

@@ -1,6 +1,6 @@
 <template>
   <transition name="fade" mode="out-in">
-    <div :key="picker.browsing" class="grid grid-cols-7 row-gap-1">
+    <div class="grid grid-cols-7 row-gap-1" :key="picker.month.number">
       <div
         class="relative padding-t-full"
         :key="day.date"
@@ -12,6 +12,7 @@
         }"
       >
         <button
+          :title="day.date"
           @click.exact="picker.pick(day.date)"
           @click.shift="picker.pickSecond(day.date)"
           class="absolute inset-0 p-4 w-full rounded-full focus:outline-none focus:shadow-outline"
@@ -64,11 +65,5 @@
 <script>
 export default {
   props: ["picker"]
-};
-</script>
-
-<style >
-.padding-t-full {
-  padding-top: 100%;
 }
-</style>
+</script>
