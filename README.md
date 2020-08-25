@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # pickle
 Vue3 Date Picker Composables
 =======
@@ -26,4 +26,3 @@ yarn lint
 
 ### Customize configuration
 See [Configuration Reference](https://cli.vuejs.org/config/).
->>>>>>> init
