@@ -10,7 +10,7 @@
   "dependencies": {
     "core-js": "^3.6.4",
     "date-fns": "^2.12.0",
-    "npm": "^6.14.4",
+    "npm": "^6.14.6",
     "tailwindcss": "^1.4.4",
     "vue": "^3.0.0-rc.7"
   },
