@@ -39,10 +39,6 @@ export interface CreateTemporalOptions {
   locale?: string | Ref<string>;
 }
 
-// Backward compatibility - deprecated
-/** @deprecated Use CreateTemporalOptions instead */
-export interface UsePickleOptions extends CreateTemporalOptions {}
-
 export interface UseTimeUnitOptions {
   now: Date | Ref<Date>;
   browsing: Date | Ref<Date>;
@@ -56,8 +52,8 @@ export interface UseDatePickerOptions {
   events?: Event[];
 }
 
-// Pickle Core Interface
-export interface PickleCore {
+// Temporal Core Interface
+export interface TemporalCore {
   browsing: Ref<Date>;
   picked: Ref<Date>;
   now: Ref<Date>;
@@ -85,18 +81,18 @@ export interface DatePickerProps {
   events?: Event[];
 }
 
-export interface PickleGridProps {
+export interface TemporalGridProps {
   columns: number;
   gap?: number;
   offset?: number;
   timeunit: TimeUnit | TimeUnit[];
 }
 
-export interface PickleCellProps {
+export interface TemporalCellProps {
   unit: TimeUnit;
 }
 
-export interface PickleUnitProps {
+export interface TemporalUnitProps {
   timeunit: TimeUnit;
 }
 
@@ -105,11 +101,11 @@ export interface DatePickerEmits {
   "update:date": [date: Date];
 }
 
-export interface PickleGridEmits {
+export interface TemporalGridEmits {
   "update:picked": [date: Date];
 }
 
-export interface PickleUnitEmits {
+export interface TemporalUnitEmits {
   "update:picked": [date: Date];
 }
 

@@ -1,7 +1,7 @@
 import { ref, unref, isRef, type Ref } from "vue";
 import type {
-  UsePickleOptions as CreateTemporalOptions,
-  PickleCore,
+  CreateTemporalOptions,
+  TemporalCore,
   TimeUnit,
   TimeUnitType,
 } from "../types";
@@ -81,7 +81,7 @@ export const same = (
 //     }
 //   }
 
-export function createTemporal(options: CreateTemporalOptions): PickleCore {
+export function createTemporal(options: CreateTemporalOptions): TemporalCore {
   const date: Ref<Date> = isRef(options.date)
     ? options.date
     : ref(options.date);
@@ -119,12 +119,4 @@ export function createTemporal(options: CreateTemporalOptions): PickleCore {
   }
 
   return { browsing, picked, now, divide, f };
-}
-
-// Backward compatibility - deprecated
-export function usePickle(options: CreateTemporalOptions): PickleCore {
-  console.warn(
-    "usePickle() is deprecated and will be removed in v3.0. Use createTemporal() instead."
-  );
-  return createTemporal(options);
 }

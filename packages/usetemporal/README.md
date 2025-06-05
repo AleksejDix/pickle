@@ -65,8 +65,8 @@ Every time scale uses the same consistent interface:
 ```
 packages/usetemporal/src/
 ├── core/           # Core temporal functionality
-│   ├── usePickle.ts    # Main temporal composable
-│   └── index.ts        # Core exports
+│   ├── createTemporal.ts   # Main temporal composable
+│   └── index.ts            # Core exports
 ├── composables/    # Time unit composables
 │   ├── useYear.ts      # Year-level operations
 │   ├── useMonth.ts     # Month-level operations
@@ -87,7 +87,6 @@ packages/usetemporal/src/
 
 - `createTemporal()` - Main temporal instance
 - `useTemporal()` - Alias for createTemporal
-- `usePickle()` - Deprecated alias (use createTemporal)
 
 ### Time Units (Hierarchical)
 

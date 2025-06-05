@@ -244,7 +244,7 @@
             <h3 class="text-lg font-semibold mb-4">Current Year → Months</h3>
             <div class="mb-4">
               <code class="bg-gray-800 text-green-400 px-4 py-2 rounded block">
-                const months = pickle.divide(year, 'month'); //
+                const months = temporal.divide(year, 'month'); //
                 {{ months.length }} months
               </code>
             </div>
@@ -264,7 +264,7 @@
             <h3 class="text-lg font-semibold mb-4">Current Month → Days</h3>
             <div class="mb-4">
               <code class="bg-gray-800 text-green-400 px-4 py-2 rounded block">
-                const days = pickle.divide(month, 'day'); //
+                const days = temporal.divide(month, 'day'); //
                 {{ monthDays.length }} days
               </code>
             </div>
@@ -312,7 +312,7 @@
             synchronization.
           </p>
           <code class="text-sm bg-gray-100 p-2 rounded block">
-            pickle.divide(year, 'month')
+            temporal.divide(year, 'month')
           </code>
         </div>
 
@@ -343,8 +343,8 @@ import {
   useHour,
 } from "usetemporal";
 
-// Core pickle instance
-const pickle = createTemporal({
+// Core temporal instance
+const temporal = createTemporal({
   date: new Date(),
   now: new Date(),
   locale: "en-US",
@@ -359,29 +359,29 @@ const demos = [
 const currentDemo = ref("basic");
 
 // Time units
-const year = useYear(pickle);
-const selectedMonth = useMonth(pickle);
+const year = useYear(temporal);
+const selectedMonth = useMonth(temporal);
 
 // Derived data using divide() pattern
-const months = pickle.divide(year, "month");
-const monthDays = pickle.divide(selectedMonth, "day");
+const months = temporal.divide(year, "month");
+const monthDays = temporal.divide(selectedMonth, "day");
 
 // Hierarchy demo units
 const hierarchyUnits = computed(() => ({
-  year: useYear(pickle),
-  month: useMonth(pickle),
-  day: useDay(pickle),
-  hour: useHour(pickle),
+  year: useYear(temporal),
+  month: useMonth(temporal),
+  day: useDay(temporal),
+  hour: useHour(temporal),
 }));
 
 // Methods
 const selectMonth = (month: any) => {
-  pickle.picked.value = month.raw.value;
+  temporal.picked.value = month.raw.value;
 };
 
 const resetToNow = () => {
-  pickle.picked.value = new Date();
-  pickle.now.value = new Date();
+  temporal.picked.value = new Date();
+  temporal.now.value = new Date();
 };
 </script>
 
