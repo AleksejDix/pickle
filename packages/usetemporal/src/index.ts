@@ -13,5 +13,5 @@ export * from "./composables";
 // Export utility composables and functions
 export * from "./utils";
 
-// Default export - the main useTemporal composable
-export { usePickle as default } from "./core";
+// Default export - the main createTemporal function
+export { createTemporal as default } from "./core";

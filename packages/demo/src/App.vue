@@ -335,10 +335,16 @@
 
 <script setup lang="ts">
 import { ref, computed } from "vue";
-import { usePickle, useYear, useMonth, useDay, useHour } from "usetemporal";
+import {
+  createTemporal,
+  useYear,
+  useMonth,
+  useDay,
+  useHour,
+} from "usetemporal";
 
 // Core pickle instance
-const pickle = usePickle({
+const pickle = createTemporal({
   date: new Date(),
   now: new Date(),
   locale: "en-US",

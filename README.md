@@ -73,9 +73,9 @@ npm install usetemporal
 
 ```typescript
 // Vue 3 Composition API
-import { usePickle, useYear, useMonth } from "usetemporal";
+import { createTemporal, useYear, useMonth } from "usetemporal";
 
-const temporal = usePickle({
+const temporal = createTemporal({
   date: new Date(),
   locale: "en-US",
 });
@@ -91,7 +91,7 @@ We're currently implementing a **massive transformation** to make useTemporal th
 ### **🏗️ Five Pillar Strategy**
 
 1. **📦 Date Adapter Plugin System** - Zero dependencies, support all date libraries
-2. **🎨 Professional API Naming** - `usePickle()` → `createTemporal()`
+2. **🎨 Professional API Naming** - `usePickle()` → `createTemporal()` ✅
 3. **⚡ Bundle Optimization** - 69% size reduction (15KB → 4.7KB)
 4. **🌍 Framework-Agnostic** - Vue, React, Angular, Svelte, Vanilla JS
 5. **🚀 Modern Reactive Core** - Functional architecture with `@vue/reactivity`
@@ -121,7 +121,7 @@ Every time scale uses the same consistent interface:
 Divide any time unit into smaller units with perfect synchronization:
 
 ```typescript
-const temporal = usePickle();
+const temporal = createTemporal();
 
 // Infinite subdivision possibilities
 const year = useYear(temporal);

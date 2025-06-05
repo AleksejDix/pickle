@@ -1,5 +1,5 @@
 // Core temporal functionality
-export { usePickle, same } from "./usePickle";
+export { createTemporal, usePickle, same } from "./usePickle";
 
-// Re-export for backward compatibility
-export { usePickle as useTemporal } from "./usePickle";
+// Main export alias
+export { createTemporal as useTemporal } from "./usePickle";

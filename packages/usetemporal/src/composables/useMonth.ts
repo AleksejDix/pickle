@@ -9,7 +9,7 @@ import {
   format as formatDate,
 } from "date-fns";
 
-import { same } from "./usePickle";
+import { same } from "../core/usePickle";
 import type { ExtendedTimeUnit, UseTimeUnitOptions } from "../types";
 
 const isSame = (a: Date, b: Date): boolean => same(a, b, "month");

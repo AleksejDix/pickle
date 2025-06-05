@@ -14,10 +14,10 @@ npm install usetemporal
 ```
 
 ```typescript
-import { usePickle, useYear, useMonth } from "usetemporal";
+import { createTemporal, useYear, useMonth } from "usetemporal";
 
 // Create temporal instance
-const temporal = usePickle({
+const temporal = createTemporal({
   date: new Date(),
   locale: "en-US",
 });
@@ -38,7 +38,7 @@ year.name.value; // "2024"
 Divide any time unit into smaller units with perfect synchronization:
 
 ```typescript
-const temporal = usePickle();
+const temporal = createTemporal();
 
 // Infinite subdivision possibilities
 const year = useYear(temporal);
@@ -85,8 +85,9 @@ packages/usetemporal/src/
 
 ### Core
 
-- `usePickle()` - Main temporal instance
-- `useTemporal()` - Alias for usePickle
+- `createTemporal()` - Main temporal instance
+- `useTemporal()` - Alias for createTemporal
+- `usePickle()` - Deprecated alias (use createTemporal)
 
 ### Time Units (Hierarchical)
 
@@ -131,17 +132,17 @@ While built with Vue 3 reactivity, useTemporal works with any JavaScript framewo
 ```typescript
 // React
 import { useEffect } from "react";
-import { usePickle, useYear } from "usetemporal";
+import { createTemporal, useYear } from "usetemporal";
 
 // Angular
 import { Component } from "@angular/core";
-import { usePickle, useYear } from "usetemporal";
+import { createTemporal, useYear } from "usetemporal";
 
 // Svelte
-import { usePickle, useYear } from "usetemporal";
+import { createTemporal, useYear } from "usetemporal";
 
 // Vanilla JS
-import { usePickle, useYear } from "usetemporal";
+import { createTemporal, useYear } from "usetemporal";
 ```
 
 ## 📚 Documentation

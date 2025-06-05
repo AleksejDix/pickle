@@ -33,11 +33,15 @@ export interface ExtendedTimeUnit extends TimeUnit {
 }
 
 // Composable Options
-export interface UsePickleOptions {
+export interface CreateTemporalOptions {
   date: Date | Ref<Date>;
   now?: Date | Ref<Date>;
   locale?: string | Ref<string>;
 }
+
+// Backward compatibility - deprecated
+/** @deprecated Use CreateTemporalOptions instead */
+export interface UsePickleOptions extends CreateTemporalOptions {}
 
 export interface UseTimeUnitOptions {
   now: Date | Ref<Date>;

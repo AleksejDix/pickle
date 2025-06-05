@@ -2,7 +2,7 @@ import { computed, isRef, ref, type Ref, type ComputedRef } from "vue";
 
 import { add, sub, startOfYear, endOfYear, getDay } from "date-fns";
 
-import { same } from "./usePickle.js";
+import { same } from "../core/usePickle";
 import type { UseTimeUnitOptions, ExtendedTimeUnit } from "../types";
 
 const isSame = (a: Date, b: Date): boolean => same(a, b, "year");

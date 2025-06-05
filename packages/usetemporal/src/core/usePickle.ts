@@ -1,15 +1,15 @@
 import { ref, unref, isRef, type Ref } from "vue";
 import type {
-  UsePickleOptions,
+  UsePickleOptions as CreateTemporalOptions,
   PickleCore,
   TimeUnit,
   TimeUnitType,
 } from "../types";
 
-import useYear from "./useYear";
-import useMonth from "./useMonth";
-import useWeek from "./useWeek";
-import useDay from "./useDay";
+import useYear from "../composables/useYear";
+import useMonth from "../composables/useMonth";
+import useWeek from "../composables/useWeek";
+import useDay from "../composables/useDay";
 
 import {
   // isWithinInterval,
@@ -81,7 +81,7 @@ export const same = (
 //     }
 //   }
 
-export function usePickle(options: UsePickleOptions): PickleCore {
+export function createTemporal(options: CreateTemporalOptions): PickleCore {
   const date: Ref<Date> = isRef(options.date)
     ? options.date
     : ref(options.date);
@@ -111,7 +111,7 @@ export function usePickle(options: UsePickleOptions): PickleCore {
       return [];
     }
 
-    return dates.map((date) => composableFn(usePickle({ now, date })));
+    return dates.map((date) => composableFn(createTemporal({ now, date })));
   }
 
   function f(date: Date, timeoptions: Intl.DateTimeFormatOptions): string {
@@ -119,4 +119,12 @@ export function usePickle(options: UsePickleOptions): PickleCore {
   }
 
   return { browsing, picked, now, divide, f };
+}
+
+// Backward compatibility - deprecated
+export function usePickle(options: CreateTemporalOptions): PickleCore {
+  console.warn(
+    "usePickle() is deprecated and will be removed in v3.0. Use createTemporal() instead."
+  );
+  return createTemporal(options);
 }
