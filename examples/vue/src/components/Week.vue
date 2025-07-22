@@ -1,0 +1,74 @@
+<template>
+  <transition name="fade" mode="out-in">
+    <div :key="picker.week.number" class="grid grid-cols-7 row-gap-1">
+      <div
+        v-for="(day, index) in picker.week.days"
+        :key="day.date"
+        class="relative padding-t-full"
+        v-bind="{
+          ...(index === 0 && {
+            style: { 'grid-column-start': picker.week.weekDay(day.date) },
+          }),
+        }"
+      >
+        <button
+          class="absolute inset-0 p-4 w-full rounded-full focus:outline-none focus:shadow-outline"
+          @click.exact="picker.pick(day.date)"
+          @click.shift="picker.pickSecond(day.date)"
+        >
+          <div class="flex justify-center space-x-1">
+            <div v-for="(event, index) in day.events" :key="index">
+              <div
+                class="absolute inset-0 bg-opacity-50 bg-gray-800 border-gray-500 border-opacity-50"
+                :class="{
+                  'bg-orange-900': event.color === 'orange',
+                  'border-l-4 rounded-l-full': event.isStart && !event.isEnd,
+                  'border-b-4 border-t-4': event.isWithing,
+                  'border-r-4 rounded-r-full': event.isEnd && !event.isStart,
+                  'border-4 rounded-full': event.isStart && event.isEnd,
+                }"
+              />
+              <div
+                :class="{
+                  'm-1 ml z-10 bg-gray-900 rounded-full absolute inset-0 ':
+                    event.isStart || event.isEnd,
+                }"
+              />
+            </div>
+          </div>
+
+          <div
+            v-if="
+              picker.selected && picker.day.isSameDay(day.date, picker.selected)
+            "
+            class="absolute inset-0 bg-opacity-50 border-orange-500 border-4 rounded-full"
+          />
+
+          <div
+            class="z-10 absolute inset-0 flex justify-center items-center"
+            :class="{
+              'text-white':
+                picker.selected &&
+                picker.day.isSameDay(day.date, picker.selected),
+              'text-orange-500': picker.day.isSameDay(day.date, picker.now),
+            }"
+          >
+            <slot :day="day.date" />
+          </div>
+        </button>
+      </div>
+    </div>
+  </transition>
+</template>
+
+<script>
+export default {
+  props: ["picker"],
+};
+</script>
+
+<style>
+.padding-t-full {
+  padding-top: 100%;
+}
+</style>

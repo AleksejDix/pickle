@@ -1,0 +1,29 @@
+{
+  "rules": {
+    "no-unused-vars": "error",
+    "no-console": "warn",
+    "no-debugger": "error",
+    "no-empty": "error",
+    "no-duplicate-imports": "error",
+    "prefer-const": "error",
+    "no-var": "error",
+    "no-undef": "error",
+    "no-unreachable": "error",
+    "no-constant-condition": "error",
+    "no-empty-pattern": "error",
+    "no-fallthrough": "error",
+    "no-sparse-arrays": "error",
+    "valid-typeof": "error",
+    "eqeqeq": ["error", "always"],
+    "no-implicit-coercion": "error",
+    "no-throw-literal": "error",
+    "prefer-arrow-callback": "error",
+    "no-param-reassign": "error"
+  },
+  "env": {
+    "browser": true,
+    "es2022": true,
+    "node": true
+  },
+  "ignorePatterns": ["node_modules", "dist", "coverage", "*.min.js", "*.d.ts"]
+}

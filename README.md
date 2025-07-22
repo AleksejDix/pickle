@@ -1,6 +1,6 @@
-# useTemporal - Revolutionary Time Library
+# useTemporal
 
-**The only JavaScript time library with the revolutionary `divide()` pattern**
+**Revolutionary time library with the unique `divide()` pattern**
 
 ```typescript
 // Divide any time unit into smaller units
@@ -9,166 +9,152 @@ const days = temporal.divide(month, "day");
 const hours = temporal.divide(day, "hour");
 ```
 
-## 🏗️ Monorepo Structure
+## 🚀 Features
 
-This repository is organized as a monorepo with clear separation between the library and demo application:
+- **🧩 Revolutionary divide() Pattern**: Infinitely subdivide time units with perfect synchronization
+- **🌍 Framework Agnostic**: Works with Vue, React, Angular, Svelte, and vanilla JavaScript
+- **⚡ Zero Dependencies**: Native adapter provides full functionality without external libraries
+- **🔄 Reactive by Design**: Built on `@vue/reactivity` for automatic updates
+- **🎯 TypeScript First**: Full type safety and excellent IDE support
+- **📦 Tree Shakeable**: Import only what you need
 
-```
-├── packages/
-│   ├── usetemporal/          # 📚 Core Library Package
-│   │   ├── src/
-│   │   │   ├── use/          # Composables (useYear, useMonth, etc.)
-│   │   │   ├── types/        # TypeScript definitions
-│   │   │   └── index.ts      # Main export
-│   │   ├── package.json      # Library dependencies
-│   │   └── vite.config.ts    # Library build config
-│   │
-│   └── demo/                 # 🎨 Demo Application
-│       ├── src/
-│       │   ├── components/   # Vue components
-│       │   ├── App.vue       # Demo application
-│       │   └── main.ts       # Demo entry point
-│       ├── package.json      # Demo dependencies
-│       └── vite.config.ts    # Demo build config
-│
-├── research/                 # 📋 Strategic Planning
-│   ├── RFC-001-Date-Adapter-Plugin-System.md
-│   ├── RFC-002-API-Naming-Conventions.md
-│   ├── RFC-003-Bundle-Optimization-Tree-Shaking.md
-│   ├── RFC-004-Framework-Agnostic-Architecture.md
-│   ├── RFC-005-Reactive-Core-Architecture.md
-│   └── STRATEGY-SUMMARY.md
-│
-└── package.json              # Monorepo workspace config
-```
-
-## 🚀 Quick Start
-
-### Development
+## 📦 Installation
 
 ```bash
-# Install dependencies for all packages
-npm install
-
-# Start the demo application
-npm run dev
-# Opens http://localhost:8080
-
-# Build the library
-npm run build:lib
-
-# Build the demo
-npm run build:demo
-
-# Build everything
-npm run build
-```
-
-### Using the Library
-
-```bash
-# Install the library (when published)
 npm install usetemporal
 ```
 
+## 🎯 Quick Start
+
+### Basic Usage
+
 ```typescript
-// Vue 3 Composition API
-import { createTemporal, useYear, useMonth } from "usetemporal";
+import { createTemporal, useYear, useMonth } from 'usetemporal';
 
 const temporal = createTemporal({
   date: new Date(),
-  locale: "en-US",
+  locale: 'en-US'
 });
 
 const year = useYear(temporal);
-const months = temporal.divide(year, "month");
+const months = temporal.divide(year, 'month');
 ```
 
-## 🎯 v2.0 Roadmap
+### Vue Example
 
-We're currently implementing a **massive transformation** to make useTemporal the universal standard for time handling in JavaScript:
+```vue
+<script setup>
+import { createTemporal, useYear, useMonth } from 'usetemporal';
 
-### **🏗️ Five Pillar Strategy**
-
-1. **📦 Date Adapter Plugin System** - Zero dependencies, support all date libraries
-2. **🎨 Professional API Naming** - Eliminated "pickle" POC naming completely ✅
-3. **⚡ Bundle Optimization** - 69% size reduction (15KB → 4.7KB)
-4. **🌍 Framework-Agnostic** - Vue, React, Angular, Svelte, Vanilla JS
-5. **🚀 Modern Reactive Core** - Functional architecture with `@vue/reactivity`
-
-### **📊 Impact**
-
-- **5x Market Expansion**: 1M → 5M+ developers
-- **69% Bundle Reduction**: 15KB → 4.7KB
-- **Universal Compatibility**: All JavaScript frameworks
-- **Zero Breaking Changes**: Existing Vue users unaffected
-
-## 🔬 Revolutionary Features
-
-### **🧩 Hierarchical Design**
-
-Every time scale uses the same consistent interface:
-
-```typescript
-// Same API for all time units
-(year.past() === month.past()) === day.past();
-(year.future() === month.future()) === day.future();
-(year.isNow === month.isNow) === day.isNow;
-```
-
-### **⚡ divide() Pattern**
-
-Divide any time unit into smaller units with perfect synchronization:
-
-```typescript
 const temporal = createTemporal();
-
-// Infinite subdivision possibilities
 const year = useYear(temporal);
-const months = temporal.divide(year, "month"); // 12 months
-const weeks = temporal.divide(month, "week"); // ~4 weeks
-const days = temporal.divide(week, "day"); // 7 days
-const hours = temporal.divide(day, "hour"); // 24 hours
-const minutes = temporal.divide(hour, "minute"); // 60 minutes
+const months = temporal.divide(year, 'month');
+</script>
+
+<template>
+  <div>
+    <h2>{{ year.name.value }}</h2>
+    <div v-for="month in months" :key="month.key.value">
+      {{ month.name.value }}
+    </div>
+  </div>
+</template>
 ```
 
-### **🔄 Reactive by Design**
+### React Example
 
-Built on Vue 3 reactivity. Changes propagate automatically:
+```jsx
+import { createTemporal, useYear } from 'usetemporal';
+import { useEffect, useState } from 'react';
+
+function Calendar() {
+  const [temporal] = useState(() => createTemporal());
+  const [year, setYear] = useState(null);
+  
+  useEffect(() => {
+    const yearUnit = useYear(temporal);
+    setYear(yearUnit);
+  }, [temporal]);
+
+  return <div>{year?.name.value}</div>;
+}
+```
+
+## 🔬 Core Concepts
+
+### The divide() Pattern
+
+The revolutionary `divide()` method allows you to break down any time unit into its constituent parts:
 
 ```typescript
-// All connected units update automatically
-temporal.picked.value = new Date(2024, 5, 15);
-
-// Year, month, day, hour all reflect the change
-console.log(year.name.value); // "2024"
-console.log(month.name.value); // "June 2024"
-console.log(day.name.value); // "Saturday, June 15, 2024"
+const year = useYear(temporal);
+const months = temporal.divide(year, 'month');  // 12 months
+const weeks = temporal.divide(months[0], 'week'); // ~4 weeks
+const days = temporal.divide(weeks[0], 'day');    // 7 days
 ```
 
-## 🎨 Demo Application
+### Reactive Updates
 
-The demo application showcases all features with interactive examples:
+All time units stay synchronized automatically:
 
-- **🚀 Basic Demo**: Time navigation across scales
-- **🌳 Hierarchy**: See how all units stay synchronized
-- **🔄 divide() Pattern**: Visualize time subdivision
-- **📅 GitHub Chart**: Real-world calendar implementation
+```typescript
+// Change the date
+temporal.picked.value = new Date(2024, 11, 25);
 
-Visit the demo at `http://localhost:8080` after running `npm run dev`.
+// All units update automatically
+console.log(year.name.value);  // "2024"
+console.log(month.name.value); // "December 2024"
+```
 
-## 📚 Documentation
+## 🔌 Date Adapters
 
-Comprehensive documentation is available in the `docs/` directory and at our documentation site (coming soon).
+UseTemporal supports multiple date libraries through adapters:
 
-## 🤝 Contributing
+```typescript
+// Native JavaScript Date (default, zero dependencies)
+const temporal = createTemporal({ dateAdapter: 'native' });
 
-We welcome contributions! Please see our contributing guidelines and check out our RFC documents in the `research/` directory for strategic context.
+// date-fns (requires date-fns installation)
+const temporal = createTemporal({ dateAdapter: 'date-fns' });
+
+// Luxon (requires luxon installation)
+const temporal = createTemporal({ dateAdapter: 'luxon' });
+```
+
+## 📚 Examples
+
+Check out the `examples/` directory for complete examples:
+
+```bash
+# Run the Vue example
+npm run example:vue
+```
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+npm install
+
+# Build library
+npm run build
+
+# Run tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Type checking
+npm run type-check
+
+# Linting
+npm run lint
+
+# Format code
+npm run format
+```
 
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
----
-
-**Ready to revolutionize time handling in JavaScript?** 🕒✨
