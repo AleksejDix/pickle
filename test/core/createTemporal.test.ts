@@ -1,6 +1,6 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { isRef } from "@vue/reactivity";
-import { createTemporal } from "../../src/core/createTemporal";
+import { createTemporal, same } from "../../src/core/createTemporal";
 import { createTestDate } from "../setup";
 import { nativeAdapter } from "../../src/adapters/native";
 
@@ -247,6 +247,110 @@ describe("createTemporal", () => {
       expect(typeof temporal.adapter.endOf).toBe("function");
       expect(typeof temporal.adapter.isSame).toBe("function");
       expect(typeof temporal.adapter.eachInterval).toBe("function");
+    });
+  });
+
+  describe("divide() function", () => {
+    it("should have divide method", () => {
+      const temporal = createTemporal();
+      expect(typeof temporal.divide).toBe("function");
+    });
+
+    // TODO: Add more comprehensive divide tests once memory issue is resolved
+    // The divide function creates new temporal instances which causes memory issues in tests
+  });
+
+  describe("Reactive ref options", () => {
+    it("should accept ref for date option", async () => {
+      const { ref } = await import("@vue/reactivity");
+      const dateRef = ref(createTestDate(2024, 5, 15));
+      
+      const temporal = createTemporal({ date: dateRef });
+      
+      expect(temporal.picked).toBe(dateRef);
+      expect(temporal.picked.value).toEqual(dateRef.value);
+      
+      // Update ref and check if temporal reflects the change
+      dateRef.value = createTestDate(2025, 0, 1);
+      expect(temporal.picked.value).toEqual(createTestDate(2025, 0, 1));
+    });
+
+    it("should accept ref for now option", async () => {
+      const { ref } = await import("@vue/reactivity");
+      const nowRef = ref(createTestDate(2024, 0, 1));
+      
+      const temporal = createTemporal({ now: nowRef });
+      
+      expect(temporal.now).toBe(nowRef);
+      expect(temporal.now.value).toEqual(nowRef.value);
+    });
+
+    it("should accept ref for locale option", async () => {
+      const { ref } = await import("@vue/reactivity");
+      const localeRef = ref("fr-FR");
+      
+      const temporal = createTemporal({ locale: localeRef });
+      const testDate = createTestDate(2024, 0, 15);
+      
+      const formatted = temporal.f(testDate, { month: "long" });
+      expect(formatted).toBe("janvier");
+      
+      // Change locale and test again
+      localeRef.value = "en-US";
+      const formattedEn = temporal.f(testDate, { month: "long" });
+      expect(formattedEn).toBe("January");
+    });
+
+    it("should handle mix of refs and values", async () => {
+      const { ref } = await import("@vue/reactivity");
+      const dateRef = ref(createTestDate(2024, 5, 15));
+      const plainNow = createTestDate(2024, 0, 1);
+      
+      const temporal = createTemporal({ 
+        date: dateRef,
+        now: plainNow,
+        locale: "de-DE"
+      });
+      
+      expect(temporal.picked).toBe(dateRef);
+      expect(temporal.now.value).toEqual(plainNow);
+      expect(isRef(temporal.now)).toBe(true);
+    });
+  });
+
+  describe("same() helper function", () => {
+    it("should compare dates for same unit", () => {
+      const adapter = nativeAdapter;
+      
+      const date1 = createTestDate(2024, 0, 15, 10, 30);
+      const date2 = createTestDate(2024, 0, 15, 14, 45);
+      const date3 = createTestDate(2024, 0, 16);
+      
+      expect(same(date1, date2, "day", adapter)).toBe(true);
+      expect(same(date1, date3, "day", adapter)).toBe(false);
+      expect(same(date1, date2, "hour", adapter)).toBe(false);
+    });
+
+    it("should handle null/undefined dates", () => {
+      const adapter = nativeAdapter;
+      const date = createTestDate(2024, 0, 15);
+      
+      expect(same(null, date, "day", adapter)).toBe(false);
+      expect(same(date, null, "day", adapter)).toBe(false);
+      expect(same(undefined, date, "day", adapter)).toBe(false);
+      expect(same(date, undefined, "day", adapter)).toBe(false);
+      expect(same(null, null, "day", adapter)).toBe(false);
+      expect(same(undefined, undefined, "day", adapter)).toBe(false);
+    });
+
+    it("should work with different units", () => {
+      const adapter = nativeAdapter;
+      
+      const date1 = createTestDate(2024, 5, 15);
+      const date2 = createTestDate(2024, 6, 20);
+      
+      expect(same(date1, date2, "year", adapter)).toBe(true);
+      expect(same(date1, date2, "month", adapter)).toBe(false);
     });
   });
 });

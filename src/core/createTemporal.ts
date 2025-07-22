@@ -61,13 +61,11 @@ export function createTemporal(
     }
 
     return dates.map((date) =>
-      composableFn(
-        createTemporal({
-          now: now.value,
-          date,
-          dateAdapter: adapter,
-        })
-      )
+      composableFn({
+        now: now,
+        browsing: ref(date),
+        adapter: adapter,
+      })
     );
   }
 
