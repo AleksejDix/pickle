@@ -145,6 +145,9 @@ npm test
 # Run tests in watch mode
 npm run test:watch
 
+# Run tests with coverage
+npm run test:coverage
+
 # Type checking
 npm run type-check
 

@@ -11,12 +11,16 @@ export default defineConfig({
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
+      include: ["src/**/*.ts"],
       exclude: [
         "coverage/**",
         "dist/**",
         "test/**",
-        "vite.config.ts",
+        "examples/**",
+        "*.config.ts",
         "**/*.d.ts",
+        "src/**/*.test.ts",
+        "src/**/*.spec.ts",
       ],
     },
   },
