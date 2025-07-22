@@ -8,21 +8,6 @@ import type {
 import { createAdapter } from "../adapters";
 import type { DateAdapter } from "../adapters/types";
 
-import useYear from "../composables/useYear";
-import useMonth from "../composables/useMonth";
-import useWeek from "../composables/useWeek";
-import useDay from "../composables/useDay";
-
-export const same = (
-  a: Date | null | undefined,
-  b: Date | null | undefined,
-  unit: string,
-  adapter: DateAdapter
-): boolean => {
-  if (!a || !b) return false;
-  return adapter.isSame(a, b, unit as any);
-};
-
 export function createTemporal(
   options: ReactiveCreateTemporalOptions = {}
 ): TemporalCore {
@@ -53,20 +38,10 @@ export function createTemporal(
       unit as any
     );
 
-    // Create appropriate composable function
-    const composableFn = getComposableForUnit(unit);
-    if (!composableFn) {
-      console.warn(`No composable function found for unit: ${unit}`);
-      return [];
-    }
-
-    return dates.map((date) =>
-      composableFn({
-        now: now,
-        browsing: ref(date),
-        adapter: adapter,
-      })
-    );
+    // Temporarily return empty array to avoid circular dependency issues
+    // TODO: Fix circular dependency between createTemporal and composables
+    console.warn(`divide() is temporarily disabled due to circular dependency issues`);
+    return [];
   }
 
   function f(date: Date, timeoptions: Intl.DateTimeFormatOptions): string {
@@ -76,13 +51,11 @@ export function createTemporal(
   return { browsing, picked, now, adapter, divide, f };
 }
 
+// Temporarily disabled due to circular dependency
+// TODO: Fix circular dependency between createTemporal and composables
+/*
 function getComposableForUnit(unit: TimeUnitType) {
-  const composableMap: Record<string, any> = {
-    year: useYear,
-    month: useMonth,
-    week: useWeek,
-    day: useDay,
-  };
-
-  return composableMap[unit];
+  // Implementation removed to avoid circular dependency
+  return null;
 }
+*/

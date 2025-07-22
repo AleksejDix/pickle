@@ -8,7 +8,7 @@ import {
 
 import { add, sub, startOfWeek, endOfWeek, getWeek } from "date-fns";
 
-import { same } from "../core/createTemporal";
+import { same } from "../utils/same";
 import type { UseTimeUnitOptions, ExtendedTimeUnit } from "../types/reactive";
 
 export default function useWeek(options: UseTimeUnitOptions): ExtendedTimeUnit {

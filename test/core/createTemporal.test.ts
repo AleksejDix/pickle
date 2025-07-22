@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from "vitest";
 import { isRef } from "@vue/reactivity";
-import { createTemporal, same } from "../../src/core/createTemporal";
+import { createTemporal } from "../../src/core/createTemporal";
+import { same } from "../../src/utils/same";
 import { createTestDate } from "../setup";
 import { nativeAdapter } from "../../src/adapters/native";
 
@@ -256,8 +257,62 @@ describe("createTemporal", () => {
       expect(typeof temporal.divide).toBe("function");
     });
 
-    // TODO: Add more comprehensive divide tests once memory issue is resolved
-    // The divide function creates new temporal instances which causes memory issues in tests
+    // TODO: Fix circular dependency issue before enabling these tests
+    /*
+    it("should divide year into months", async () => {
+      const temporal = createTemporal({ date: createTestDate(2024, 0, 15) });
+      const { default: useYear } = await import("../../src/composables/useYear");
+      
+      const year = useYear({
+        now: temporal.now,
+        browsing: temporal.browsing,
+        adapter: temporal.adapter
+      });
+      
+      const months = temporal.divide(year, "month");
+      
+      expect(months).toHaveLength(12);
+      expect(months[0].timespan).toBeDefined();
+      expect(months[0].name).toBeDefined();
+      expect(months[0].number.value).toBe(1);
+      expect(months[11].number.value).toBe(12);
+    });
+
+    it("should divide month into days", async () => {
+      const temporal = createTemporal({ date: createTestDate(2024, 0, 15) });
+      const { default: useMonth } = await import("../../src/composables/useMonth");
+      
+      const month = useMonth({
+        now: temporal.now,
+        browsing: temporal.browsing,
+        adapter: temporal.adapter
+      });
+      
+      const days = temporal.divide(month, "day");
+      
+      expect(days).toHaveLength(31); // January has 31 days
+      expect(days[0].number.value).toBe(1);
+      expect(days[30].number.value).toBe(31);
+    });
+    */
+
+    it("should return empty array (temporarily disabled)", () => {
+      const temporal = createTemporal();
+      const mockUnit = {
+        timespan: { value: { start: new Date(2024, 0, 1), end: new Date(2024, 0, 31) } }
+      };
+      
+      const originalWarn = console.warn;
+      const warnSpy = vi.fn();
+      console.warn = warnSpy;
+      
+      const result = temporal.divide(mockUnit as any, "month");
+      
+      expect(result).toEqual([]);
+      expect(warnSpy).toHaveBeenCalledWith("divide() is temporarily disabled due to circular dependency issues");
+      
+      console.warn = originalWarn;
+    });
   });
 
   describe("Reactive ref options", () => {

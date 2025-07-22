@@ -15,7 +15,7 @@ import {
   format as formatDate,
 } from "date-fns";
 
-import { same } from "../core/createTemporal";
+import { same } from "../utils/same";
 import type { UseTimeUnitOptions, ExtendedTimeUnit } from "../types/reactive";
 
 export default function useMonth(
