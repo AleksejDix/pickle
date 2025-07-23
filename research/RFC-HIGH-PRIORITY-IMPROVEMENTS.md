@@ -2,123 +2,7 @@
 
 Based on usage analysis, these improvements would have the most immediate impact on developer experience.
 
-## 1. Formatted Output Properties
-
-### Problem
-
-Every component manually formats dates:
-
-```typescript
-// From MonthView.vue:
-month.raw.value.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-
-// From DayView.vue:
-selectedDay.raw.value.toLocaleDateString("en-US", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-```
-
-### Solution
-
-Add `formatted` property to all time units:
-
-```typescript
-interface FormattedOutput {
-  // Predefined formats
-  long: string; // "January 2024", "Monday, January 15, 2024"
-  short: string; // "Jan 2024", "Mon, Jan 15"
-  narrow: string; // "J", "M"
-  numeric: string; // "01/2024", "01/15/2024"
-
-  // Specific formats
-  monthYear?: string; // "January 2024" (month/year only)
-  dayMonth?: string; // "January 15" (day/month only)
-  time?: string; // "2:30 PM" (hour only)
-  iso?: string; // "2024-01-15"
-}
-
-interface TimeUnit {
-  // ... existing properties
-  formatted: FormattedOutput;
-}
-```
-
-### Implementation
-
-```typescript
-// In createPeriod.ts
-function createPeriod(kind: TimeUnitKind, options: PeriodOptions) {
-  // ... existing code
-
-  const formatted = computed(() => {
-    const date = raw.value;
-    const locale = options.locale || "en-US";
-
-    switch (kind) {
-      case "year":
-        return {
-          long: date.toLocaleDateString(locale, { year: "numeric" }),
-          short: date.toLocaleDateString(locale, { year: "2-digit" }),
-          numeric: date.getFullYear().toString(),
-          iso: date.toISOString().split("T")[0].substring(0, 4),
-        };
-      case "month":
-        return {
-          long: date.toLocaleDateString(locale, {
-            month: "long",
-            year: "numeric",
-          }),
-          short: date.toLocaleDateString(locale, {
-            month: "short",
-            year: "numeric",
-          }),
-          narrow: date.toLocaleDateString(locale, { month: "narrow" }),
-          numeric: date.toLocaleDateString(locale, {
-            month: "2-digit",
-            year: "numeric",
-          }),
-          monthYear: date.toLocaleDateString(locale, {
-            month: "long",
-            year: "numeric",
-          }),
-          iso: date.toISOString().split("T")[0].substring(0, 7),
-        };
-      case "day":
-        return {
-          long: date.toLocaleDateString(locale, {
-            weekday: "long",
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-          }),
-          short: date.toLocaleDateString(locale, {
-            weekday: "short",
-            month: "short",
-            day: "numeric",
-          }),
-          narrow: date.toLocaleDateString(locale, { weekday: "narrow" }),
-          numeric: date.toLocaleDateString(locale),
-          dayMonth: date.toLocaleDateString(locale, {
-            month: "long",
-            day: "numeric",
-          }),
-          iso: date.toISOString().split("T")[0],
-        };
-      // ... other cases
-    }
-  });
-
-  return {
-    // ... existing properties
-    formatted,
-  };
-}
-```
-
-## 2. Calendar Grid Utility
+## 1. Calendar Grid Utility
 
 ### Problem
 
@@ -131,7 +15,7 @@ return weeks.map((week) => {
   const days = props.temporal.divide(week, "day");
   return days.map((day) => ({
     day,
-    isCurrentMonth: stableMonth.contains!(day.raw.value),
+    isCurrentMonth: stableMonth.contains(day.raw.value),
     isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
     isToday: props.temporal.adapter.isSame(
       day.raw.value,
@@ -196,7 +80,7 @@ function createCalendarGrid(month: TimeUnit): CalendarGrid {
 
       return {
         ...day,
-        isCurrentMonth: stableMonth.contains!(dayDate),
+        isCurrentMonth: stableMonth.contains(dayDate),
         isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
         isToday: this.adapter.isSame(dayDate, today, "day"),
         isPast: this.adapter.isBefore(dayDate, today),
@@ -218,7 +102,7 @@ function createCalendarGrid(month: TimeUnit): CalendarGrid {
 }
 ```
 
-## 3. Basic Utility Functions
+## 2. Basic Utility Functions
 
 ### Problem
 
@@ -254,7 +138,7 @@ interface TemporalUtils {
   isPast(date: Date | TimeUnit): boolean;
   isFuture(date: Date | TimeUnit): boolean;
 
-  // Formatting helpers
+  // Formatting helpers (users can still use their own)
   formatHour(hour: number, use24Hour: boolean): string;
   getWeekdayName(
     date: Date | TimeUnit,
@@ -337,7 +221,7 @@ return {
 };
 ```
 
-## 4. Simplified StableMonth API
+## 3. Simplified StableMonth API
 
 ### Problem
 
@@ -393,7 +277,7 @@ if (kind === "month") {
 }
 ```
 
-## 5. Direct Property Access
+## 4. Direct Property Access
 
 ### Problem
 
@@ -476,9 +360,8 @@ return {
 
 ### Phase 1 (Immediate - 1 week)
 
-1. ✅ Formatted output properties
-2. ✅ Basic utility functions (isWeekend, isToday, etc.)
-3. ✅ Direct property access
+1. ✅ Basic utility functions (isWeekend, isToday, etc.)
+2. ✅ Direct property access
 
 ### Phase 2 (Next - 1 week)
 
@@ -493,11 +376,18 @@ return {
 
 ## Benefits
 
-1. **Reduced Code**: 50-70% less boilerplate in components
+1. **Reduced Code**: 30-50% less boilerplate in components
 2. **Better DX**: Intuitive API that matches mental models
 3. **Type Safety**: Full TypeScript support with better inference
 4. **Performance**: Computed properties only calculate when accessed
 5. **Backward Compatible**: All changes are additive
+
+## Philosophy
+
+- **Date formatting stays in userland** - Users have `raw.value` and can format however they want
+- **Focus on structural helpers** - Things that reduce complex logic, not simple operations
+- **Respect the library's minimalism** - Only add features that significantly reduce boilerplate
+- **Tree-shakable** - All utilities should be importable separately
 
 ## Example: Before vs After
 
@@ -505,13 +395,6 @@ return {
 
 ```typescript
 // From MonthView.vue
-const monthName = computed(() =>
-  props.month.raw.value.toLocaleDateString("en-US", {
-    month: "long",
-    year: "numeric",
-  })
-);
-
 const calendarDays = computed(() => {
   const stableMonth = periods.stableMonth({
     now: props.temporal.now,
@@ -525,7 +408,7 @@ const calendarDays = computed(() => {
     const days = props.temporal.divide(week, "day");
     return days.map((day) => ({
       day,
-      isCurrentMonth: stableMonth.contains!(day.raw.value),
+      isCurrentMonth: stableMonth.contains(day.raw.value),
       isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
       isToday: props.temporal.adapter.isSame(
         day.raw.value,
@@ -541,8 +424,6 @@ const calendarDays = computed(() => {
 
 ```typescript
 // With improvements
-const monthName = computed(() => props.month.formatted.long);
-
 const calendarGrid = computed(() =>
   props.temporal.createCalendarGrid(props.month)
 );
@@ -551,9 +432,11 @@ const calendarGrid = computed(() =>
 calendarGrid.value.weeks.forEach((week) => {
   week.days.forEach((day) => {
     // All properties directly available
-    console.log(day.isWeekend, day.isToday, day.formatted.short);
+    console.log(day.isWeekend, day.isToday);
+    // Formatting remains in userland
+    console.log(day.raw.value.toLocaleDateString());
   });
 });
 ```
 
-This represents a massive improvement in developer experience while maintaining the elegant architecture of useTemporal.
+This represents a significant improvement in developer experience while maintaining the elegant, minimal architecture of useTemporal and keeping formatting decisions in userland where they belong.

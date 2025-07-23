@@ -2,41 +2,7 @@
 
 After analyzing how developers use useTemporal in the examples, I've identified key improvements that would significantly enhance the developer experience.
 
-## 1. Formatted Output Properties
-
-**Problem**: Developers repeatedly format dates manually across components
-
-```typescript
-// Current repetitive pattern:
-month.raw.value.toLocaleDateString("en-US", { month: "long", year: "numeric" });
-day.raw.value.toLocaleDateString("en-US", {
-  weekday: "long",
-  year: "numeric",
-  month: "long",
-  day: "numeric",
-});
-```
-
-**Solution**: Add formatted properties to time units
-
-```typescript
-interface TimeUnit {
-  // ... existing properties
-  formatted: {
-    long: string; // "January 2024" for month, "Monday, January 15, 2024" for day
-    short: string; // "Jan 2024" for month, "Mon, Jan 15" for day
-    narrow: string; // "J" for month, "M" for day
-    numeric: string; // "01/2024" for month, "15" for day
-  };
-}
-
-// Usage:
-month.formatted.long; // "January 2024"
-day.formatted.full; // "Monday, January 15, 2024"
-hour.formatted.time; // "2:30 PM"
-```
-
-## 2. Calendar Grid Generation
+## 1. Calendar Grid Generation
 
 **Problem**: Complex, repetitive logic for generating calendar grids
 
@@ -339,21 +305,23 @@ const { position, percentage } = useTimePosition(temporal);
 ## Implementation Priority
 
 1. **High Priority** (Most impact, addresses common pain points)
-   - Formatted output properties
    - Calendar grid generation
-   - Simplified stableMonth API
    - Basic utility functions (isWeekend, isToday, etc.)
+   - Simplified stableMonth API
+   - Direct property access
 
 2. **Medium Priority** (Useful but not critical)
    - Relative time utilities
    - Time range support
    - Navigation improvements
-   - Direct property access
+   - Type-safe unit constants
 
 3. **Low Priority** (Nice to have)
    - Event/holiday support
    - Vue-specific package
    - Advanced utilities
+
+Note: Date formatting remains in userland - users have `raw.value` and can format using their preferred method.
 
 ## Breaking Changes
 

@@ -6,19 +6,6 @@ This document tracks features that are approved but not yet implemented, based o
 
 ## 📋 High Priority Features (Based on Usage Analysis)
 
-### NEW: Formatted Output Properties
-
-**Problem**: Developers repeatedly format dates manually
-```typescript
-month.raw.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-```
-
-**Solution**: Add formatted properties
-```typescript
-month.formatted.long  // "January 2024"
-day.formatted.short   // "Mon, Jan 15"
-```
-
 ### NEW: Calendar Grid Generation
 
 **Problem**: Complex calendar grid logic repeated everywhere
@@ -127,17 +114,12 @@ const daysInMonth = days(month);
 
 ## Implementation Plan
 
-### Phase 1: Formatted Output Properties (2 days)
-- Add formatted computed property to all time units
-- Support multiple format options (long, short, numeric, etc.)
-- Locale support through options
-
-### Phase 2: Calendar Grid Generation (2 days)
+### Phase 1: Calendar Grid Generation (2 days)
 - Create createCalendarGrid utility
 - Include all metadata (isWeekend, isToday, isCurrentMonth)
 - Support for stableMonth integration
 
-### Phase 3: Type Constants (1 day)
+### Phase 2: Type Constants (1 day)
 - Simple constants object
 - TypeScript const assertion
 - Update all examples
@@ -155,7 +137,8 @@ const daysInMonth = days(month);
 ## Notes
 
 Based on real usage analysis from examples:
-- Formatted properties and calendar grid are the highest impact improvements
-- These features would reduce component code by 50-70%
+- Calendar grid generation is the highest impact improvement
+- Date formatting remains in userland (users can use raw.value with any formatting library)
+- These features would reduce component code by 30-50%
 - All features are non-breaking additions
 - Focus on developer experience and reducing boilerplate
