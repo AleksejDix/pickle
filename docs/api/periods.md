@@ -1,361 +1,428 @@
 # periods
 
-The `periods` object provides factory methods for creating all time unit instances. This is the unified API for creating reactive time units in useTemporal.
+The `periods` object provides factory functions for creating all types of time units in useTemporal. It's available on every temporal instance and is the primary way to create time units.
 
-## Syntax
+## Overview
 
-```typescript
-import { periods } from "usetemporal";
-
-// Create time units
-const year = periods.year(options);
-const month = periods.month(options);
-const week = periods.week(options);
-const day = periods.day(options);
-const hour = periods.hour(options);
-const minute = periods.minute(options);
-const second = periods.second(options);
-const quarter = periods.quarter(options);
+```javascript
+temporal.periods.year(temporal)    // Create a year unit
+temporal.periods.month(temporal)   // Create a month unit
+temporal.periods.week(temporal)    // Create a week unit
+temporal.periods.day(temporal)     // Create a day unit
+temporal.periods.hour(temporal)    // Create an hour unit
+temporal.periods.minute(temporal)  // Create a minute unit
+temporal.periods.second(temporal)  // Create a second unit
+temporal.periods.quarter(temporal) // Create a quarter unit
+temporal.periods.stableMonth(temporal) // Create a stableMonth unit
 ```
 
-## Options
+## Common Parameters
 
-All period methods accept the same options object:
+All period factory functions accept the same parameters:
 
-```typescript
-interface PeriodOptions {
-  temporal: Temporal; // Required: The temporal instance
-  date?: Date; // Optional: Initial date (defaults to current date)
-}
+### `temporal` (required)
+
+- **Type**: `TemporalCore`
+- **Description**: The temporal instance created by `createTemporal()`
+
+### `options` (optional)
+
+- **Type**: `{ date?: Date }`
+- **Description**: Configuration object with optional date parameter
+
+#### `options.date`
+
+- **Type**: `Date`
+- **Default**: Current browsing date from temporal
+- **Description**: Specific date to create the time unit for
+
+```javascript
+// Use current browsing date (default)
+const currentMonth = temporal.periods.month(temporal);
+
+// Use specific date
+const marchMonth = temporal.periods.month(temporal, {
+  date: new Date(2024, 2, 15) // March 15, 2024
+});
 ```
 
-## Available Methods
+## Period Functions
 
-### periods.year()
+### year()
 
-Creates a reactive year time unit.
+Creates a year time unit.
 
-```typescript
-const year = periods.year({ temporal });
-// or with initial date
-const year = periods.year({ temporal, date: new Date(2023, 0, 1) });
+```javascript
+const year = temporal.periods.year(temporal);
+
+// Properties
+console.log(year.number);  // 2024
+console.log(year.isLeap);  // true/false
+console.log(year.days);    // 365 or 366
+console.log(year.weeks);   // 52 or 53
+
+// Navigation
+const nextYear = year.future();
+const lastYear = year.past();
+const fiveYearsAgo = year.past(5);
 ```
 
-See [Year Time Unit](#year-time-unit) for details.
+### month()
 
-### periods.month()
+Creates a month time unit.
 
-Creates a reactive month time unit.
+```javascript
+const month = temporal.periods.month(temporal);
 
-```typescript
-const month = periods.month({ temporal });
+// Properties
+console.log(month.number);    // 1-12 (not 0-11!)
+console.log(month.name);      // "March"
+console.log(month.shortName); // "Mar"
+console.log(month.year);      // 2024
+console.log(month.days);      // 28-31
+console.log(month.weeks);     // 4-6
+
+// Navigation
+const nextMonth = month.future();
+const lastMonth = month.past();
 ```
 
-See [Month Time Unit](#month-time-unit) for details.
+### week()
 
-### periods.week()
+Creates a week time unit. Week boundaries respect the `weekStartsOn` configuration.
 
-Creates a reactive week time unit.
+```javascript
+const week = temporal.periods.week(temporal);
 
-```typescript
-const week = periods.week({ temporal });
+// Properties
+console.log(week.number);  // 1-53 (ISO week number)
+console.log(week.year);    // ISO week year
+console.log(week.days);    // Always 7
+
+// Navigation
+const nextWeek = week.future();
+const twoWeeksAgo = week.past(2);
 ```
 
-See [Week Time Unit](#week-time-unit) for details.
+### day()
 
-### periods.day()
+Creates a day time unit.
 
-Creates a reactive day time unit.
+```javascript
+const day = temporal.periods.day(temporal);
 
-```typescript
-const day = periods.day({ temporal });
+// Properties
+console.log(day.number);      // 1-31 (day of month)
+console.log(day.dayOfWeek);   // 0-6 (0 = Sunday)
+console.log(day.dayOfYear);   // 1-366
+console.log(day.name);        // "Thursday"
+console.log(day.shortName);   // "Thu"
+console.log(day.isWeekend);   // true/false
+console.log(day.isWeekday);   // true/false
+console.log(day.month);       // 1-12
+console.log(day.year);        // 2024
+
+// Navigation
+const tomorrow = day.future();
+const yesterday = day.past();
+const nextWeekSameDay = day.future(7);
 ```
 
-See [Day Time Unit](#day-time-unit) for details.
+### hour()
 
-### periods.hour()
+Creates an hour time unit.
 
-Creates a reactive hour time unit.
+```javascript
+const hour = temporal.periods.hour(temporal);
 
-```typescript
-const hour = periods.hour({ temporal });
+// Properties
+console.log(hour.number);   // 0-23 (24-hour format)
+console.log(hour.hour12);   // 1-12 (12-hour format)
+console.log(hour.isPM);     // true/false
+console.log(hour.isAM);     // true/false
+console.log(hour.minutes);  // Always 60
+
+// Navigation
+const nextHour = hour.future();
+const threeHoursAgo = hour.past(3);
 ```
 
-See [Hour Time Unit](#hour-time-unit) for details.
+### minute()
 
-### periods.minute()
+Creates a minute time unit.
 
-Creates a reactive minute time unit.
+```javascript
+const minute = temporal.periods.minute(temporal);
 
-```typescript
-const minute = periods.minute({ temporal });
+// Properties
+console.log(minute.number);   // 0-59
+console.log(minute.seconds);  // Always 60
+
+// Navigation
+const nextMinute = minute.future();
+const fiveMinutesAgo = minute.past(5);
 ```
 
-See [Minute Time Unit](#minute-time-unit) for details.
+### second()
 
-### periods.second()
+Creates a second time unit.
 
-Creates a reactive second time unit.
+```javascript
+const second = temporal.periods.second(temporal);
 
-```typescript
-const second = periods.second({ temporal });
+// Properties
+console.log(second.number);        // 0-59
+console.log(second.milliseconds);  // Always 1000
+
+// Navigation
+const nextSecond = second.future();
+const tenSecondsAgo = second.past(10);
 ```
 
-See [Second Time Unit](#second-time-unit) for details.
+### quarter()
 
-### periods.quarter()
+Creates a quarter time unit (3-month period).
 
-Creates a reactive quarter time unit.
+```javascript
+const quarter = temporal.periods.quarter(temporal);
 
-```typescript
-const quarter = periods.quarter({ temporal });
+// Properties
+console.log(quarter.number);  // 1-4
+console.log(quarter.months);  // Always 3
+console.log(quarter.name);    // "Q1", "Q2", "Q3", "Q4"
+
+// Navigation
+const nextQuarter = quarter.future();
+const lastQuarter = quarter.past();
 ```
 
-See [Quarter Time Unit](#quarter-time-unit) for details.
+### stableMonth()
 
-## Time Unit Structure
+Creates a special month unit that always contains exactly 42 days (6 complete weeks). Perfect for calendar grid displays.
 
-All time units created by `periods` methods share the same structure:
+```javascript
+const stableMonth = temporal.periods.stableMonth(temporal);
 
-```typescript
-interface TimeUnit {
-  // Reactive properties
-  name: Ref<string>; // Human-readable name
-  number: Ref<number>; // Numeric value
-  start: Ref<Date>; // Start of period
-  end: Ref<Date>; // End of period
+// Properties (same as month, but with fixed dimensions)
+console.log(stableMonth.days);   // Always 42
+console.log(stableMonth.weeks);  // Always 6
 
-  // Navigation methods
-  past(): void; // Go to previous period
-  future(): void; // Go to next period
-  now(): void; // Go to current period
+// Division always returns consistent results
+const days = temporal.divide(stableMonth, "day");
+console.log(days.length); // Always 42
 
-  // Additional properties
-  raw: Ref<Date>; // Raw date value
-  isNow: Ref<boolean>; // Is current period
-  weekDay?: Ref<number>; // Day of week (0-6) for day units
-}
+// Useful for calendar grids
+const weeks = temporal.divide(stableMonth, "week");
+console.log(weeks.length); // Always 6
 ```
+
 
 ## Examples
 
-### Basic Usage
+### Creating Time Units for Specific Dates
 
-```typescript
-import { createTemporal, periods, nativeAdapter } from "usetemporal";
+```javascript
+// Create units for a specific date
+const specificDate = new Date(2024, 11, 25); // Christmas 2024
 
-// Create temporal instance
-const temporal = createTemporal({
-  dateAdapter: nativeAdapter,
-});
+const christmasYear = temporal.periods.year(temporal, { date: specificDate });
+const christmasMonth = temporal.periods.month(temporal, { date: specificDate });
+const christmasDay = temporal.periods.day(temporal, { date: specificDate });
 
-// Create time units
-const year = periods.year({ temporal });
-const month = periods.month({ temporal });
-const day = periods.day({ temporal });
-
-// Access reactive values
-console.log(year.name.value); // "2024"
-console.log(month.name.value); // "March"
-console.log(day.number.value); // 15
+console.log(christmasMonth.name); // "December"
+console.log(christmasDay.name);   // "Wednesday"
+console.log(christmasDay.number); // 25
 ```
 
-### Navigation
+### Building a Calendar View
 
-```typescript
-const month = periods.month({ temporal });
+```javascript
+// Get current month
+const currentMonth = temporal.periods.month(temporal);
 
-// Navigate through time
-month.future(); // Next month
-month.past(); // Previous month
-month.now(); // Current month
+// Get stable month for consistent grid
+const stableMonth = temporal.periods.stableMonth(temporal);
 
-// Check if current
-if (month.isNow.value) {
-  console.log("This is the current month");
+// Divide into days for calendar grid
+const calendarDays = temporal.divide(stableMonth, "day");
+
+// Mark which days belong to current month
+const calendarData = calendarDays.map(day => ({
+  date: day.number,
+  isCurrentMonth: day.month === currentMonth.number,
+  isToday: day.isNow,
+  isWeekend: day.isWeekend
+}));
+```
+
+### Time Range Selection
+
+```javascript
+// Create a date range picker
+function getDateRange(startDate, endDate) {
+  const days = [];
+  let current = startDate;
+  
+  while (current <= endDate) {
+    const day = temporal.periods.day(temporal, { date: current });
+    days.push(day);
+    current = new Date(current);
+    current.setDate(current.getDate() + 1);
+  }
+  
+  return days;
+}
+
+// Get all days in current week
+const week = temporal.periods.week(temporal);
+const weekDays = temporal.divide(week, "day");
+
+// Get business days only
+const businessDays = weekDays.filter(day => day.isWeekday);
+```
+
+### Reactive Time Display
+
+```javascript
+import { watch } from "@vue/reactivity";
+
+// Create reactive time units
+const currentHour = temporal.periods.hour(temporal);
+const currentMinute = temporal.periods.minute(temporal);
+const currentSecond = temporal.periods.second(temporal);
+
+// Watch for changes
+watch(() => currentHour.isNow, (isCurrentHour) => {
+  if (!isCurrentHour) {
+    console.log("Hour changed!");
+    // Update hour display
+  }
+});
+
+// Create a clock display
+function getTimeDisplay() {
+  return {
+    hour: currentHour.hour12,
+    minute: currentMinute.number.toString().padStart(2, '0'),
+    second: currentSecond.number.toString().padStart(2, '0'),
+    period: currentHour.isPM ? 'PM' : 'AM'
+  };
 }
 ```
 
-### With Initial Date
+### Working with Quarters
 
-```typescript
-// Start from specific date
-const pastDate = new Date(2020, 5, 15);
+```javascript
+// Get current quarter
+const currentQuarter = temporal.periods.quarter(temporal);
+console.log(`We are in ${currentQuarter.name}`); // "We are in Q1"
 
-const year = periods.year({ temporal, date: pastDate });
-const month = periods.month({ temporal, date: pastDate });
+// Get all months in quarter
+const quarterMonths = temporal.divide(currentQuarter, "month");
+quarterMonths.forEach(month => {
+  console.log(`${month.name}: ${month.days} days`);
+});
 
-console.log(year.name.value); // "2020"
-console.log(month.name.value); // "June"
+// Calculate quarterly statistics
+const quarterDays = temporal.divide(currentQuarter, "day");
+const workDays = quarterDays.filter(day => day.isWeekday).length;
+console.log(`Q${currentQuarter.number} has ${workDays} work days`);
 ```
 
-### Synchronized Time Units
+## Navigation Patterns
 
-When using the same temporal instance, all time units stay synchronized:
+All time units support navigation through `future()` and `past()` methods:
 
-```typescript
-const temporal = createTemporal({ dateAdapter: nativeAdapter });
+```javascript
+// Single unit navigation
+const today = temporal.periods.day(temporal);
+const tomorrow = today.future();
+const yesterday = today.past();
 
-const year = periods.year({ temporal });
-const month = periods.month({ temporal });
-const day = periods.day({ temporal });
+// Multiple unit navigation
+const nextWeek = today.future(7);
+const lastMonth = today.past(30);
 
-// Navigate day across month boundary
-day.future(); // If at end of month, month and year update automatically
+// Chained navigation
+const month = temporal.periods.month(temporal);
+const quarterAgo = month.past(3);
+const yearAgo = month.past(12);
+
+// Navigate and get properties
+const futureMonth = month.future(2);
+console.log(`In 2 months it will be ${futureMonth.name}`);
 ```
 
-### With divide() Pattern
+## TypeScript Support
 
-The periods API works seamlessly with the divide pattern:
+Full TypeScript support with type inference:
 
 ```typescript
-const year = periods.year({ temporal });
-const months = temporal.divide(year, "month");
+import type { TimeUnit } from "@usetemporal/core";
 
-const month = periods.month({ temporal });
+// All period functions return TimeUnit
+const year: TimeUnit = temporal.periods.year(temporal);
+const month: TimeUnit = temporal.periods.month(temporal);
+
+// With options
+const specificDay = temporal.periods.day(temporal, {
+  date: new Date(2024, 2, 14)
+});
+
+// Type-safe property access
+const monthNumber: number = month.number;
+const monthName: string = month.name;
+const isCurrentMonth: boolean = month.isNow;
+```
+
+## Performance Tips
+
+1. **Reuse Time Units**: Time units are reactive objects. Create them once and reuse them rather than recreating.
+
+```javascript
+// ❌ Inefficient
+function updateDisplay() {
+  const month = temporal.periods.month(temporal); // Creates new object
+  displayMonth(month.name);
+}
+
+// ✅ Better
+const month = temporal.periods.month(temporal); // Create once
+function updateDisplay() {
+  displayMonth(month.name); // Reuse reactive object
+}
+```
+
+2. **Use StableMonth for Calendars**: When building calendar UIs, use `stableMonth` for consistent 42-day grids.
+
+```javascript
+// ❌ Complex calendar logic
+const month = temporal.periods.month(temporal);
 const days = temporal.divide(month, "day");
+// Need to add padding days...
+
+// ✅ Simple with stableMonth
+const stableMonth = temporal.periods.stableMonth(temporal);
+const days = temporal.divide(stableMonth, "day"); // Always 42 days
 ```
 
-## Time Unit Details
+3. **Batch Operations**: When creating multiple time units, batch the operations.
 
-### Year Time Unit
-
-```typescript
-const year = periods.year({ temporal });
-
-year.name.value; // "2024"
-year.number.value; // 2024
-year.start.value; // Jan 1, 2024 00:00:00
-year.end.value; // Dec 31, 2024 23:59:59
-```
-
-### Month Time Unit
-
-```typescript
-const month = periods.month({ temporal });
-
-month.name.value; // "March"
-month.number.value; // 3 (1-based)
-month.start.value; // Mar 1, 2024 00:00:00
-month.end.value; // Mar 31, 2024 23:59:59
-```
-
-### Week Time Unit
-
-```typescript
-const week = periods.week({ temporal });
-
-week.name.value; // "Week 12"
-week.number.value; // 12 (week of year)
-week.start.value; // Sunday 00:00:00
-week.end.value; // Saturday 23:59:59
-```
-
-### Day Time Unit
-
-```typescript
-const day = periods.day({ temporal });
-
-day.name.value; // "Monday"
-day.number.value; // 15 (day of month)
-day.weekDay.value; // 1 (0=Sunday, 6=Saturday)
-day.start.value; // Mar 15, 2024 00:00:00
-day.end.value; // Mar 15, 2024 23:59:59
-```
-
-### Hour Time Unit
-
-```typescript
-const hour = periods.hour({ temporal });
-
-hour.name.value; // "3 PM"
-hour.number.value; // 15 (24-hour format)
-hour.start.value; // Mar 15, 2024 15:00:00
-hour.end.value; // Mar 15, 2024 15:59:59
-```
-
-### Minute Time Unit
-
-```typescript
-const minute = periods.minute({ temporal });
-
-minute.name.value; // "3:45 PM"
-minute.number.value; // 45
-minute.start.value; // Mar 15, 2024 15:45:00
-minute.end.value; // Mar 15, 2024 15:45:59
-```
-
-### Second Time Unit
-
-```typescript
-const second = periods.second({ temporal });
-
-second.name.value; // "3:45:30 PM"
-second.number.value; // 30
-second.start.value; // Mar 15, 2024 15:45:30
-second.end.value; // Mar 15, 2024 15:45:30
-```
-
-### Quarter Time Unit
-
-```typescript
-const quarter = periods.quarter({ temporal });
-
-quarter.name.value; // "Q1"
-quarter.number.value; // 1 (1-4)
-quarter.start.value; // Jan 1, 2024 00:00:00
-quarter.end.value; // Mar 31, 2024 23:59:59
-```
-
-## TypeScript
-
-Full type safety is provided:
-
-```typescript
-import type { Temporal, TimeUnit, PeriodOptions } from "usetemporal";
-
-// Options are typed
-const options: PeriodOptions = {
-  temporal,
-  date: new Date(),
+```javascript
+// Create all needed units at once
+const now = new Date();
+const units = {
+  year: temporal.periods.year(temporal, { date: now }),
+  month: temporal.periods.month(temporal, { date: now }),
+  day: temporal.periods.day(temporal, { date: now }),
+  hour: temporal.periods.hour(temporal, { date: now })
 };
-
-// Return types are inferred
-const year: TimeUnit = periods.year(options);
-const month: TimeUnit = periods.month(options);
-
-// All properties are typed
-const yearName: string = year.name.value;
-const monthNumber: number = month.number.value;
 ```
 
-## Migration from Individual Imports
+## See Also
 
-The `periods` API replaces individual composable imports:
-
-```typescript
-// Old API (deprecated)
-import { useYear, useMonth, useDay } from "usetemporal";
-const year = useYear(temporal);
-const month = useMonth(temporal);
-
-// New API
-import { periods } from "usetemporal";
-const year = periods.year({ temporal });
-const month = periods.month({ temporal });
-```
-
-## Best Practices
-
-1. **Use a single temporal instance** for all related time units
-2. **Pass initial dates** when you need to start from a specific time
-3. **Leverage reactivity** - values update automatically
-4. **Clean up subscriptions** when watching reactive values
-5. **Use with divide()** for hierarchical time management
-
-## Related
-
-- [createTemporal()](/api/create-temporal) - Create temporal instance
-- [divide()](/api/divide) - Divide time units into smaller units
-- [Reactive Time Units](/guide/reactive-time-units) - Understanding reactivity
-- [Framework Integration](/guide/framework-agnostic) - Using with frameworks
+- [createTemporal](/api/create-temporal) - Create a temporal instance
+- [divide() Method](/api/divide) - Divide time units into smaller units
+- [Time Unit Reference](/api/time-unit-reference) - All properties and methods
+- [Reactive Time Units Guide](/guide/reactive-time-units) - Understanding reactivity
+- [Getting Started](/guide/getting-started) - Basic usage examples

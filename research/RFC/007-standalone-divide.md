@@ -1,5 +1,7 @@
 # RFC-007: Standalone Divide Function
 
+**Note**: Consider this in conjunction with RFC-011 (Zoom Navigation API) which provides a more intuitive API for time navigation.
+
 ## Summary
 
 Extract the divide functionality into standalone, tree-shakable functions.

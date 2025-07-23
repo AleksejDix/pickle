@@ -9,15 +9,21 @@
 
 ## High Priority 🔴
 
-1. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
+1. **Zoom Navigation API** - [RFC-011](./RFC/011-zoom-navigation.md)
+   - Intuitive bidirectional time navigation
+   - `zoomIn`, `zoomOut`, `zoomTo` methods
+   - Matches mental model of time hierarchies
+   
+2. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
    - Common checks: isWeekend, isToday, isPast, isFuture
    - Reduce repetitive date operations
 
 ## Medium Priority 🟡
 
 1. **Type-Safe Unit Constants** - [RFC-003](./RFC/003-type-constants.md)
-   - Prevent runtime errors from typos
-   - Better TypeScript support
+   - Export UNITS constant for type safety
+   - Prevent typos in unit names
+   - Better IDE support
 
 2. **Simplified StableMonth API** - [RFC-004](./RFC/004-stable-month-api.md)
    - `temporal.stableMonth(month)` shorthand
