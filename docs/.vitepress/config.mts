@@ -43,7 +43,6 @@ export default defineConfig({
           text: 'Features',
           items: [
             { text: 'Time Navigation', link: '/guide/time-navigation' },
-            { text: 'Fiscal Year Support', link: '/guide/fiscal-year' },
             { text: 'Internationalization', link: '/guide/i18n' },
             { text: 'Zero Dependencies', link: '/guide/zero-dependencies' }
           ]
@@ -106,7 +105,6 @@ export default defineConfig({
         {
           text: 'Advanced Examples',
           items: [
-            { text: 'Fiscal Year Calendar', link: '/examples/fiscal-year' },
             { text: 'Multi-timezone', link: '/examples/multi-timezone' },
             { text: 'Custom Adapter', link: '/examples/custom-adapter' }
           ]

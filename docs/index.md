@@ -32,9 +32,6 @@ features:
   - icon: 🌍
     title: Internationalization
     details: Full i18n support with locale-aware formatting. Works seamlessly with Intl.DateTimeFormat.
-  - icon: 💼
-    title: Fiscal Year Support
-    details: Comprehensive support for fiscal years - US Federal, UK/India, Japan, Australia, or custom configurations.
 ---
 
 ## Quick Example

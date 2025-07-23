@@ -5,24 +5,25 @@ import type { DateAdapter } from "./core";
 // Framework-agnostic reactive Time Unit Interface
 // Uses @vue/reactivity which works in any JavaScript framework
 export interface TimeUnit {
+  // Core properties - available in all time units
   raw: ComputedRef<Date>;
+  start: ComputedRef<Date>;
+  end: ComputedRef<Date>;
   timespan: ComputedRef<TimeSpan>;
   isNow: ComputedRef<boolean>;
   number: ComputedRef<number>;
   name: ComputedRef<string>;
   browsing: Ref<Date>;
+  
+  // Methods - available in all time units
   future: () => void;
   past: () => void;
-  isSame: (a: Date, b: Date) => boolean;
-}
-
-// Extended Time Unit with additional properties
-export interface ExtendedTimeUnit extends TimeUnit {
-  weekDay?: ComputedRef<number>;
-  format?: (date: Date) => number | string;
-  we?: ComputedRef<boolean>; // weekend indicator
-  start?: ComputedRef<Date>;
-  end?: ComputedRef<Date>;
+  format: (date: Date) => number | string;
+  isSame: (a: Date | null, b: Date | null) => boolean;
+  
+  // Optional properties - only in specific time units
+  weekDay?: ComputedRef<number>;     // Available in: year, month, week, day, hour
+  we?: ComputedRef<boolean>;          // Available in: day only (weekend indicator)
 }
 
 // Framework-agnostic reactive Composable Options

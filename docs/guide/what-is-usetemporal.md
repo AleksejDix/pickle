@@ -47,15 +47,7 @@ const month = useMonth(temporal)
 // month.number, month.name, month.start, month.end are all reactive
 ```
 
-### 5. **Fiscal Year Support**
-Built-in support for various fiscal year systems:
-- US Federal (October start)
-- UK/India (April start) 
-- Japan (April start)
-- Australia (July start)
-- Custom configurations
-
-### 6. **Zero Dependencies Mode**
+### 5. **Zero Dependencies Mode**
 The native adapter provides complete functionality without any external dependencies.
 
 ## Architecture
@@ -77,7 +69,6 @@ useTemporal excels in applications that need:
 
 - **Complex date navigation** (calendars, date pickers)
 - **Hierarchical time visualization** (timeline views, Gantt charts)
-- **Fiscal year calculations**
 - **Reactive time-based UIs**
 - **Framework-agnostic date handling**
 

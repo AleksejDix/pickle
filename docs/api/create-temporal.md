@@ -63,17 +63,6 @@ const temporal = createTemporal({
 })
 ```
 
-#### fiscalYearStart
-- Type: `number`
-- Default: `0` (January)
-- Description: Month index (0-11) when fiscal year starts
-
-```typescript
-const temporal = createTemporal({ 
-  dateAdapter,
-  fiscalYearStart: 3 // April (UK/India fiscal year)
-})
-```
 
 ## Return Value
 
@@ -167,21 +156,6 @@ const temporal = createTemporal({
 })
 ```
 
-### Fiscal Year Configuration
-
-```typescript
-// US Federal fiscal year (October 1)
-const usFiscal = createTemporal({
-  dateAdapter: nativeAdapter,
-  fiscalYearStart: 9 // October (0-indexed)
-})
-
-// UK/India fiscal year (April 1)
-const ukFiscal = createTemporal({
-  dateAdapter: nativeAdapter,
-  fiscalYearStart: 3 // April
-})
-```
 
 ### With Different Adapters
 
@@ -238,7 +212,6 @@ interface CreateTemporalOptions {
   date?: Date | Ref<Date>
   now?: Date | Ref<Date>
   locale?: string | Ref<string>
-  fiscalYearStart?: number
 }
 
 interface Temporal {

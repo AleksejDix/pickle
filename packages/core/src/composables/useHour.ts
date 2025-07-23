@@ -7,9 +7,9 @@ import {
 } from "@vue/reactivity";
 
 import { same } from "../utils/same";
-import type { ExtendedTimeUnit, UseTimeUnitOptions } from "../types/reactive";
+import type { TimeUnit, UseTimeUnitOptions } from "../types/reactive";
 
-export default function useHour(options: UseTimeUnitOptions): ExtendedTimeUnit {
+export default function useHour(options: UseTimeUnitOptions): TimeUnit {
   const now = isRef(options.now) ? options.now : ref(options.now);
   const browsing: Ref<Date> = isRef(options.browsing)
     ? options.browsing
@@ -21,7 +21,8 @@ export default function useHour(options: UseTimeUnitOptions): ExtendedTimeUnit {
     throw new Error("Adapter is required for useHour composable");
   }
 
-  const isSame = (a: Date, b: Date): boolean => {
+  const isSame = (a: Date | null, b: Date | null): boolean => {
+    if (!a || !b) return false;
     return same(a, b, "hour", adapter);
   };
 
