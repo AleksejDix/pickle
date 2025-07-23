@@ -6,8 +6,6 @@ import {
   type ComputedRef,
 } from "@vue/reactivity";
 
-import { add, sub, startOfWeek, endOfWeek, getWeek } from "date-fns";
-
 import { same } from "../utils/same";
 import type { UseTimeUnitOptions, ExtendedTimeUnit } from "../types/reactive";
 
@@ -17,25 +15,24 @@ export default function useWeek(options: UseTimeUnitOptions): ExtendedTimeUnit {
     ? options.browsing
     : ref(options.browsing);
 
+  // Adapter is required - no fallback!
+  const adapter = options.adapter;
+  if (!adapter) {
+    throw new Error("Adapter is required for useWeek composable");
+  }
+
   const isSame = (a: Date, b: Date): boolean => {
-    if (options.adapter) {
-      return same(a, b, "week", options.adapter);
-    }
-    // Fallback for when no adapter is provided
-    return (
-      getWeek(a, { weekStartsOn: 1 }) === getWeek(b, { weekStartsOn: 1 }) &&
-      a.getFullYear() === b.getFullYear()
-    );
+    return same(a, b, "week", adapter);
   };
 
   const isNow: ComputedRef<boolean> = computed(() =>
     isSame(now.value, browsing.value)
   );
   const start: ComputedRef<Date> = computed(() =>
-    startOfWeek(browsing.value, { weekStartsOn: 1 })
+    adapter.startOf(browsing.value, "week", { weekStartsOn: 1 })
   );
   const end: ComputedRef<Date> = computed(() =>
-    endOfWeek(browsing.value, { weekStartsOn: 1 })
+    adapter.endOf(browsing.value, "week", { weekStartsOn: 1 })
   );
   const number: ComputedRef<number> = computed(() => format(browsing.value));
   const raw: ComputedRef<Date> = computed(() => browsing.value);
@@ -46,19 +43,20 @@ export default function useWeek(options: UseTimeUnitOptions): ExtendedTimeUnit {
   const name: ComputedRef<string> = computed(() => number.value.toString());
 
   const format = (date: Date): number => {
-    return getWeek(date, { weekStartsOn: 1 });
+    // TODO: Add getWeekOfYear to adapter interface
+    // For now, calculate week number manually
+    const startOfYear = adapter.startOf(date, "year");
+    const startOfWeekForDate = adapter.startOf(date, "week", { weekStartsOn: 1 });
+    const daysDiff = Math.floor((startOfWeekForDate.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.floor(daysDiff / 7) + 1;
   };
 
   const future = (): void => {
-    browsing.value = add(browsing.value, {
-      weeks: 1,
-    });
+    browsing.value = adapter.add(browsing.value, { weeks: 1 });
   };
 
   const past = (): void => {
-    browsing.value = sub(browsing.value, {
-      weeks: 1,
-    });
+    browsing.value = adapter.subtract(browsing.value, { weeks: 1 });
   };
 
   return {

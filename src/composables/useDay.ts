@@ -5,14 +5,6 @@ import {
   type Ref,
   type ComputedRef,
 } from "@vue/reactivity";
-import {
-  add,
-  sub,
-  startOfDay,
-  endOfDay,
-  isWeekend,
-  format as dateFormat,
-} from "date-fns";
 
 import { same } from "../utils/same";
 import type { UseTimeUnitOptions, ExtendedTimeUnit } from "../types/reactive";
@@ -23,23 +15,25 @@ export default function useDay(options: UseTimeUnitOptions): ExtendedTimeUnit {
     ? options.browsing
     : ref(options.browsing);
 
+  // Adapter is required - no fallback!
+  const adapter = options.adapter;
+  if (!adapter) {
+    throw new Error("Adapter is required for useDay composable");
+  }
+
   const isSame = (a: Date, b: Date): boolean => {
-    if (options.adapter) {
-      return same(a, b, "day", options.adapter);
-    }
-    // Fallback for when no adapter is provided
-    return (
-      a.getFullYear() === b.getFullYear() &&
-      a.getMonth() === b.getMonth() &&
-      a.getDate() === b.getDate()
-    );
+    return same(a, b, "day", adapter);
   };
 
   const isNow: ComputedRef<boolean> = computed(() =>
     isSame(now.value, browsing.value)
   );
-  const start: ComputedRef<Date> = computed(() => startOfDay(browsing.value));
-  const end: ComputedRef<Date> = computed(() => endOfDay(browsing.value));
+  const start: ComputedRef<Date> = computed(() => 
+    adapter.startOf(browsing.value, "day")
+  );
+  const end: ComputedRef<Date> = computed(() => 
+    adapter.endOf(browsing.value, "day")
+  );
   const number: ComputedRef<number> = computed(() =>
     formatNumber(browsing.value)
   );
@@ -49,7 +43,7 @@ export default function useDay(options: UseTimeUnitOptions): ExtendedTimeUnit {
     end: end.value,
   }));
   const name: ComputedRef<string> = computed(() => formatName(browsing.value));
-  const we: ComputedRef<boolean> = computed(() => isWeekend(browsing.value));
+  const we: ComputedRef<boolean> = computed(() => adapter.isWeekend(browsing.value));
 
   const formatNumber = (date: Date): number => {
     return date.getDate();
@@ -57,19 +51,15 @@ export default function useDay(options: UseTimeUnitOptions): ExtendedTimeUnit {
 
   const formatName = (date: Date): string => {
     // Return a descriptive name like "Monday, Jan 15"
-    return dateFormat(date, "EEEE, MMM d");
+    return adapter.format(date, "EEEE, MMM d");
   };
 
   const future = (): void => {
-    browsing.value = add(browsing.value, {
-      days: 1,
-    });
+    browsing.value = adapter.add(browsing.value, { days: 1 });
   };
 
   const past = (): void => {
-    browsing.value = sub(browsing.value, {
-      days: 1,
-    });
+    browsing.value = adapter.subtract(browsing.value, { days: 1 });
   };
 
   return {

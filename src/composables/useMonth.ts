@@ -6,15 +6,6 @@ import {
   type ComputedRef,
 } from "@vue/reactivity";
 
-import {
-  add,
-  sub,
-  startOfMonth,
-  endOfMonth,
-  getDay,
-  format as formatDate,
-} from "date-fns";
-
 import { same } from "../utils/same";
 import type { UseTimeUnitOptions, ExtendedTimeUnit } from "../types/reactive";
 
@@ -26,20 +17,26 @@ export default function useMonth(
     ? options.browsing
     : ref(options.browsing);
 
+  // Adapter is required - no fallback!
+  const adapter = options.adapter;
+  if (!adapter) {
+    throw new Error("Adapter is required for useMonth composable");
+  }
+
   const isSame = (a: Date, b: Date): boolean => {
-    if (options.adapter) {
-      return same(a, b, "month", options.adapter);
-    }
-    // Fallback for when no adapter is provided
-    return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+    return same(a, b, "month", adapter);
   };
 
   const isNow: ComputedRef<boolean> = computed(() =>
     isSame(now.value, browsing.value)
   );
 
-  const start: ComputedRef<Date> = computed(() => startOfMonth(browsing.value));
-  const end: ComputedRef<Date> = computed(() => endOfMonth(browsing.value));
+  const start: ComputedRef<Date> = computed(() => 
+    adapter.startOf(browsing.value, "month")
+  );
+  const end: ComputedRef<Date> = computed(() => 
+    adapter.endOf(browsing.value, "month")
+  );
 
   const number: ComputedRef<number> = computed(() => format(browsing.value));
   const raw: ComputedRef<Date> = computed(() => browsing.value);
@@ -49,7 +46,7 @@ export default function useMonth(
     end: end.value,
   }));
   const name: ComputedRef<string> = computed(() =>
-    formatDate(browsing.value, "MMMM yyyy")
+    adapter.format(browsing.value, "MMMM yyyy")
   );
 
   const format = (date: Date): number => {
@@ -57,18 +54,14 @@ export default function useMonth(
   };
 
   const future = (): void => {
-    browsing.value = add(browsing.value, {
-      months: 1,
-    });
+    browsing.value = adapter.add(browsing.value, { months: 1 });
   };
   const past = (): void => {
-    browsing.value = sub(browsing.value, {
-      months: 1,
-    });
+    browsing.value = adapter.subtract(browsing.value, { months: 1 });
   };
 
   const weekDay: ComputedRef<number> = computed(() => {
-    const day = getDay(start.value);
+    const day = adapter.getWeekday(start.value);
     return day === 0 ? 7 : day;
   });
 

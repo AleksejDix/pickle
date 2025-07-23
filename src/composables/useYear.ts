@@ -6,8 +6,6 @@ import {
   type ComputedRef,
 } from "@vue/reactivity";
 
-import { add, sub, startOfYear, endOfYear, getDay } from "date-fns";
-
 import { same } from "../utils/same";
 import type { UseTimeUnitOptions, ExtendedTimeUnit } from "../types/reactive";
 
@@ -17,20 +15,26 @@ export default function useYear(options: UseTimeUnitOptions): ExtendedTimeUnit {
     ? options.browsing
     : ref(options.browsing);
 
+  // Adapter is required - no fallback!
+  const adapter = options.adapter;
+  if (!adapter) {
+    throw new Error("Adapter is required for useYear composable");
+  }
+
   const isSame = (a: Date, b: Date): boolean => {
-    if (options.adapter) {
-      return same(a, b, "year", options.adapter);
-    }
-    // Fallback for when no adapter is provided
-    return a.getFullYear() === b.getFullYear();
+    return same(a, b, "year", adapter);
   };
 
   const isNow: ComputedRef<boolean> = computed(() =>
     isSame(now.value, browsing.value)
   );
 
-  const start: ComputedRef<Date> = computed(() => startOfYear(browsing.value));
-  const end: ComputedRef<Date> = computed(() => endOfYear(browsing.value));
+  const start: ComputedRef<Date> = computed(() => 
+    adapter.startOf(browsing.value, "year")
+  );
+  const end: ComputedRef<Date> = computed(() => 
+    adapter.endOf(browsing.value, "year")
+  );
 
   const number: ComputedRef<number> = computed(() => format(browsing.value));
   const raw: ComputedRef<Date> = computed(() => browsing.value);
@@ -46,18 +50,14 @@ export default function useYear(options: UseTimeUnitOptions): ExtendedTimeUnit {
   };
 
   const future = (): void => {
-    browsing.value = add(browsing.value, {
-      years: 1,
-    });
+    browsing.value = adapter.add(browsing.value, { years: 1 });
   };
   const past = (): void => {
-    browsing.value = sub(browsing.value, {
-      years: 1,
-    });
+    browsing.value = adapter.subtract(browsing.value, { years: 1 });
   };
 
   const weekDay: ComputedRef<number> = computed(() => {
-    const day = getDay(start.value);
+    const day = adapter.getWeekday(start.value);
     return day === 0 ? 7 : day;
   });
 
