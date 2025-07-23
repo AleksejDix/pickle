@@ -49,7 +49,11 @@ export default function useHour(options: UseTimeUnitOptions): ExtendedTimeUnit {
 
   const formatName = (date: Date): string => {
     // Return a user-friendly time like "2:00 PM"
-    return adapter.format(date, "h:mm a");
+    return date.toLocaleTimeString('en-US', { 
+      hour: 'numeric', 
+      minute: '2-digit',
+      hour12: true 
+    });
   };
 
   const future = (): void => {

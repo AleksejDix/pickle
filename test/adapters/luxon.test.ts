@@ -404,24 +404,25 @@ describe("LuxonAdapter", () => {
     });
   });
 
-  describe("Formatting", () => {
-    it("should format dates using Luxon toFormat", () => {
-      const date = createTestDate(2024, 2, 5, 14, 30);
-      mockDateTime.toFormat.mockReturnValue("2024-03-05 14:30:00");
+  // Formatting tests removed - format method has been removed from adapters
+  // describe("Formatting", () => {
+  //   it("should format dates using Luxon toFormat", () => {
+  //     const date = createTestDate(2024, 2, 5, 14, 30);
+  //     mockDateTime.toFormat.mockReturnValue("2024-03-05 14:30:00");
 
-      const result = adapter.format(date, "YYYY-MM-DD HH:mm:ss");
+  //     const result = adapter.format(date, "YYYY-MM-DD HH:mm:ss");
 
-      expect(mockDateTime.toFormat).toHaveBeenCalledWith("yyyy-MM-dd HH:mm:ss");
-      expect(result).toBe("2024-03-05 14:30:00");
-    });
+  //     expect(mockDateTime.toFormat).toHaveBeenCalledWith("yyyy-MM-dd HH:mm:ss");
+  //     expect(result).toBe("2024-03-05 14:30:00");
+  //   });
 
-    it("should convert pattern formats correctly", () => {
-      const date = createTestDate(2024, 0, 1);
+  //   it("should convert pattern formats correctly", () => {
+  //     const date = createTestDate(2024, 0, 1);
 
-      adapter.format(date, "YYYY/MM/DD");
-      expect(mockDateTime.toFormat).toHaveBeenCalledWith("yyyy/MM/dd");
-    });
-  });
+  //     adapter.format(date, "YYYY/MM/DD");
+  //     expect(mockDateTime.toFormat).toHaveBeenCalledWith("yyyy/MM/dd");
+  //   });
+  // });
 
   describe("Advanced Time Units Edge Cases", () => {
     it("should handle edge decade years", () => {

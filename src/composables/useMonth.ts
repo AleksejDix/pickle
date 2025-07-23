@@ -45,9 +45,11 @@ export default function useMonth(
     start: start.value,
     end: end.value,
   }));
-  const name: ComputedRef<string> = computed(() =>
-    adapter.format(browsing.value, "MMMM yyyy")
-  );
+  const name: ComputedRef<string> = computed(() => {
+    const month = browsing.value.toLocaleDateString('en-US', { month: 'long' });
+    const year = browsing.value.getFullYear();
+    return `${month} ${year}`;
+  });
 
   const format = (date: Date): number => {
     return date.getMonth() + 1;

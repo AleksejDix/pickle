@@ -395,29 +395,30 @@ describe("TemporalAdapter", () => {
     });
   });
 
-  describe("Formatting", () => {
-    it("should format dates using Temporal values", () => {
-      mockZonedDateTime.year = 2024;
-      mockZonedDateTime.month = 3;
-      mockZonedDateTime.day = 5;
-      mockZonedDateTime.hour = 14;
-      mockZonedDateTime.minute = 30;
-      mockZonedDateTime.second = 45;
+  // Formatting tests removed - format method has been removed from adapters
+  // describe("Formatting", () => {
+  //   it("should format dates using Temporal values", () => {
+  //     mockZonedDateTime.year = 2024;
+  //     mockZonedDateTime.month = 3;
+  //     mockZonedDateTime.day = 5;
+  //     mockZonedDateTime.hour = 14;
+  //     mockZonedDateTime.minute = 30;
+  //     mockZonedDateTime.second = 45;
 
-      const date = createTestDate(2024, 2, 5, 14, 30);
-      const result = adapter.format(date, "YYYY-MM-DD HH:mm:ss");
+  //     const date = createTestDate(2024, 2, 5, 14, 30);
+  //     const result = adapter.format(date, "YYYY-MM-DD HH:mm:ss");
 
-      expect(result).toBe("2024-03-05 14:30:45");
-    });
+  //     expect(result).toBe("2024-03-05 14:30:45");
+  //   });
 
-    it("should pad single digits correctly", () => {
-      mockZonedDateTime.month = 1;
-      mockZonedDateTime.day = 5;
+  //   it("should pad single digits correctly", () => {
+  //     mockZonedDateTime.month = 1;
+  //     mockZonedDateTime.day = 5;
 
-      const result = adapter.format(createTestDate(), "MM-DD");
-      expect(result).toBe("01-05");
-    });
-  });
+  //     const result = adapter.format(createTestDate(), "MM-DD");
+  //     expect(result).toBe("01-05");
+  //   });
+  // });
 
   describe("Advanced Time Units", () => {
     it("should handle century calculations", () => {

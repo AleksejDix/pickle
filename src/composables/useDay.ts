@@ -51,7 +51,10 @@ export default function useDay(options: UseTimeUnitOptions): ExtendedTimeUnit {
 
   const formatName = (date: Date): string => {
     // Return a descriptive name like "Monday, Jan 15"
-    return adapter.format(date, "EEEE, MMM d");
+    const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
+    const month = date.toLocaleDateString('en-US', { month: 'short' });
+    const day = date.getDate();
+    return `${weekday}, ${month} ${day}`;
   };
 
   const future = (): void => {

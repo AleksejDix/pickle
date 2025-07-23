@@ -369,32 +369,33 @@ describe("Adapter Integration Tests", () => {
     });
   });
 
-  describe("Formatting and Internationalization", () => {
-    it("should handle basic date formatting across adapters", () => {
-      const date = createTestDate(2024, 2, 5, 14, 30);
-      const pattern = "YYYY-MM-DD HH:mm:ss";
+  // Formatting tests removed - format method has been removed from adapters
+  // describe("Formatting and Internationalization", () => {
+  //   it("should handle basic date formatting across adapters", () => {
+  //     const date = createTestDate(2024, 2, 5, 14, 30);
+  //     const pattern = "YYYY-MM-DD HH:mm:ss";
 
-      const nativeAdapterInstance = nativeAdapter;
-      const dateFnsAdapterInstance = createDateFnsAdapter();
+  //     const nativeAdapterInstance = nativeAdapter;
+  //     const dateFnsAdapterInstance = createDateFnsAdapter();
 
-      const nativeFormatted = nativeAdapterInstance.format(date, pattern);
-      const dateFnsFormatted = dateFnsAdapterInstance.format(date, pattern);
+  //     const nativeFormatted = nativeAdapterInstance.format(date, pattern);
+  //     const dateFnsFormatted = dateFnsAdapterInstance.format(date, pattern);
 
-      // Both should produce similar format (allowing for small differences)
-      expect(nativeFormatted).toMatch(/2024-03-05/);
-      expect(dateFnsFormatted).toMatch(/2024-03-05/);
-    });
+  //     // Both should produce similar format (allowing for small differences)
+  //     expect(nativeFormatted).toMatch(/2024-03-05/);
+  //     expect(dateFnsFormatted).toMatch(/2024-03-05/);
+  //   });
 
-    it("should handle different date format patterns", () => {
-      const adapter = nativeAdapter;
-      const date = createTestDate(2024, 0, 5, 9, 7, 7); // Include seconds: 7
+  //   it("should handle different date format patterns", () => {
+  //     const adapter = nativeAdapter;
+  //     const date = createTestDate(2024, 0, 5, 9, 7, 7); // Include seconds: 7
 
-      expect(adapter.format(date, "YYYY")).toBe("2024");
-      expect(adapter.format(date, "MM")).toBe("01");
-      expect(adapter.format(date, "DD")).toBe("05");
-      expect(adapter.format(date, "HH")).toBe("09");
-      expect(adapter.format(date, "mm")).toBe("07");
-      expect(adapter.format(date, "ss")).toBe("07");
-    });
-  });
+  //     expect(adapter.format(date, "YYYY")).toBe("2024");
+  //     expect(adapter.format(date, "MM")).toBe("01");
+  //     expect(adapter.format(date, "DD")).toBe("05");
+  //     expect(adapter.format(date, "HH")).toBe("09");
+  //     expect(adapter.format(date, "mm")).toBe("07");
+  //     expect(adapter.format(date, "ss")).toBe("07");
+  //   });
+  // });
 });

@@ -28,9 +28,6 @@ export interface DateAdapter {
   // Date utilities
   getWeekday(date: Date, options?: WeekOptions): number;
   isWeekend(date: Date): boolean;
-
-  // Formatting (basic)
-  format(date: Date, pattern: string): string;
 }
 
 export interface DateDuration {

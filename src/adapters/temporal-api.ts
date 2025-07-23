@@ -362,27 +362,6 @@ export class TemporalAdapter implements DateAdapter {
     return dayOfWeek === 6 || dayOfWeek === 7;
   }
 
-  format(date: Date, pattern: string): string {
-    const temporal = this.temporal;
-    const instant = temporal.Instant.fromEpochMilliseconds(date.getTime());
-    const zonedDateTime = instant.toZonedDateTimeISO(temporal.Now.timeZone());
-
-    // Basic formatting implementation
-    const year = zonedDateTime.year;
-    const month = zonedDateTime.month;
-    const day = zonedDateTime.day;
-    const hour = zonedDateTime.hour;
-    const minute = zonedDateTime.minute;
-    const second = zonedDateTime.second;
-
-    return pattern
-      .replace("YYYY", year.toString())
-      .replace("MM", month.toString().padStart(2, "0"))
-      .replace("DD", day.toString().padStart(2, "0"))
-      .replace("HH", hour.toString().padStart(2, "0"))
-      .replace("mm", minute.toString().padStart(2, "0"))
-      .replace("ss", second.toString().padStart(2, "0"));
-  }
 }
 
 // Factory function to create adapter instance

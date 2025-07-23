@@ -212,15 +212,6 @@ export class DateFnsAdapter implements DateAdapter {
     return isWeekend(date);
   }
 
-  format(date: Date, pattern: string): string {
-    const { format } = this.dateFns;
-    // Convert our basic patterns to date-fns format
-    const dateFnsPattern = pattern
-      .replace(/YYYY/g, "yyyy") // Date-fns uses lowercase yyyy
-      .replace(/DD/g, "dd"); // Date-fns uses lowercase dd
-
-    return format(date, dateFnsPattern);
-  }
 }
 
 // Factory function to create adapter instance

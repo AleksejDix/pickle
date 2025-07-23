@@ -274,21 +274,6 @@ export class LuxonAdapter implements DateAdapter {
     return dt.weekday === 6 || dt.weekday === 7;
   }
 
-  format(date: Date, pattern: string): string {
-    const { DateTime } = this.luxon;
-    const dt = DateTime.fromJSDate(date);
-
-    // Convert our basic patterns to Luxon format
-    const luxonPattern = pattern
-      .replace("YYYY", "yyyy")
-      .replace("MM", "MM")
-      .replace("DD", "dd")
-      .replace("HH", "HH")
-      .replace("mm", "mm")
-      .replace("ss", "ss");
-
-    return dt.toFormat(luxonPattern);
-  }
 }
 
 // Factory function to create adapter instance

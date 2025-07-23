@@ -4,6 +4,8 @@ import { createTemporal } from "../../src/core/createTemporal";
 import { same } from "../../src/utils/same";
 import { createTestDate } from "../setup";
 import { nativeAdapter } from "../../src/adapters/native";
+// Import composables to register them
+import "../../src/composables";
 
 describe("createTemporal", () => {
   describe("API and Framework Agnostic Behavior", () => {
@@ -296,22 +298,26 @@ describe("createTemporal", () => {
     });
     */
 
-    it("should return empty array (temporarily disabled)", () => {
+    it("should divide time intervals into smaller units", () => {
       const temporal = createTemporal();
       const mockUnit = {
-        timespan: { value: { start: new Date(2024, 0, 1), end: new Date(2024, 0, 31) } }
+        timespan: { value: { start: new Date(2024, 0, 1), end: new Date(2024, 0, 31) } },
+        raw: { value: new Date(2024, 0, 15) },
+        isNow: { value: false },
+        number: { value: 1 },
+        name: { value: "January 2024" },
+        browsing: { value: new Date(2024, 0, 15) },
+        future: () => {},
+        past: () => {},
+        isSame: () => false
       };
       
-      const originalWarn = console.warn;
-      const warnSpy = vi.fn();
-      console.warn = warnSpy;
+      const result = temporal.divide(mockUnit as any, "day");
       
-      const result = temporal.divide(mockUnit as any, "month");
-      
-      expect(result).toEqual([]);
-      expect(warnSpy).toHaveBeenCalledWith("divide() is temporarily disabled due to circular dependency issues");
-      
-      console.warn = originalWarn;
+      // January has 31 days
+      expect(result.length).toBe(31);
+      expect(result[0]).toBeDefined();
+      expect(result[0].browsing).toBeDefined();
     });
   });
 

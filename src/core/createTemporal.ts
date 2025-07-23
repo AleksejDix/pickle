@@ -7,6 +7,7 @@ import type {
 } from "../types/reactive";
 import { createAdapter } from "../adapters";
 import type { DateAdapter } from "../adapters/types";
+import { createTimeUnit } from "./timeUnitFactory";
 
 export function createTemporal(
   options: ReactiveCreateTemporalOptions = {}
@@ -14,9 +15,11 @@ export function createTemporal(
   const date: Ref<Date> = isRef(options.date)
     ? options.date
     : ref(options.date || new Date());
+
   const now: Ref<Date> = isRef(options.now)
     ? options.now
     : ref(options.now || new Date());
+
   const locale: Ref<string> = isRef(options.locale)
     ? options.locale
     : ref(options.locale || "en");
@@ -38,10 +41,21 @@ export function createTemporal(
       unit as any
     );
 
-    // Temporarily return empty array to avoid circular dependency issues
-    // TODO: Fix circular dependency between createTemporal and composables
-    console.warn(`divide() is temporarily disabled due to circular dependency issues`);
-    return [];
+    const results: TimeUnit[] = [];
+    
+    for (const date of dates) {
+      const timeUnit = createTimeUnit(unit, {
+        now: now,
+        browsing: ref(date),
+        adapter: adapter,
+      });
+      
+      if (timeUnit) {
+        results.push(timeUnit);
+      }
+    }
+    
+    return results;
   }
 
   function f(date: Date, timeoptions: Intl.DateTimeFormatOptions): string {

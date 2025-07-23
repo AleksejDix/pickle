@@ -232,16 +232,17 @@ describe("NativeDateAdapter", () => {
     });
   });
 
-  describe("Basic Formatting", () => {
-    it("should format dates with basic patterns", () => {
-      const date = createTestDate(2024, 2, 5, 14, 30);
+  // Formatting tests removed - format method has been removed from adapters
+  // describe("Basic Formatting", () => {
+  //   it("should format dates with basic patterns", () => {
+  //     const date = createTestDate(2024, 2, 5, 14, 30);
 
-      expect(nativeAdapter.format(date, "YYYY-MM-DD")).toBe("2024-03-05");
-      expect(nativeAdapter.format(date, "YYYY/MM/DD HH:mm")).toBe(
-        "2024/03/05 14:30"
-      );
-    });
-  });
+  //     expect(nativeAdapter.format(date, "YYYY-MM-DD")).toBe("2024-03-05");
+  //     expect(nativeAdapter.format(date, "YYYY/MM/DD HH:mm")).toBe(
+  //       "2024/03/05 14:30"
+  //     );
+  //   });
+  // });
 
   describe("Advanced Time Units", () => {
     it("should handle decade calculations", () => {
@@ -510,15 +511,16 @@ describe("NativeDateAdapter", () => {
       expect(nativeAdapter.getWeekday(tuesday, { weekStartsOn: 6 })).toBe(3);
     });
 
-    it("should format dates consistently", () => {
-      const date = createTestDate(2024, 0, 5, 9, 7, 7); // Include seconds: 7
+    // Formatting test removed - format method has been removed from adapters
+    // it("should format dates consistently", () => {
+    //   const date = createTestDate(2024, 0, 5, 9, 7, 7); // Include seconds: 7
 
-      expect(nativeAdapter.format(date, "YYYY-MM-DD")).toBe("2024-01-05");
-      expect(nativeAdapter.format(date, "HH:mm:ss")).toBe("09:07:07");
-      expect(nativeAdapter.format(date, "YYYY/MM/DD HH:mm")).toBe(
-        "2024/01/05 09:07"
-      );
-    });
+    //   expect(nativeAdapter.format(date, "YYYY-MM-DD")).toBe("2024-01-05");
+    //   expect(nativeAdapter.format(date, "HH:mm:ss")).toBe("09:07:07");
+    //   expect(nativeAdapter.format(date, "YYYY/MM/DD HH:mm")).toBe(
+    //     "2024/01/05 09:07"
+    //   );
+    // });
   });
 
   describe("Error Resilience", () => {
@@ -529,9 +531,10 @@ describe("NativeDateAdapter", () => {
       expect(() => nativeAdapter.add(invalidDate, { days: 1 })).not.toThrow();
       expect(() => nativeAdapter.startOf(invalidDate, "day")).not.toThrow();
       expect(() => nativeAdapter.getWeekday(invalidDate)).not.toThrow();
-      expect(() =>
-        nativeAdapter.format(invalidDate, "YYYY-MM-DD")
-      ).not.toThrow();
+      // Format test removed - format method has been removed from adapters
+      // expect(() =>
+      //   nativeAdapter.format(invalidDate, "YYYY-MM-DD")
+      // ).not.toThrow();
     });
 
     it("should handle extreme date values", () => {

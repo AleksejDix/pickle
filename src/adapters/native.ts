@@ -62,20 +62,22 @@ export class NativeDateAdapter implements DateAdapter {
 
     switch (unit) {
       case "year":
-        result.setMonth(0);
-      // fall through
+        result.setMonth(0, 1);
+        result.setHours(0, 0, 0, 0);
+        break;
       case "month":
         result.setDate(1);
-      // fall through
+        result.setHours(0, 0, 0, 0);
+        break;
       case "day":
-        result.setHours(0);
-      // fall through
+        result.setHours(0, 0, 0, 0);
+        break;
       case "hour":
-        result.setMinutes(0);
-      // fall through
+        result.setMinutes(0, 0, 0);
+        break;
       case "minute":
-        result.setSeconds(0);
-      // fall through
+        result.setSeconds(0, 0);
+        break;
       case "second":
         result.setMilliseconds(0);
         break;
@@ -267,23 +269,6 @@ export class NativeDateAdapter implements DateAdapter {
     return dayOfWeek === 0 || dayOfWeek === 6; // Sunday or Saturday
   }
 
-  format(date: Date, pattern: string): string {
-    // Basic formatting - can be extended
-    const year = date.getFullYear();
-    const month = date.getMonth() + 1;
-    const day = date.getDate();
-    const hours = date.getHours();
-    const minutes = date.getMinutes();
-    const seconds = date.getSeconds();
-
-    return pattern
-      .replace("YYYY", year.toString())
-      .replace("MM", month.toString().padStart(2, "0"))
-      .replace("DD", day.toString().padStart(2, "0"))
-      .replace("HH", hours.toString().padStart(2, "0"))
-      .replace("mm", minutes.toString().padStart(2, "0"))
-      .replace("ss", seconds.toString().padStart(2, "0"));
-  }
 }
 
 // Export default instance
