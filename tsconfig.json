@@ -26,9 +26,11 @@
     "outDir": "dist",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": ["./src/*"],
+      "usetemporal": ["./lib/index.ts"],
+      "usetemporal/*": ["./lib/*"]
     }
   },
-  "include": ["src/**/*", "src/**/*.vue"],
+  "include": ["lib/**/*", "src/**/*", "src/**/*.vue", "test/**/*"],
   "exclude": ["dist", "node_modules"]
 }

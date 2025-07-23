@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
-import { LuxonAdapter, createLuxonAdapter } from "../../src/adapters/luxon";
+import { LuxonAdapter, createLuxonAdapter } from "../../lib/adapters/luxon";
 import { createTestDate } from "../setup";
 
 // Mock Luxon library for testing

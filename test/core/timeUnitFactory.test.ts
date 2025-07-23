@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
-import { createTimeUnit, registerComposable, getComposable } from "../../src/core/timeUnitFactory";
-import type { TimeUnit, UseTimeUnitOptions } from "../../src/types/reactive";
+import { createTimeUnit, registerComposable, getComposable } from "../../lib/core/timeUnitFactory";
+import type { TimeUnit, UseTimeUnitOptions } from "../../lib/types/reactive";
 import { ref } from "@vue/reactivity";
 
 describe("timeUnitFactory", () => {

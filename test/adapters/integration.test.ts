@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
-import { createTemporal } from "../../src/core/createTemporal";
-import { createAdapter } from "../../src/adapters/registry";
-import { nativeAdapter } from "../../src/adapters/native";
-import { createDateFnsAdapter } from "../../src/adapters/date-fns";
+import { createTemporal } from "../../lib/core/createTemporal";
+import { createAdapter } from "../../lib/adapters/registry";
+import { nativeAdapter } from "../../lib/adapters/native";
+import { createDateFnsAdapter } from "../../lib/adapters/date-fns";
 import { createTestDate } from "../setup";
 
 describe("Adapter Integration Tests", () => {

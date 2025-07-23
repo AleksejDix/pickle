@@ -4,8 +4,8 @@ import {
   registerAdapter,
   getAvailableAdapters,
   testAdapterAvailability,
-} from "../../src/adapters/registry";
-import { nativeAdapter } from "../../src/adapters/native";
+} from "../../lib/adapters/registry";
+import { nativeAdapter } from "../../lib/adapters/native";
 
 describe("Adapter Registry", () => {
   describe("Auto-detection", () => {

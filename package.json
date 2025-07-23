@@ -25,22 +25,24 @@
   },
   "files": [
     "dist",
-    "src",
+    "lib",
     "README.md"
   ],
   "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
+    "dev": "vite",
+    "build": "LIB_BUILD=true vite build",
+    "build:lib": "LIB_BUILD=true vite build",
+    "build:app": "vite build",
+    "preview": "vite preview",
     "type-check": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
-    "lint": "oxlint src test examples",
-    "lint:fix": "oxlint src test examples --fix",
+    "lint": "oxlint lib src test",
+    "lint:fix": "oxlint lib src test --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "quality": "npm run format:check && npm run lint",
-    "example:vue": "cd examples/vue && npm run dev"
+    "quality": "npm run format:check && npm run lint"
   },
   "keywords": [
     "time",

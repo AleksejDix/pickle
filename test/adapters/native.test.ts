@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { nativeAdapter } from "../../src/adapters/native";
+import { nativeAdapter } from "../../lib/adapters/native";
 import { createTestDate } from "../setup";
 
 describe("NativeDateAdapter", () => {

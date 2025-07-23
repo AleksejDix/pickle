@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach, vi } from "vitest";
 import {
   TemporalAdapter,
   createTemporalAdapter,
-} from "../../src/adapters/temporal-api";
+} from "../../lib/adapters/temporal-api";
 import { createTestDate } from "../setup";
 
 // Mock the global Temporal API for testing

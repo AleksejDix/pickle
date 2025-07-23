@@ -1,11 +1,11 @@
 import { describe, it, expect, vi } from "vitest";
 import { isRef } from "@vue/reactivity";
-import { createTemporal } from "../../src/core/createTemporal";
-import { same } from "../../src/utils/same";
+import { createTemporal } from "../../lib/core/createTemporal";
+import { same } from "../../lib/utils/same";
 import { createTestDate } from "../setup";
-import { nativeAdapter } from "../../src/adapters/native";
+import { nativeAdapter } from "../../lib/adapters/native";
 // Import composables to register them
-import "../../src/composables";
+import "../../lib/composables";
 
 describe("createTemporal", () => {
   describe("API and Framework Agnostic Behavior", () => {
