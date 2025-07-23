@@ -1,43 +1,42 @@
-# Research Documentation
+# Research Directory
 
-## Overview
+This directory contains the feature backlog and RFC (Request for Comments) documents for the useTemporal project.
 
-This folder contains research, planning, and tracking documents for the useTemporal library development.
+## Structure
 
-## Current Structure
+```
+research/
+├── BACKLOG.md        # Feature backlog with priorities
+├── RFC/              # Individual RFC documents
+│   ├── 001-calendar-grid.md
+│   ├── 002-utility-functions.md
+│   ├── 003-type-constants.md
+│   └── ...
+├── COMPLETED/        # Completed feature stories
+└── ARCHIVE/          # Historical documents
+```
 
-### Active Documents
+## How to Use
 
-- **`CURRENT-STATUS.md`** - Quick overview of completed and pending features
-- **`PENDING-FEATURES.md`** - Detailed specifications for approved but unimplemented features
-- **`RFC-PENDING-IMPROVEMENTS.md`** - Technical RFC for pending features
-- **`COMPLETED-FEATURES-SUMMARY.md`** - Comprehensive summary of all completed features
+1. **Check the Backlog** - `BACKLOG.md` shows all features with their priority and RFC links
+2. **Read RFCs** - Each RFC in the `RFC/` folder details one specific improvement
+3. **Completed Features** - The `COMPLETED/` folder has implemented feature stories
 
-### Folders
+## RFC Format
 
-- **`COMPLETED/`** - User stories for successfully implemented features
-- **`ARCHIVE/`** - Historical documents, analysis, and superseded RFCs
+Each RFC follows this structure:
+- **Summary** - One-line description
+- **Motivation** - Why this feature is needed
+- **Detailed Design** - API and implementation details
+- **Benefits** - What this improves
+- **Drawbacks** - Potential downsides
+- **Alternatives** - Other approaches considered
+- **Migration Path** - How to adopt the feature
 
-## Document Lifecycle
+## Contributing
 
-1. **User Story** → Created for new feature ideas
-2. **RFC** → Technical proposal after approval
-3. **Implementation** → Feature development
-4. **COMPLETED** → User story moved here after implementation
-5. **ARCHIVE** → Old analysis and decisions stored here
-
-## Quick Status (as of 2025-01-23)
-
-### ✅ Completed (3 features)
-
-- Navigation API (`next()`, `previous()`, `go()`)
-- International Week Support (`weekStartsOn`)
-- StableMonth Unit (6-week calendar grids)
-
-### 📋 Pending (3 features)
-
-- Type-safe unit constants
-- Utility functions (goto, select, today)
-- Standalone divide function
-
-All pending features are non-breaking additions that follow Vue.js philosophy of small, tree-shakable functions.
+When proposing a new feature:
+1. Add it to `BACKLOG.md` with appropriate priority
+2. Create a new RFC file: `RFC/XXX-feature-name.md`
+3. Follow the RFC template structure
+4. Link the RFC from the backlog entry
