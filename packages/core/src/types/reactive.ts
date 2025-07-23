@@ -14,10 +14,19 @@ export interface TimeUnit {
   number: ComputedRef<number>;
   browsing: Ref<Date>;
 
-  // Methods - available in all time units
-  future: () => void;
-  past: () => void;
+  // Navigation methods
+  next: () => void;
+  previous: () => void;
+  go: (steps: number) => void;
+
+  // Comparison methods
   isSame: (a: Date | null, b: Date | null) => boolean;
+
+  // Optional type identifier for special units
+  _type?: string;
+
+  // Optional contains method for stableMonth
+  contains?: (date: Date) => boolean;
 }
 
 // Framework-agnostic Composable Options
@@ -25,13 +34,18 @@ export interface CreateTemporalOptions {
   date?: Date | Ref<Date>;
   now?: Date | Ref<Date>;
   dateAdapter?: DateAdapter;
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6; // 0 = Sunday, 1 = Monday, etc.
 }
 
 export interface UseTimeUnitOptions {
   now: Date | Ref<Date>;
   browsing: Date | Ref<Date>;
   adapter?: DateAdapter;
+  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
 }
+
+// Extended type for divide function to support special units
+export type DivideUnit = TimeUnitKind | "stableMonth";
 
 // Reactive Temporal Core Interface
 export interface TemporalCore {
@@ -39,7 +53,8 @@ export interface TemporalCore {
   picked: Ref<Date>;
   now: Ref<Date>;
   adapter: DateAdapter;
-  divide: (interval: TimeUnit, unit: TimeUnitKind) => TimeUnit[];
+  weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+  divide: (interval: TimeUnit, unit: DivideUnit) => TimeUnit[];
 }
 
 // Utility Types

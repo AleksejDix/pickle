@@ -166,8 +166,8 @@ describe("DateFnsAdapter", () => {
 
     it("should get start of week", () => {
       const result = adapter.startOf(testDate, "week");
-      // date-fns defaults to Sunday as start of week
-      expect(result.getDay()).toBe(0); // Sunday
+      // We now default to Monday as start of week
+      expect(result.getDay()).toBe(1); // Monday
       expect(result.getHours()).toBe(0);
       expect(result.getMinutes()).toBe(0);
       expect(result.getSeconds()).toBe(0);
@@ -228,8 +228,8 @@ describe("DateFnsAdapter", () => {
 
     it("should get end of week", () => {
       const result = adapter.endOf(testDate, "week");
-      // date-fns defaults to Saturday as end of week
-      expect(result.getDay()).toBe(6); // Saturday
+      // We now default to Monday as start of week, so Sunday is end
+      expect(result.getDay()).toBe(0); // Sunday
       expect(result.getHours()).toBe(23);
       expect(result.getMinutes()).toBe(59);
       expect(result.getSeconds()).toBe(59);

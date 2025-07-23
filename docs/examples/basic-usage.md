@@ -3,7 +3,7 @@
 ## Simple Calendar
 
 ```typescript
-import { createTemporal, useMonth, nativeAdapter } from "usetemporal";
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
 
 // Create temporal instance
 const temporal = createTemporal({
@@ -11,7 +11,7 @@ const temporal = createTemporal({
 });
 
 // Get current month
-const month = useMonth(temporal);
+const month = periods.month({ temporal });
 
 // Divide month into days
 const days = temporal.divide(month, "day");
@@ -26,8 +26,10 @@ days.forEach((day) => {
 ## Date Navigation
 
 ```typescript
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
+
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
-const month = useMonth(temporal);
+const month = periods.month({ temporal });
 
 // Navigate through months
 month.future(); // Next month
@@ -42,8 +44,10 @@ if (month.isNow.value) {
 ## Year Overview
 
 ```typescript
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
+
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
-const year = useYear(temporal);
+const year = periods.year({ temporal });
 
 // Get all months in the year
 const months = temporal.divide(year, "month");
@@ -58,8 +62,10 @@ months.forEach((month) => {
 ## Week View
 
 ```typescript
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
+
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
-const week = useWeek(temporal);
+const week = periods.week({ temporal });
 
 // Get all days in the week
 const days = temporal.divide(week, "day");
@@ -74,8 +80,10 @@ days.forEach((day) => {
 ## Time Picker
 
 ```typescript
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
+
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
-const day = useDay(temporal);
+const day = periods.day({ temporal });
 
 // Get all hours in the day
 const hours = temporal.divide(day, "hour");
@@ -91,8 +99,10 @@ hours.forEach((hour) => {
 ## Minute-Level Precision
 
 ```typescript
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
+
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
-const minute = useMinute(temporal);
+const minute = periods.minute({ temporal });
 
 console.log(minute.name.value); // "3:45 PM"
 console.log(minute.number.value); // 45
@@ -102,15 +112,17 @@ minute.future(); // Next minute
 minute.past(); // Previous minute
 
 // Get all minutes in an hour
-const hour = useHour(temporal);
+const hour = periods.hour({ temporal });
 const minutes = temporal.divide(hour, "minute"); // 60 minutes
 ```
 
 ## Second-Level Precision
 
 ```typescript
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
+
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
-const second = useSecond(temporal);
+const second = periods.second({ temporal });
 
 console.log(second.name.value); // "3:45:30 PM"
 console.log(second.number.value); // 30
@@ -120,19 +132,21 @@ second.future(); // Next second
 second.past(); // Previous second
 
 // Perfect for stopwatches or precise timing
-const minute = useMinute(temporal);
+const minute = periods.minute({ temporal });
 const seconds = temporal.divide(minute, "second"); // 60 seconds
 ```
 
 ## Quarterly Calendar
 
 ```typescript
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
+
 // Create temporal instance
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
 });
 
-const quarter = useQuarter(temporal);
+const quarter = periods.quarter({ temporal });
 console.log(`Current Quarter: ${quarter.name.value}`);
 
 // Navigate quarters
@@ -140,7 +154,7 @@ quarter.future(); // Next quarter
 quarter.past(); // Previous quarter
 
 // Get all quarters in a year
-const year = useYear(temporal);
+const year = periods.year({ temporal });
 const quarters = temporal.divide(year, "quarter");
 ```
 
@@ -157,7 +171,7 @@ const temporal = createTemporal({
   locale, // Will update when locale changes
 });
 
-const month = useMonth(temporal);
+const month = periods.month({ temporal });
 
 // Display in current locale
 console.log(month.name.value); // "January"
@@ -170,7 +184,7 @@ console.log(month.name.value); // "janvier"
 ## Date Comparison
 
 ```typescript
-import { same } from "usetemporal";
+import { createTemporal, periods, nativeAdapter, same } from "usetemporal";
 
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
 
@@ -192,7 +206,7 @@ if (same(date1, date3, "month", temporal.adapter)) {
 ## Generate Date Ranges
 
 ```typescript
-import { each } from "usetemporal";
+import { createTemporal, periods, nativeAdapter, each } from "usetemporal";
 
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
 
@@ -247,20 +261,14 @@ const year2024 = each({
 
 <script setup>
 import { computed } from "vue";
-import {
-  createTemporal,
-  useYear,
-  useMonth,
-  nativeAdapter,
-  same,
-} from "usetemporal";
+import { createTemporal, periods, nativeAdapter, same } from "usetemporal";
 
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
 });
 
-const year = useYear(temporal);
-const month = useMonth(temporal);
+const year = periods.year({ temporal });
+const month = periods.month({ temporal });
 const days = computed(() => temporal.divide(month, "day"));
 
 const weekdays = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];

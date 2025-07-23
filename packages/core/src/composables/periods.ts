@@ -10,7 +10,7 @@ export const periods = {
     const startOfWeekForDate = adapter.startOf(date, "week");
     const daysDiff = Math.floor(
       (startOfWeekForDate.getTime() - startOfYear.getTime()) /
-        (1000 * 60 * 60 * 24),
+        (1000 * 60 * 60 * 24)
     );
     return Math.floor(daysDiff / 7) + 1;
   }),
@@ -22,5 +22,5 @@ export const periods = {
     const month = date.getMonth();
     return Math.floor(month / 3) + 1;
   }),
+  stableMonth: createPeriod("stableMonth", (date) => date.getMonth() + 1),
 };
-

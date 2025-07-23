@@ -35,11 +35,21 @@ export function createPeriod(
     );
 
     const start: ComputedRef<Date> = computed(() =>
-      adapter.startOf(raw.value, unitKind)
+      (unitKind === "week" || unitKind === "stableMonth") &&
+      options.weekStartsOn !== undefined
+        ? adapter.startOf(raw.value, unitKind, {
+            weekStartsOn: options.weekStartsOn,
+          })
+        : adapter.startOf(raw.value, unitKind)
     );
 
     const end: ComputedRef<Date> = computed(() =>
-      adapter.endOf(raw.value, unitKind)
+      (unitKind === "week" || unitKind === "stableMonth") &&
+      options.weekStartsOn !== undefined
+        ? adapter.endOf(raw.value, unitKind, {
+            weekStartsOn: options.weekStartsOn,
+          })
+        : adapter.endOf(raw.value, unitKind)
     );
 
     const period: ComputedRef<{ start: Date; end: Date }> = computed(() => ({
@@ -56,19 +66,56 @@ export function createPeriod(
       isSame(now.value, browsing.value)
     );
 
-    const future = (): void => {
-      browsing.value = adapter.add(browsing.value, {
-        [`${unitKind}s`]: 1,
-      } as any);
+    // Navigation methods
+    const next = (): void => {
+      if (unitKind === "stableMonth") {
+        browsing.value = adapter.add(browsing.value, { months: 1 });
+      } else {
+        browsing.value = adapter.add(browsing.value, {
+          [`${unitKind}s`]: 1,
+        } as any);
+      }
     };
 
-    const past = (): void => {
-      browsing.value = adapter.subtract(browsing.value, {
-        [`${unitKind}s`]: 1,
-      } as any);
+    const previous = (): void => {
+      if (unitKind === "stableMonth") {
+        browsing.value = adapter.subtract(browsing.value, { months: 1 });
+      } else {
+        browsing.value = adapter.subtract(browsing.value, {
+          [`${unitKind}s`]: 1,
+        } as any);
+      }
     };
 
-    return {
+    const go = (steps: number): void => {
+      if (steps === 0) return;
+
+      if (unitKind === "stableMonth") {
+        browsing.value =
+          steps > 0
+            ? adapter.add(browsing.value, { months: steps })
+            : adapter.subtract(browsing.value, { months: Math.abs(steps) });
+      } else {
+        browsing.value =
+          steps > 0
+            ? adapter.add(browsing.value, {
+                [`${unitKind}s`]: steps,
+              } as any)
+            : adapter.subtract(browsing.value, {
+                [`${unitKind}s`]: Math.abs(steps),
+              } as any);
+      }
+    };
+
+    // Add contains method for stableMonth
+    const contains =
+      unitKind === "stableMonth"
+        ? (date: Date): boolean => {
+            return same(date, raw.value, "month", adapter);
+          }
+        : undefined;
+
+    const result: TimeUnit = {
       raw,
       start,
       end,
@@ -76,9 +123,19 @@ export function createPeriod(
       isNow,
       number,
       browsing,
-      future,
-      past,
+      // Navigation methods
+      next,
+      previous,
+      go,
       isSame,
     };
+
+    // Add type identifier and contains method if it's a stableMonth
+    if (unitKind === "stableMonth") {
+      result._type = "stableMonth";
+      (result as any).contains = contains;
+    }
+
+    return result;
   };
 }

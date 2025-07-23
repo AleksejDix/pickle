@@ -13,8 +13,8 @@
 
     <div class="current-time">
       <h3>Current Time</h3>
-      <p>{{ formatDate(temporal.now.value) }}</p>
-      <p>Adapter: {{ temporal.adapter.name }}</p>
+      <p>{{ formatDate(temporal.value.now.value) }}</p>
+      <p>Adapter: {{ temporal.value.adapter.name }}</p>
     </div>
 
     <div class="year-info">
@@ -22,33 +22,39 @@
       <p>Year: {{ year.number.value }}</p>
       <p>Is Current Year: {{ year.isNow.value }}</p>
       <div class="navigation">
-        <button @click="year.past()">Previous Year</button>
-        <button @click="year.future()">Next Year</button>
+        <button @click="year.previous()">Previous Year</button>
+        <button @click="year.next()">Next Year</button>
       </div>
     </div>
 
-    <div class="months-grid">
+    <div class="month-grid">
       <h3>Months in {{ year.number.value }}</h3>
       <div class="months">
         <div
           v-for="month in months"
-          :key="month.number.value"
+          :key="month.raw.value.toISOString()"
           class="month"
-          :class="{ current: month.isNow.value }"
+          :class="{ current: month.isNow.value, selected: isSelectedMonth(month) }"
+          @click="selectMonth(month)"
         >
-          {{ month.name.value }}
+          {{ month.raw.value.toLocaleDateString('en-US', { month: 'short' }) }}
         </div>
       </div>
     </div>
 
-    <div class="selected-month" v-if="selectedMonth">
-      <h3>Days in {{ selectedMonth.name.value }}</h3>
+    <div v-if="selectedMonth" class="days-grid">
+      <h3>
+        Days in
+        {{
+          selectedMonth.raw.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+        }}
+      </h3>
       <div class="days">
         <div
           v-for="day in days"
           :key="day.raw.value.toISOString()"
           class="day"
-          :class="{ current: day.isNow.value, weekend: day.we?.value }"
+          :class="{ current: day.isNow.value }"
         >
           {{ day.number.value }}
         </div>
@@ -59,25 +65,21 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import {
-  createTemporal,
-  periods,
-  type TemporalCore,
-  type TimeUnit,
-} from 'usetemporal'
+import { createTemporal, periods, type TemporalCore, type TimeUnit } from 'usetemporal'
 import { DateFnsAdapter } from '@usetemporal/adapter-date-fns'
 import { LuxonAdapter } from '@usetemporal/adapter-luxon'
+import { nativeAdapter } from '@usetemporal/adapter-native'
 
 // Selected adapter
 const selectedAdapter = ref('native')
 
 // Create temporal instance
-const temporal = ref<TemporalCore>(createTemporal())
+const temporal = ref<TemporalCore>(createTemporal({ dateAdapter: nativeAdapter }))
 
 // Create composables
-const year = periods.year(temporal.value)
-const months = computed(() => temporal.value.divide(year, 'month'))
-const selectedMonth = ref<TimeUnit | null>(months.value[new Date().getMonth()])
+const year = computed(() => periods.year(temporal.value))
+const months = computed(() => temporal.value.divide(year.value, 'month'))
+const selectedMonth = ref<TimeUnit | null>(null)
 const days = computed(() =>
   selectedMonth.value ? temporal.value.divide(selectedMonth.value, 'day') : [],
 )
@@ -93,7 +95,7 @@ function changeAdapter() {
       adapter = new LuxonAdapter()
       break
     default:
-      adapter = undefined // Will use native adapter
+      adapter = nativeAdapter
   }
 
   temporal.value = createTemporal({ dateAdapter: adapter })
@@ -112,6 +114,15 @@ function formatDate(date: Date): string {
   }).format(date)
 }
 
+// Select a month
+function selectMonth(month: TimeUnit) {
+  selectedMonth.value = month
+}
+
+// Check if month is selected
+function isSelectedMonth(month: TimeUnit): boolean {
+  return selectedMonth.value?.raw.value.getMonth() === month.raw.value.getMonth()
+}
 </script>
 
 <style scoped>
@@ -123,63 +134,64 @@ function formatDate(date: Date): string {
 
 .adapter-selection {
   margin-bottom: 20px;
-  padding: 15px;
-  background: #f5f5f5;
-  border-radius: 8px;
 }
 
 .adapter-selection label {
   margin-right: 10px;
-  font-weight: bold;
 }
 
-.current-time {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #e3f2fd;
+.adapter-selection select {
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.current-time,
+.year-info,
+.month-grid,
+.days-grid {
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f5f5f5;
   border-radius: 8px;
 }
 
-.year-info {
-  margin-bottom: 20px;
-  padding: 15px;
-  background: #f3e5f5;
-  border-radius: 8px;
+h3 {
+  margin-top: 0;
+  margin-bottom: 15px;
+  color: #333;
 }
 
 .navigation {
+  display: flex;
+  gap: 10px;
   margin-top: 10px;
 }
 
 .navigation button {
-  margin-right: 10px;
-  padding: 5px 15px;
-  background: #fff;
-  border: 1px solid #ccc;
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
 .navigation button:hover {
-  background: #f0f0f0;
-}
-
-.months-grid {
-  margin-bottom: 20px;
+  background: #0056b3;
 }
 
 .months {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 10px;
-  margin-top: 10px;
 }
 
 .month {
-  padding: 10px;
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 15px;
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
   text-align: center;
   cursor: pointer;
   transition: all 0.2s;
@@ -187,38 +199,39 @@ function formatDate(date: Date): string {
 
 .month:hover {
   background: #f0f0f0;
+  border-color: #007bff;
 }
 
 .month.current {
-  background: #4caf50;
-  color: white;
-  border-color: #4caf50;
+  background: #e3f2fd;
+  border-color: #2196f3;
+  font-weight: bold;
 }
 
-.selected-month {
-  margin-top: 20px;
+.month.selected {
+  background: #007bff;
+  color: white;
+  border-color: #0056b3;
 }
 
 .days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 5px;
-  margin-top: 10px;
 }
 
 .day {
-  padding: 8px;
-  background: #fff;
-  border: 1px solid #ddd;
+  padding: 10px;
+  background: white;
+  border: 1px solid #e0e0e0;
   border-radius: 4px;
   text-align: center;
-  font-size: 14px;
 }
 
 .day.current {
   background: #2196f3;
   color: white;
-  border-color: #2196f3;
+  font-weight: bold;
 }
 
 .day.weekend {

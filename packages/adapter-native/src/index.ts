@@ -3,9 +3,10 @@
 
 import type {
   DateAdapter,
+  DateAdapterOptions,
   DateDuration,
   TimeUnitKind,
-} from "@usetemporal/core/types";
+} from "@usetemporal/core";
 
 export class NativeDateAdapter implements DateAdapter {
   name = "native";
@@ -55,10 +56,21 @@ export class NativeDateAdapter implements DateAdapter {
     return this.add(date, inverseDuration);
   }
 
-  startOf(date: Date, unit: TimeUnitKind): Date {
+  startOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
     const result = new Date(date);
 
     switch (unit) {
+      case "stableMonth": {
+        // Get first day of the month
+        result.setDate(1);
+        result.setHours(0, 0, 0, 0);
+        // Find the start of the week containing the 1st
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        const dayOfWeek = result.getDay();
+        const daysToSubtract = (dayOfWeek - weekStartsOn + 7) % 7;
+        result.setDate(result.getDate() - daysToSubtract);
+        break;
+      }
       case "year":
         result.setMonth(0, 1);
         result.setHours(0, 0, 0, 0);
@@ -79,11 +91,14 @@ export class NativeDateAdapter implements DateAdapter {
       case "second":
         result.setMilliseconds(0);
         break;
-      case "week":
+      case "week": {
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
         const dayOfWeek = result.getDay();
-        result.setDate(result.getDate() - dayOfWeek);
+        const daysToSubtract = (dayOfWeek - weekStartsOn + 7) % 7;
+        result.setDate(result.getDate() - daysToSubtract);
         result.setHours(0, 0, 0, 0);
         break;
+      }
       case "decade":
         const currentYear = result.getFullYear();
         const decadeStart = Math.floor(currentYear / 10) * 10;
@@ -110,10 +125,26 @@ export class NativeDateAdapter implements DateAdapter {
     return result;
   }
 
-  endOf(date: Date, unit: TimeUnitKind): Date {
+  endOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
     const result = new Date(date);
 
     switch (unit) {
+      case "stableMonth": {
+        // Start from the first of the month to calculate properly
+        const tempDate = new Date(date);
+        tempDate.setDate(1);
+        tempDate.setHours(0, 0, 0, 0);
+        // Find the start of the week containing the 1st
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        const dayOfWeek = tempDate.getDay();
+        const daysToSubtract = (dayOfWeek - weekStartsOn + 7) % 7;
+        tempDate.setDate(tempDate.getDate() - daysToSubtract);
+        // Now add 41 days (6 weeks - 1) to get to the last day
+        result.setTime(tempDate.getTime());
+        result.setDate(result.getDate() + 41);
+        result.setHours(23, 59, 59, 999);
+        break;
+      }
       case "year":
         result.setMonth(11, 31);
         result.setHours(23, 59, 59, 999);
@@ -134,11 +165,14 @@ export class NativeDateAdapter implements DateAdapter {
       case "second":
         result.setMilliseconds(999);
         break;
-      case "week":
+      case "week": {
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
         const dayOfWeek = result.getDay();
-        result.setDate(result.getDate() + (6 - dayOfWeek));
+        const daysToAdd = (weekStartsOn + 6 - dayOfWeek + 7) % 7;
+        result.setDate(result.getDate() + daysToAdd);
         result.setHours(23, 59, 59, 999);
         break;
+      }
       case "decade":
         const currentYear = result.getFullYear();
         const decadeEnd = Math.floor(currentYear / 10) * 10 + 9;
@@ -167,6 +201,11 @@ export class NativeDateAdapter implements DateAdapter {
 
   isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
     switch (unit) {
+      case "stableMonth":
+        // StableMonth comparison is same as month
+        return (
+          a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()
+        );
       case "year":
         return a.getFullYear() === b.getFullYear();
       case "month":
@@ -186,6 +225,8 @@ export class NativeDateAdapter implements DateAdapter {
       case "second":
         return this.isSame(a, b, "minute") && a.getSeconds() === b.getSeconds();
       case "week":
+        // For week comparison, we need to ensure both dates use the same weekStartsOn
+        // Since we don't have access to weekStartsOn here, we'll use Sunday (0) as default
         const startA = this.startOf(a, "week");
         const startB = this.startOf(b, "week");
         return startA.getTime() === startB.getTime();
@@ -217,6 +258,14 @@ export class NativeDateAdapter implements DateAdapter {
   eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
     const result: Date[] = [];
     let current = new Date(start);
+
+    // Special handling for stableMonth
+    if (unit === "stableMonth") {
+      // StableMonth shouldn't be used in eachInterval
+      throw new Error(
+        "Cannot use stableMonth in eachInterval. Use 'day' or 'week' to divide a stableMonth."
+      );
+    }
 
     while (current.getTime() <= end.getTime()) {
       result.push(new Date(current));

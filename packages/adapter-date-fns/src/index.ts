@@ -3,9 +3,10 @@
 
 import type {
   DateAdapter,
+  DateAdapterOptions,
   DateDuration,
   TimeUnitKind,
-} from "@usetemporal/core/types";
+} from "@usetemporal/core";
 
 // Import date-fns functions - these will be tree-shaken if adapter is not used
 import * as dateFnsImport from "date-fns";
@@ -24,7 +25,7 @@ export class DateFnsAdapter implements DateAdapter {
     return sub(date, duration);
   }
 
-  startOf(date: Date, unit: TimeUnitKind): Date {
+  startOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
     const {
       startOfYear,
       startOfMonth,
@@ -36,12 +37,20 @@ export class DateFnsAdapter implements DateAdapter {
     } = this.dateFns;
 
     switch (unit) {
+      case "stableMonth":
+        // Get first day of the month
+        const firstOfMonth = startOfMonth(date);
+        // Find the start of the week containing the 1st
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        return startOfWeek(firstOfMonth, { weekStartsOn });
       case "year":
         return startOfYear(date);
       case "month":
         return startOfMonth(date);
-      case "week":
-        return startOfWeek(date);
+      case "week": {
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        return startOfWeek(date, { weekStartsOn });
+      }
       case "day":
         return startOfDay(date);
       case "hour":
@@ -67,7 +76,7 @@ export class DateFnsAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind): Date {
+  endOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
     const {
       endOfYear,
       endOfMonth,
@@ -76,15 +85,30 @@ export class DateFnsAdapter implements DateAdapter {
       endOfHour,
       endOfMinute,
       endOfSecond,
+      startOfMonth,
+      startOfWeek,
     } = this.dateFns;
 
     switch (unit) {
+      case "stableMonth": {
+        // Get first day of the month
+        const firstOfMonth = startOfMonth(date);
+        // Find the start of the week containing the 1st
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        const weekStart = startOfWeek(firstOfMonth, { weekStartsOn });
+        // Add 41 days (6 weeks - 1) and get end of that day
+        const { add } = this.dateFns;
+        const lastDay = add(weekStart, { days: 41 });
+        return endOfDay(lastDay);
+      }
       case "year":
         return endOfYear(date);
       case "month":
         return endOfMonth(date);
-      case "week":
-        return endOfWeek(date);
+      case "week": {
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        return endOfWeek(date, { weekStartsOn });
+      }
       case "day":
         return endOfDay(date);
       case "hour":
@@ -122,6 +146,9 @@ export class DateFnsAdapter implements DateAdapter {
     } = this.dateFns;
 
     switch (unit) {
+      case "stableMonth":
+        // StableMonth comparison is same as month
+        return isSameMonth(a, b);
       case "year":
         return isSameYear(a, b);
       case "month":
@@ -162,6 +189,13 @@ export class DateFnsAdapter implements DateAdapter {
     } = this.dateFns;
 
     const interval = { start, end };
+
+    // Special handling for stableMonth
+    if (unit === "stableMonth") {
+      throw new Error(
+        "Cannot use stableMonth in eachInterval. Use 'day' or 'week' to divide a stableMonth."
+      );
+    }
 
     switch (unit) {
       case "year":

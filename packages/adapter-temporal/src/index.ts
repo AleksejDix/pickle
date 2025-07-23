@@ -3,9 +3,10 @@
 
 import type {
   DateAdapter,
+  DateAdapterOptions,
   DateDuration,
   TimeUnitKind,
-} from "@usetemporal/core/types";
+} from "@usetemporal/core";
 
 export class TemporalAdapter implements DateAdapter {
   name = "temporal";
@@ -62,7 +63,7 @@ export class TemporalAdapter implements DateAdapter {
     return new Date(result.epochMilliseconds);
   }
 
-  startOf(date: Date, unit: TimeUnitKind): Date {
+  startOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -70,6 +71,36 @@ export class TemporalAdapter implements DateAdapter {
     const plainDate = zonedDateTime.toPlainDate();
 
     switch (unit) {
+      case "stableMonth": {
+        // Get first day of the month
+        const startOfMonthZoned = zonedDateTime.with({
+          day: 1,
+          hour: 0,
+          minute: 0,
+          second: 0,
+          millisecond: 0,
+        });
+        const firstOfMonthDate = startOfMonthZoned.toPlainDate();
+
+        // Find the start of the week containing the 1st
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        const temporalWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+        const dayOfWeek = firstOfMonthDate.dayOfWeek;
+
+        // Calculate days to subtract to get to start of week
+        let daysToSubtract = dayOfWeek - temporalWeekStart;
+        if (daysToSubtract < 0) daysToSubtract += 7;
+
+        const startOfWeekZoned = startOfMonthZoned
+          .subtract({ days: daysToSubtract })
+          .with({
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+          });
+        return new Date(startOfWeekZoned.epochMilliseconds);
+      }
       case "year":
         const startOfYearZoned = zonedDateTime.with({
           month: 1,
@@ -90,9 +121,18 @@ export class TemporalAdapter implements DateAdapter {
         });
         return new Date(startOfMonthZoned.epochMilliseconds);
       case "week":
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
         // Temporal API: 1 = Monday, 7 = Sunday
+        // Our weekStartsOn: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
         const dayOfWeek = plainDate.dayOfWeek;
-        const daysToSubtract = dayOfWeek === 7 ? 0 : dayOfWeek; // Sunday = 0 days to subtract
+
+        // Convert our weekStartsOn to Temporal format
+        const temporalWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+
+        // Calculate days to subtract to get to start of week
+        let daysToSubtract = dayOfWeek - temporalWeekStart;
+        if (daysToSubtract < 0) daysToSubtract += 7;
+
         const startOfWeekZoned = zonedDateTime
           .subtract({ days: daysToSubtract })
           .with({
@@ -144,7 +184,7 @@ export class TemporalAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind): Date {
+  endOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -152,6 +192,38 @@ export class TemporalAdapter implements DateAdapter {
     const plainDate = zonedDateTime.toPlainDate();
 
     switch (unit) {
+      case "stableMonth": {
+        // Get first day of the month
+        const startOfMonthZoned = zonedDateTime.with({
+          day: 1,
+          hour: 0,
+          minute: 0,
+          second: 0,
+          millisecond: 0,
+        });
+        const firstOfMonthDate = startOfMonthZoned.toPlainDate();
+
+        // Find the start of the week containing the 1st
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        const temporalWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+        const dayOfWeek = firstOfMonthDate.dayOfWeek;
+
+        // Calculate days to subtract to get to start of week
+        let daysToSubtract = dayOfWeek - temporalWeekStart;
+        if (daysToSubtract < 0) daysToSubtract += 7;
+
+        const startOfWeekZoned = startOfMonthZoned.subtract({
+          days: daysToSubtract,
+        });
+        // Add 41 days (6 weeks - 1) and get end of that day
+        const endZoned = startOfWeekZoned.add({ days: 41 }).with({
+          hour: 23,
+          minute: 59,
+          second: 59,
+          millisecond: 999,
+        });
+        return new Date(endZoned.epochMilliseconds);
+      }
       case "year":
         const endOfYearZoned = zonedDateTime.with({
           month: 12,
@@ -174,9 +246,17 @@ export class TemporalAdapter implements DateAdapter {
           });
         return new Date(endOfMonthZoned.epochMilliseconds);
       case "week":
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
         // Temporal API: 1 = Monday, 7 = Sunday
+        // Our weekStartsOn: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
         const dayOfWeek = plainDate.dayOfWeek;
-        const daysToAdd = dayOfWeek === 7 ? 6 : 6 - dayOfWeek; // Days to Saturday
+
+        // Convert our weekStartsOn to Temporal format
+        const temporalWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+
+        // Calculate days to add to get to end of week
+        let daysToAdd = (temporalWeekStart + 6 - dayOfWeek + 7) % 7;
+
         const endOfWeekZoned = zonedDateTime.add({ days: daysToAdd }).with({
           hour: 23,
           minute: 59,
@@ -237,6 +317,9 @@ export class TemporalAdapter implements DateAdapter {
     const plainB = zonedB.toPlainDate();
 
     switch (unit) {
+      case "stableMonth":
+        // StableMonth comparison is same as month
+        return zonedA.year === zonedB.year && zonedA.month === zonedB.month;
       case "year":
         return zonedA.year === zonedB.year;
       case "month":
@@ -279,6 +362,13 @@ export class TemporalAdapter implements DateAdapter {
     let current = new Date(start);
     let iterations = 0;
     const maxIterations = 100000; // Safety limit to prevent infinite loops
+
+    // Special handling for stableMonth
+    if (unit === "stableMonth") {
+      throw new Error(
+        "Cannot use stableMonth in eachInterval. Use 'day' or 'week' to divide a stableMonth."
+      );
+    }
 
     while (current.getTime() <= end.getTime() && iterations < maxIterations) {
       result.push(new Date(current));

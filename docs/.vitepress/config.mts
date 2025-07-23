@@ -29,6 +29,7 @@ export default defineConfig({
             { text: "Getting Started", link: "/guide/getting-started" },
             { text: "All Features", link: "/guide/all-features" },
             { text: "Installation", link: "/guide/installation" },
+            { text: "Migration Guide", link: "/guide/migration" },
           ],
         },
         {
@@ -46,6 +47,35 @@ export default defineConfig({
             { text: "Time Navigation", link: "/guide/time-navigation" },
             { text: "Internationalization", link: "/guide/i18n" },
             { text: "Zero Dependencies", link: "/guide/zero-dependencies" },
+            { text: "Performance Optimization", link: "/guide/performance" },
+            { text: "Testing Guide", link: "/guide/testing" },
+            { text: "Troubleshooting", link: "/guide/troubleshooting" },
+            { text: "Advanced Patterns", link: "/guide/advanced-patterns" },
+          ],
+        },
+        {
+          text: "Resources",
+          items: [
+            {
+              text: "Week Start Days Worldwide",
+              link: "/resources/week-start-days",
+            },
+            {
+              text: "Time Zones in Browsers",
+              link: "/resources/timezones-in-browsers",
+            },
+            {
+              text: "JavaScript Date Quirks",
+              link: "/resources/javascript-date-quirks",
+            },
+            {
+              text: "Calendar Systems & History",
+              link: "/resources/calendar-systems-history",
+            },
+            {
+              text: "Date Formats Worldwide",
+              link: "/resources/date-formats-worldwide",
+            },
           ],
         },
       ],
@@ -54,17 +84,9 @@ export default defineConfig({
           text: "Core API",
           items: [
             { text: "createTemporal", link: "/api/create-temporal" },
+            { text: "periods", link: "/api/periods" },
             { text: "divide()", link: "/api/divide" },
-          ],
-        },
-        {
-          text: "Composables",
-          items: [
-            { text: "useYear", link: "/api/use-year" },
-            { text: "useMonth", link: "/api/use-month" },
-            { text: "useWeek", link: "/api/use-week" },
-            { text: "useDay", link: "/api/use-day" },
-            { text: "useHour", link: "/api/use-hour" },
+            { text: "Time Unit Reference", link: "/api/time-unit-reference" },
           ],
         },
         {

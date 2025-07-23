@@ -10,6 +10,7 @@ registerComposable("hour", periods.hour);
 registerComposable("quarter", periods.quarter);
 registerComposable("minute", periods.minute);
 registerComposable("second", periods.second);
+registerComposable("stableMonth", periods.stableMonth);
 
 // Export the periods object
 export { periods };

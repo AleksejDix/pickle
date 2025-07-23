@@ -7,8 +7,10 @@ useTemporal's reactive time units are the core building blocks that make working
 useTemporal uses Vue's reactivity system (`@vue/reactivity`) to create time units that automatically update when their underlying values change. This means your UI and computed values stay in sync with time changes without manual updates.
 
 ```typescript
+import { createTemporal, periods } from "usetemporal";
+
 const temporal = createTemporal();
-const hour = useHour(temporal);
+const hour = periods.hour({ temporal });
 
 // These values are reactive and update automatically
 console.log(hour.name.value); // "3 PM"
@@ -40,12 +42,12 @@ interface TimeUnit {
 
 ## Available Time Units
 
-useTemporal provides composables for all common time units:
+useTemporal provides time unit creation through the `periods` object:
 
 ### Year
 
 ```typescript
-const year = useYear(temporal);
+const year = periods.year({ temporal });
 year.name.value; // "2024"
 year.number.value; // 2024
 year.start.value; // Jan 1, 2024 00:00:00
@@ -55,7 +57,7 @@ year.end.value; // Dec 31, 2024 23:59:59
 ### Month
 
 ```typescript
-const month = useMonth(temporal);
+const month = periods.month({ temporal });
 month.name.value; // "March"
 month.number.value; // 3 (1-indexed)
 month.start.value; // Mar 1, 2024 00:00:00
@@ -65,7 +67,7 @@ month.end.value; // Mar 31, 2024 23:59:59
 ### Week
 
 ```typescript
-const week = useWeek(temporal);
+const week = periods.week({ temporal });
 week.name.value; // "Week 12"
 week.number.value; // 12 (week of year)
 week.start.value; // Sunday 00:00:00
@@ -75,7 +77,7 @@ week.end.value; // Saturday 23:59:59
 ### Day
 
 ```typescript
-const day = useDay(temporal);
+const day = periods.day({ temporal });
 day.name.value; // "Monday"
 day.number.value; // 15 (day of month)
 day.start.value; // Mar 15, 2024 00:00:00
@@ -85,7 +87,7 @@ day.end.value; // Mar 15, 2024 23:59:59
 ### Hour
 
 ```typescript
-const hour = useHour(temporal);
+const hour = periods.hour({ temporal });
 hour.name.value; // "3 PM"
 hour.number.value; // 15 (24-hour format)
 hour.start.value; // Mar 15, 2024 15:00:00
@@ -95,7 +97,7 @@ hour.end.value; // Mar 15, 2024 15:59:59
 ### Minute
 
 ```typescript
-const minute = useMinute(temporal);
+const minute = periods.minute({ temporal });
 minute.name.value; // "3:45 PM"
 minute.number.value; // 45
 minute.start.value; // Mar 15, 2024 15:45:00
@@ -105,7 +107,7 @@ minute.end.value; // Mar 15, 2024 15:45:59
 ### Quarter
 
 ```typescript
-const quarter = useQuarter(temporal);
+const quarter = periods.quarter({ temporal });
 quarter.name.value; // "Q1"
 quarter.number.value; // 1
 quarter.start.value; // Jan 1, 2024 00:00:00
@@ -128,11 +130,11 @@ Time units work seamlessly with Vue's reactivity:
 </template>
 
 <script setup>
-import { createTemporal, useYear, useDay } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 
 const temporal = createTemporal();
-const year = useYear(temporal);
-const day = useDay(temporal);
+const year = periods.year({ temporal });
+const day = periods.day({ temporal });
 </script>
 ```
 
@@ -142,11 +144,11 @@ Use the reactive values with state updates:
 
 ```jsx
 import { useState, useEffect } from "react";
-import { createTemporal, useMonth } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 
 function Calendar() {
   const [temporal] = useState(() => createTemporal());
-  const [month] = useState(() => useMonth(temporal));
+  const [month] = useState(() => periods.month({ temporal }));
   const [monthName, setMonthName] = useState(month.name.value);
 
   useEffect(() => {
@@ -171,8 +173,10 @@ function Calendar() {
 Access reactive values directly:
 
 ```javascript
+import { createTemporal, periods } from "usetemporal";
+
 const temporal = createTemporal();
-const hour = useHour(temporal);
+const hour = periods.hour({ temporal });
 
 // Get current values
 console.log(hour.name.value);
@@ -192,10 +196,11 @@ Create derived reactive values using computed:
 
 ```typescript
 import { computed } from "@vue/reactivity";
+import { createTemporal, periods } from "usetemporal";
 
 const temporal = createTemporal();
-const day = useDay(temporal);
-const hour = useHour(temporal);
+const day = periods.day({ temporal });
+const hour = periods.hour({ temporal });
 
 // Computed greeting based on time
 const greeting = computed(() => {
@@ -217,9 +222,10 @@ React to time unit changes:
 
 ```typescript
 import { watch, watchEffect } from "@vue/reactivity";
+import { createTemporal, periods } from "usetemporal";
 
 const temporal = createTemporal();
-const month = useMonth(temporal);
+const month = periods.month({ temporal });
 
 // Watch specific property
 watch(month.number, (newMonth, oldMonth) => {
@@ -239,7 +245,7 @@ watchEffect(() => {
 Reactive updates are batched for performance:
 
 ```typescript
-const day = useDay(temporal);
+const day = periods.day({ temporal });
 
 // Multiple navigations are batched
 day.future();
@@ -253,7 +259,7 @@ day.future();
 Properties are only computed when accessed:
 
 ```typescript
-const year = useYear(temporal);
+const year = periods.year({ temporal });
 // No computation happens yet
 
 console.log(year.name.value); // Now it computes
@@ -280,9 +286,10 @@ Create your own reactive time units:
 
 ```typescript
 import { ref, computed } from "@vue/reactivity";
+import { periods } from "usetemporal";
 
 function useBusinessDay(temporal) {
-  const day = useDay(temporal);
+  const day = periods.day({ temporal });
 
   const isBusinessDay = computed(() => {
     const dayNum = new Date(day.start.value).getDay();
@@ -301,10 +308,12 @@ function useBusinessDay(temporal) {
 Multiple units stay in sync automatically:
 
 ```typescript
+import { createTemporal, periods } from "usetemporal";
+
 const temporal = createTemporal();
-const year = useYear(temporal);
-const month = useMonth(temporal);
-const day = useDay(temporal);
+const year = periods.year({ temporal });
+const month = periods.month({ temporal });
+const day = periods.day({ temporal });
 
 // Navigate day
 day.future();
@@ -319,7 +328,7 @@ console.log(month.name.value); // Updates if month changes
 The divide pattern returns reactive arrays:
 
 ```typescript
-const year = useYear(temporal);
+const year = periods.year({ temporal });
 const months = temporal.divide(year, "month");
 
 // months is a reactive array

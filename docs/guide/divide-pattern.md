@@ -21,8 +21,10 @@ Year
 ## Basic Usage
 
 ```typescript
-const temporal = createTemporal({ dateAdapter });
-const year = useYear(temporal);
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
+
+const temporal = createTemporal({ dateAdapter: nativeAdapter });
+const year = periods.year({ temporal });
 
 // Divide year into months
 const months = temporal.divide(year, "month");
@@ -54,7 +56,7 @@ year → months → days → hours → minutes → seconds
 All subdivisions stay synchronized with their parent:
 
 ```typescript
-const month = useMonth(temporal);
+const month = periods.month({ temporal });
 const days = temporal.divide(month, "day");
 
 // When month changes, days automatically update
@@ -85,7 +87,7 @@ days.forEach((day) => {
 ### Calendar Grid
 
 ```typescript
-const month = useMonth(temporal);
+const month = periods.month({ temporal });
 const weeks = temporal.divide(month, "week");
 
 weeks.forEach((week) => {
@@ -97,7 +99,7 @@ weeks.forEach((week) => {
 ### Year Overview
 
 ```typescript
-const year = useYear(temporal);
+const year = periods.year({ temporal });
 const months = temporal.divide(year, "month");
 
 const yearOverview = months.map((month) => {
@@ -118,7 +120,7 @@ const yearOverview = months.map((month) => {
 ### Time Picker
 
 ```typescript
-const day = useDay(temporal);
+const day = periods.day({ temporal });
 const hours = temporal.divide(day, "hour");
 
 // Create hour slots
@@ -173,7 +175,7 @@ function showMonth(month) {
 
 ```typescript
 function createMonthCalendar(temporal) {
-  const month = useMonth(temporal);
+  const month = periods.month({ temporal });
   const days = temporal.divide(month, "day");
 
   // Group by weeks
@@ -196,7 +198,7 @@ function createMonthCalendar(temporal) {
 
 ```typescript
 function getAvailableSlots(temporal, duration = 30) {
-  const day = useDay(temporal);
+  const day = periods.day({ temporal });
   const hours = temporal.divide(day, "hour");
 
   const slots = [];
@@ -220,7 +222,7 @@ function getAvailableSlots(temporal, duration = 30) {
 
 ```typescript
 function createDateNavigator(temporal) {
-  const year = useYear(temporal);
+  const year = periods.year({ temporal });
   const months = temporal.divide(year, "month");
 
   return {
@@ -246,15 +248,15 @@ function createDateNavigator(temporal) {
 
 ## Integration with Composables
 
-The divide pattern works seamlessly with all time unit composables:
+The divide pattern works seamlessly with all time units:
 
 ```typescript
-// Start with any composable
-const week = useWeek(temporal);
+// Start with any time unit
+const week = periods.week({ temporal });
 const days = temporal.divide(week, "day");
 
 // Or combine multiple levels
-const year = useYear(temporal);
+const year = periods.year({ temporal });
 const quarters = temporal.divide(year, "quarter");
 const monthsInQ1 = temporal.divide(quarters[0], "month");
 ```

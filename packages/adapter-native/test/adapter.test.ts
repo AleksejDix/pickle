@@ -111,13 +111,13 @@ describe("NativeDateAdapter", () => {
     it("should find start of week", () => {
       const date = new Date(2024, 0, 17); // Wednesday
       const result = adapter.startOf(date, "week");
-      expect(result.getDate()).toBe(14); // Previous Sunday
+      expect(result.getDate()).toBe(15); // Previous Monday (default weekStartsOn = 1)
     });
 
     it("should find end of week", () => {
       const date = new Date(2024, 0, 17); // Wednesday
       const result = adapter.endOf(date, "week");
-      expect(result.getDate()).toBe(20); // Next Saturday
+      expect(result.getDate()).toBe(21); // Next Sunday (when Monday is start, Sunday is end)
     });
   });
 

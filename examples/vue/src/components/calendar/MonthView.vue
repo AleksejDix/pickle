@@ -1,7 +1,7 @@
 <template>
   <div class="month-view">
     <div class="month-header">
-      <h2>{{ month.name?.value || 'Loading...' }}</h2>
+      <h2>{{ month.raw.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }}</h2>
     </div>
 
     <div class="calendar-grid">
@@ -11,28 +11,24 @@
         </div>
       </div>
 
-      <div class="days-grid">
-        <div v-for="n in monthStartPadding" :key="`pad-start-${n}`" class="day-pad">
-          <span class="day-number">{{ previousMonthDays[n - 1] }}</span>
-        </div>
-
-        <div
-          v-for="day in days"
-          :key="day.raw.value.toISOString()"
-          class="day"
-          :class="{
-            'is-today': day.isNow.value,
-            'is-weekend': day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
-            'is-selected': selectedDay?.raw.value.getTime() === day.raw.value.getTime(),
-          }"
-          @click="selectDay(day)"
-        >
-          <span class="day-number">{{ day.number.value }}</span>
-          <div class="day-content"></div>
-        </div>
-
-        <div v-for="n in monthEndPadding" :key="`pad-end-${n}`" class="day-pad">
-          <span class="day-number">{{ n }}</span>
+      <div class="weeks-grid">
+        <div v-for="(week, weekIndex) in gridWeeks" :key="`week-${weekIndex}`" class="week">
+          <div
+            v-for="(dayInfo, dayIndex) in week"
+            :key="`day-${weekIndex}-${dayIndex}`"
+            class="day"
+            :class="{
+              'is-today': dayInfo.day.isNow.value,
+              'is-weekend': dayInfo.isWeekend,
+              'is-selected':
+                selectedDay && selectedDay.raw.value.getTime() === dayInfo.day.raw.value.getTime(),
+              'is-other-month': !dayInfo.isCurrentMonth,
+            }"
+            @click="dayInfo.isCurrentMonth && selectDay(dayInfo.day)"
+          >
+            <span class="day-number">{{ dayInfo.day.number.value }}</span>
+            <div class="day-content"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -54,36 +50,36 @@ const emit = defineEmits<{
 }>()
 
 const month = props.initialMonth ? props.initialMonth : periods.month(props.temporal)
-const days = computed(() => props.temporal.divide(month, 'day'))
+
+// Use stableMonth for the calendar grid
+const stableMonth = computed(() =>
+  periods.stableMonth({
+    now: props.temporal.now,
+    browsing: month.browsing,
+    adapter: props.temporal.adapter,
+    weekStartsOn: props.temporal.weekStartsOn,
+  }),
+)
+
+const weeks = computed(() => props.temporal.divide(stableMonth.value, 'week'))
 const selectedDay = ref<TimeUnit | null>(null)
 
-const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+// Weekdays starting with Monday
+const weekdays =
+  props.temporal.weekStartsOn === 1
+    ? ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+    : ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
-const monthStartPadding = computed(() => {
-  if (days.value.length === 0) return 0
-  const firstDay = days.value[0]
-  return firstDay.raw.value.getDay()
-})
-
-const monthEndPadding = computed(() => {
-  if (days.value.length === 0) return 0
-  const lastDay = days.value[days.value.length - 1]
-  const lastDayOfWeek = lastDay.raw.value.getDay()
-  return lastDayOfWeek === 6 ? 0 : 6 - lastDayOfWeek
-})
-
-const previousMonthDays = computed(() => {
-  if (monthStartPadding.value === 0) return []
-
-  const prevMonth = new Date(month.raw.value)
-  prevMonth.setMonth(prevMonth.getMonth() - 1)
-  const daysInPrevMonth = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0).getDate()
-
-  const result: number[] = []
-  for (let i = monthStartPadding.value - 1; i >= 0; i--) {
-    result.push(daysInPrevMonth - i)
-  }
-  return result
+// Group days by week for the grid
+const gridWeeks = computed(() => {
+  return weeks.value.map((week) => {
+    const days = props.temporal.divide(week, 'day')
+    return days.map((day) => ({
+      day,
+      isCurrentMonth: stableMonth.value.contains!(day.raw.value),
+      isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
+    }))
+  })
 })
 
 function selectDay(day: TimeUnit) {
@@ -136,16 +132,21 @@ function selectDay(day: TimeUnit) {
   letter-spacing: 0.5px;
 }
 
-.days-grid {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+.weeks-grid {
+  display: flex;
+  flex-direction: column;
   gap: 1px;
   background-color: #e0e0e0;
   border: 1px solid #e0e0e0;
 }
 
-.day,
-.day-pad {
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+}
+
+.day {
   background: white;
   min-height: 100px;
   padding: 8px;
@@ -154,12 +155,12 @@ function selectDay(day: TimeUnit) {
   transition: background-color 0.1s ease;
 }
 
-.day-pad {
+.day.is-other-month {
   background-color: #fafafa;
   cursor: default;
 }
 
-.day-pad .day-number {
+.day.is-other-month .day-number {
   color: #ccc;
 }
 

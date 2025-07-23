@@ -13,7 +13,7 @@
         @click="$emit('selectMonth', month)"
       >
         <div class="month-header">
-          {{ month.name.value }}
+          {{ month.raw.value.toLocaleDateString('en-US', { month: 'short' }) }}
         </div>
 
         <div class="month-calendar">
@@ -23,19 +23,24 @@
             </div>
           </div>
 
-          <div class="days-grid">
-            <div v-for="n in getMonthStartPadding(month)" :key="`pad-${n}`" class="day-pad"></div>
-
+          <div class="weeks-grid">
             <div
-              v-for="day in getDaysInMonth(month)"
-              :key="day.raw.value.toISOString()"
-              class="day"
-              :class="{
-                'is-today': day.isNow.value,
-                'is-weekend': day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
-              }"
+              v-for="(week, weekIndex) in getMonthWeeks(month)"
+              :key="`week-${weekIndex}`"
+              class="week"
             >
-              {{ day.number.value }}
+              <div
+                v-for="(dayInfo, dayIndex) in week"
+                :key="`day-${weekIndex}-${dayIndex}`"
+                class="day"
+                :class="{
+                  'is-today': dayInfo.day.isNow.value,
+                  'is-weekend': dayInfo.isWeekend,
+                  'is-other-month': !dayInfo.isCurrentMonth,
+                }"
+              >
+                {{ dayInfo.day.number.value }}
+              </div>
             </div>
           </div>
         </div>
@@ -61,19 +66,35 @@ const emit = defineEmits<{
 const year = periods.year(props.temporal)
 const months = computed(() => props.temporal.divide(year, 'month'))
 
-const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
+// Weekdays starting with Monday if configured
+const weekdays =
+  props.temporal.weekStartsOn === 1
+    ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
+    : ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
-function getDaysInMonth(month: TimeUnit) {
-  return props.temporal.divide(month, 'day')
+// Get stableMonth for each month to show full calendar grid
+function getStableMonth(month: TimeUnit) {
+  return periods.stableMonth({
+    now: props.temporal.now,
+    browsing: month.browsing,
+    adapter: props.temporal.adapter,
+    weekStartsOn: props.temporal.weekStartsOn,
+  })
 }
 
-function getMonthStartPadding(month: TimeUnit) {
-  const days = getDaysInMonth(month)
-  if (days.length === 0) return 0
+// Get weeks for a stableMonth
+function getMonthWeeks(month: TimeUnit) {
+  const stableMonth = getStableMonth(month)
+  const weeks = props.temporal.divide(stableMonth, 'week')
 
-  const firstDay = days[0]
-  const dayOfWeek = firstDay.raw.value.getDay()
-  return dayOfWeek
+  return weeks.map((week) => {
+    const days = props.temporal.divide(week, 'day')
+    return days.map((day) => ({
+      day,
+      isCurrentMonth: stableMonth.contains!(day.raw.value),
+      isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
+    }))
+  })
 }
 </script>
 
@@ -147,20 +168,29 @@ function getMonthStartPadding(month: TimeUnit) {
   padding: 2px;
 }
 
-.days-grid {
+.weeks-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.week {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   gap: 2px;
 }
 
-.day,
-.day-pad {
+.day {
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 4px;
   color: #333;
+}
+
+.day.is-other-month {
+  color: #ddd;
 }
 
 .day {

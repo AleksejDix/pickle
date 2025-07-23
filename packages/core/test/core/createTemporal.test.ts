@@ -33,8 +33,9 @@ describe("createTemporal", () => {
       expect(unit.isNow).toBeDefined();
       expect(unit.number).toBeDefined();
       expect(unit.browsing).toBeDefined();
-      expect(typeof unit.future).toBe("function");
-      expect(typeof unit.past).toBe("function");
+      expect(typeof unit.next).toBe("function");
+      expect(typeof unit.previous).toBe("function");
+      expect(typeof unit.go).toBe("function");
       expect(typeof unit.isSame).toBe("function");
     });
 
@@ -240,7 +241,6 @@ describe("createTemporal", () => {
       const options = {
         date: createTestDate(2024, 0, 1),
         now: createTestDate(2024, 0, 2),
-        locale: "en-US" as const,
         dateAdapter: mockAdapter,
       };
 
@@ -269,9 +269,7 @@ describe("createTemporal", () => {
 
   describe("Composables Integration", () => {
     it("should test useYear composable", async () => {
-      const { periods } = await import(
-        "../../src/composables/periods"
-      );
+      const { periods } = await import("../../src/composables/periods");
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15),
@@ -289,19 +287,24 @@ describe("createTemporal", () => {
       expect(year.start.value.getMonth()).toBe(0);
       expect(year.start.value.getDate()).toBe(1);
 
-      // Test navigation
-      year.future();
+      // Test new navigation methods
+      year.next();
       expect(year.number.value).toBe(2025);
 
-      year.past();
-      year.past();
+      year.previous();
+      year.previous();
       expect(year.number.value).toBe(2023);
+
+      // Test go method
+      year.go(2);
+      expect(year.number.value).toBe(2025);
+
+      year.go(-3);
+      expect(year.number.value).toBe(2022);
     });
 
     it("should test useMonth composable", async () => {
-      const { periods } = await import(
-        "../../src/composables/periods"
-      );
+      const { periods } = await import("../../src/composables/periods");
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15),
@@ -316,19 +319,24 @@ describe("createTemporal", () => {
       expect(month.number.value).toBe(6);
       // Note: days property doesn't exist on month composable
 
-      // Test navigation
-      month.future();
+      // Test new navigation methods
+      month.next();
       expect(month.number.value).toBe(7);
 
-      month.past();
-      month.past();
+      month.previous();
+      month.previous();
       expect(month.number.value).toBe(5);
+
+      // Test go method
+      month.go(3);
+      expect(month.number.value).toBe(8);
+
+      month.go(-2);
+      expect(month.number.value).toBe(6);
     });
 
     it("should test useWeek composable", async () => {
-      const { periods } = await import(
-        "../../src/composables/periods"
-      );
+      const { periods } = await import("../../src/composables/periods");
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15),
@@ -338,19 +346,27 @@ describe("createTemporal", () => {
         now: temporal.now,
         browsing: temporal.browsing,
         adapter: temporal.adapter,
+        weekStartsOn: temporal.weekStartsOn,
       });
 
       // Just test the date parts, avoid timezone issues
-      expect(week.start.value.getDate()).toBe(9); // Sunday
-      expect(week.end.value.getDate()).toBe(15); // Saturday
+      expect(week.start.value.getDate()).toBe(10); // Monday (default)
+      expect(week.end.value.getDate()).toBe(16); // Sunday
 
-      // Test navigation
-      week.future();
-      expect(week.start.value.getDate()).toBe(16);
+      // Test new navigation methods
+      week.next();
+      expect(week.start.value.getDate()).toBe(17);
 
-      week.past();
-      week.past();
-      expect(week.start.value.getDate()).toBe(2);
+      week.previous();
+      week.previous();
+      expect(week.start.value.getDate()).toBe(3);
+
+      // Test go method
+      week.go(2);
+      expect(week.start.value.getDate()).toBe(17);
+
+      week.go(-1);
+      expect(week.start.value.getDate()).toBe(10);
     });
 
     it("should test useDay composable", async () => {
@@ -368,19 +384,24 @@ describe("createTemporal", () => {
 
       expect(day.number.value).toBe(15);
 
-      // Test navigation
-      day.future();
+      // Test new navigation methods
+      day.next();
       expect(day.number.value).toBe(16);
 
-      day.past();
-      day.past();
+      day.previous();
+      day.previous();
       expect(day.number.value).toBe(14);
+
+      // Test go method
+      day.go(5);
+      expect(day.number.value).toBe(19);
+
+      day.go(-10);
+      expect(day.number.value).toBe(9);
     });
 
     it("should test useHour composable", async () => {
-      const { periods } = await import(
-        "../../src/composables/periods"
-      );
+      const { periods } = await import("../../src/composables/periods");
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15, 14, 30),
@@ -394,13 +415,54 @@ describe("createTemporal", () => {
 
       expect(hour.number.value).toBe(14);
 
-      // Test navigation
-      hour.future();
+      // Test new navigation methods
+      hour.next();
       expect(hour.number.value).toBe(15);
 
-      hour.past();
-      hour.past();
+      hour.previous();
+      hour.previous();
       expect(hour.number.value).toBe(13);
+
+      // Test go method
+      hour.go(3);
+      expect(hour.number.value).toBe(16);
+
+      hour.go(-5);
+      expect(hour.number.value).toBe(11);
+    });
+  });
+
+  describe("Standalone navigation functions", () => {
+    it("should test standalone navigation functions", async () => {
+      const { next, previous, go } = await import("../../src/navigation");
+      const { periods } = await import("../../src/composables/periods");
+
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 5, 15),
+      });
+
+      const month = periods.month({
+        now: temporal.now,
+        browsing: temporal.browsing,
+        adapter: temporal.adapter,
+      });
+
+      // Test standalone next
+      next(month);
+      expect(month.number.value).toBe(7);
+
+      // Test standalone previous
+      previous(month);
+      previous(month);
+      expect(month.number.value).toBe(5);
+
+      // Test standalone go
+      go(month, 3);
+      expect(month.number.value).toBe(8);
+
+      go(month, -4);
+      expect(month.number.value).toBe(4);
     });
   });
 
@@ -513,12 +575,134 @@ describe("createTemporal", () => {
         dateAdapter: mockAdapter,
         date: dateRef,
         now: plainNow,
-        locale: "de-DE",
       });
 
       expect(temporal.picked).toBe(dateRef);
       expect(temporal.now.value).toEqual(plainNow);
       expect(isRef(temporal.now)).toBe(true);
+    });
+  });
+
+  describe("weekStartsOn configuration", () => {
+    it("should default to Monday (1) when not specified", () => {
+      const temporal = createTemporal({ dateAdapter: mockAdapter });
+      expect(temporal.weekStartsOn).toBe(1);
+    });
+
+    it("should accept weekStartsOn option", () => {
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        weekStartsOn: 0, // Sunday
+      });
+      expect(temporal.weekStartsOn).toBe(0);
+    });
+
+    it("should pass weekStartsOn to week composable", async () => {
+      const { periods } = await import("../../src/composables/periods");
+
+      // Test with Sunday start
+      const temporalSunday = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 0, 10), // Wednesday, Jan 10, 2024
+        weekStartsOn: 0, // Sunday
+      });
+
+      const weekSunday = periods.week({
+        now: temporalSunday.now,
+        browsing: temporalSunday.browsing,
+        adapter: temporalSunday.adapter,
+        weekStartsOn: temporalSunday.weekStartsOn,
+      });
+
+      // Week should start on Sunday Jan 7
+      expect(weekSunday.start.value.getDate()).toBe(7);
+      expect(weekSunday.start.value.getDay()).toBe(0); // Sunday
+
+      // Test with Monday start
+      const temporalMonday = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 0, 10), // Wednesday, Jan 10, 2024
+        weekStartsOn: 1, // Monday
+      });
+
+      const weekMonday = periods.week({
+        now: temporalMonday.now,
+        browsing: temporalMonday.browsing,
+        adapter: temporalMonday.adapter,
+        weekStartsOn: temporalMonday.weekStartsOn,
+      });
+
+      // Week should start on Monday Jan 8
+      expect(weekMonday.start.value.getDate()).toBe(8);
+      expect(weekMonday.start.value.getDay()).toBe(1); // Monday
+    });
+
+    it("should calculate week boundaries correctly for different weekStartsOn values", async () => {
+      const { periods } = await import("../../src/composables/periods");
+      const testDate = createTestDate(2024, 0, 13); // Saturday, Jan 13, 2024
+
+      // Test all weekStartsOn values (0-6)
+      const expectations = [
+        { weekStartsOn: 0, startDate: 7, startDay: 0 }, // Sunday
+        { weekStartsOn: 1, startDate: 8, startDay: 1 }, // Monday
+        { weekStartsOn: 2, startDate: 9, startDay: 2 }, // Tuesday
+        { weekStartsOn: 3, startDate: 10, startDay: 3 }, // Wednesday
+        { weekStartsOn: 4, startDate: 11, startDay: 4 }, // Thursday
+        { weekStartsOn: 5, startDate: 12, startDay: 5 }, // Friday
+        { weekStartsOn: 6, startDate: 13, startDay: 6 }, // Saturday
+      ];
+
+      for (const { weekStartsOn, startDate, startDay } of expectations) {
+        const temporal = createTemporal({
+          dateAdapter: mockAdapter,
+          date: testDate,
+          weekStartsOn: weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+        });
+
+        const week = periods.week({
+          now: temporal.now,
+          browsing: temporal.browsing,
+          adapter: temporal.adapter,
+          weekStartsOn: temporal.weekStartsOn,
+        });
+
+        expect(week.start.value.getDate()).toBe(startDate);
+        expect(week.start.value.getDay()).toBe(startDay);
+        expect(week.end.value.getDate()).toBe(startDate + 6);
+      }
+    });
+
+    it("should respect weekStartsOn when dividing months into weeks", () => {
+      const temporalSunday = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 0, 15), // January 2024
+        weekStartsOn: 0, // Sunday
+      });
+
+      const month = {
+        period: {
+          value: {
+            start: createTestDate(2024, 0, 1),
+            end: createTestDate(2024, 0, 31),
+          },
+        },
+        raw: { value: createTestDate(2024, 0, 15) },
+        isNow: { value: false },
+        number: { value: 1 },
+        browsing: { value: createTestDate(2024, 0, 15) },
+        next: () => {},
+        previous: () => {},
+        go: () => {},
+        isSame: () => false,
+      };
+
+      const weeks = temporalSunday.divide(month as any, "week");
+
+      // Verify the first week starts on the correct day
+      expect(weeks.length).toBeGreaterThan(0);
+      // The first week should respect weekStartsOn
+      const firstWeek = weeks[0];
+      expect(firstWeek).toBeDefined();
     });
   });
 

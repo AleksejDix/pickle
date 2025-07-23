@@ -3,9 +3,10 @@
 
 import type {
   DateAdapter,
+  DateAdapterOptions,
   DateDuration,
   TimeUnitKind,
-} from "@usetemporal/core/types";
+} from "@usetemporal/core";
 
 // Import Luxon - this will be tree-shaken if adapter is not used
 import * as luxonImport from "luxon";
@@ -50,17 +51,47 @@ export class LuxonAdapter implements DateAdapter {
     return result.toJSDate();
   }
 
-  startOf(date: Date, unit: TimeUnitKind): Date {
+  startOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
     switch (unit) {
+      case "stableMonth": {
+        // Get first day of the month
+        const firstOfMonth = dt.startOf("month");
+        // Find the start of the week containing the 1st
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        // Luxon weekday: 1 = Monday, 7 = Sunday
+        // Our weekStartsOn: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const luxonWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+        const currentWeekday = firstOfMonth.weekday;
+
+        // Calculate days to subtract to get to start of week
+        let daysToSubtract = currentWeekday - luxonWeekStart;
+        if (daysToSubtract < 0) daysToSubtract += 7;
+
+        return firstOfMonth
+          .minus({ days: daysToSubtract })
+          .startOf("day")
+          .toJSDate();
+      }
       case "year":
         return dt.startOf("year").toJSDate();
       case "month":
         return dt.startOf("month").toJSDate();
       case "week":
-        return dt.startOf("week").toJSDate();
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        // Luxon weekday: 1 = Monday, 7 = Sunday
+        // Our weekStartsOn: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        // Convert our format to Luxon format
+        const luxonWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+        const currentWeekday = dt.weekday;
+
+        // Calculate days to subtract to get to start of week
+        let daysToSubtract = currentWeekday - luxonWeekStart;
+        if (daysToSubtract < 0) daysToSubtract += 7;
+
+        return dt.minus({ days: daysToSubtract }).startOf("day").toJSDate();
       case "day":
         return dt.startOf("day").toJSDate();
       case "hour":
@@ -95,17 +126,45 @@ export class LuxonAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind): Date {
+  endOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
     switch (unit) {
+      case "stableMonth": {
+        // Get first day of the month
+        const firstOfMonth = dt.startOf("month");
+        // Find the start of the week containing the 1st
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        // Luxon weekday: 1 = Monday, 7 = Sunday
+        // Our weekStartsOn: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        const luxonWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+        const currentWeekday = firstOfMonth.weekday;
+
+        // Calculate days to subtract to get to start of week
+        let daysToSubtract = currentWeekday - luxonWeekStart;
+        if (daysToSubtract < 0) daysToSubtract += 7;
+
+        const weekStart = firstOfMonth.minus({ days: daysToSubtract });
+        // Add 41 days (6 weeks - 1) and get end of that day
+        return weekStart.plus({ days: 41 }).endOf("day").toJSDate();
+      }
       case "year":
         return dt.endOf("year").toJSDate();
       case "month":
         return dt.endOf("month").toJSDate();
       case "week":
-        return dt.endOf("week").toJSDate();
+        const weekStartsOn = options?.weekStartsOn ?? 1; // Default to Monday
+        // Luxon weekday: 1 = Monday, 7 = Sunday
+        // Our weekStartsOn: 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+        // Convert our format to Luxon format
+        const luxonWeekStart = weekStartsOn === 0 ? 7 : weekStartsOn;
+        const currentWeekday = dt.weekday;
+
+        // Calculate days to add to get to end of week
+        let daysToAdd = (luxonWeekStart + 6 - currentWeekday + 7) % 7;
+
+        return dt.plus({ days: daysToAdd }).endOf("day").toJSDate();
       case "day":
         return dt.endOf("day").toJSDate();
       case "hour":
@@ -146,6 +205,9 @@ export class LuxonAdapter implements DateAdapter {
     const dtB = DateTime.fromJSDate(b);
 
     switch (unit) {
+      case "stableMonth":
+        // StableMonth comparison is same as month
+        return dtA.hasSame(dtB, "month");
       case "year":
         return dtA.hasSame(dtB, "year");
       case "month":
@@ -204,6 +266,13 @@ export class LuxonAdapter implements DateAdapter {
     const startDt = DateTime.fromJSDate(start);
     const endDt = DateTime.fromJSDate(end);
     const interval = Interval.fromDateTimes(startDt, endDt);
+
+    // Special handling for stableMonth
+    if (unit === "stableMonth") {
+      throw new Error(
+        "Cannot use stableMonth in eachInterval. Use 'day' or 'week' to divide a stableMonth."
+      );
+    }
 
     switch (unit) {
       case "year":

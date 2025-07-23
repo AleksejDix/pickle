@@ -16,10 +16,11 @@ useTemporal uses `@vue/reactivity` as its reactivity engine, which despite its n
 ```typescript
 // useTemporal only depends on @vue/reactivity, not Vue
 import { ref, computed } from "@vue/reactivity";
+import { createTemporal, periods } from "usetemporal";
 
 // This works in React, Angular, Svelte, or vanilla JS!
 const temporal = createTemporal();
-const hour = useHour(temporal);
+const hour = periods.hour({ temporal });
 
 // Reactive values work everywhere
 console.log(hour.name.value); // "3 PM"
@@ -41,12 +42,12 @@ Vue 3 uses the same reactivity system, so integration is seamless:
 </template>
 
 <script setup>
-import { createTemporal, useYear, useMonth, useDay } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 
 const temporal = createTemporal();
-const year = useYear(temporal);
-const month = useMonth(temporal);
-const day = useDay(temporal);
+const year = periods.year({ temporal });
+const month = periods.month({ temporal });
+const day = periods.day({ temporal });
 </script>
 ```
 
@@ -56,13 +57,13 @@ Use hooks to bridge reactive values to React state:
 
 ```jsx
 import { useState, useEffect, useMemo } from "react";
-import { createTemporal, useMonth, useDay } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 
 // Custom hook for useTemporal
 function useTemporalTime() {
   const temporal = useMemo(() => createTemporal(), []);
-  const month = useMemo(() => useMonth(temporal), [temporal]);
-  const day = useMemo(() => useDay(temporal), [temporal]);
+  const month = useMemo(() => periods.month({ temporal }), [temporal]);
+  const day = useMemo(() => periods.day({ temporal }), [temporal]);
 
   const [monthName, setMonthName] = useState(month.name.value);
   const [dayNumber, setDayNumber] = useState(day.number.value);
@@ -107,7 +108,7 @@ Use services and RxJS to integrate:
 
 ```typescript
 import { Injectable, signal } from "@angular/core";
-import { createTemporal, useYear, useMonth } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 import { BehaviorSubject } from "rxjs";
 
 @Injectable({
@@ -115,8 +116,8 @@ import { BehaviorSubject } from "rxjs";
 })
 export class TimeService {
   private temporal = createTemporal();
-  private year = useYear(this.temporal);
-  private month = useMonth(this.temporal);
+  private year = periods.year({ temporal: this.temporal });
+  private month = periods.month({ temporal: this.temporal });
 
   // Expose as signals (Angular 16+)
   yearName = signal(this.year.name.value);
@@ -156,11 +157,11 @@ Use stores to bridge reactivity:
 ```javascript
 // timeStore.js
 import { writable, derived } from "svelte/store";
-import { createTemporal, useDay, useHour } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 
 const temporal = createTemporal();
-const day = useDay(temporal);
-const hour = useHour(temporal);
+const day = periods.day({ temporal });
+const hour = periods.hour({ temporal });
 
 // Create Svelte stores
 export const dayName = writable(day.name.value);
@@ -199,11 +200,11 @@ export const previousDay = () => day.past();
 Direct usage without any framework:
 
 ```javascript
-import { createTemporal, useMonth, useWeek } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 
 const temporal = createTemporal();
-const month = useMonth(temporal);
-const week = useWeek(temporal);
+const month = periods.month({ temporal });
+const week = periods.week({ temporal });
 
 // Update DOM on changes
 month.name.subscribe((value) => {
@@ -223,7 +224,7 @@ document.getElementById("next-month").addEventListener("click", () => {
 class Calendar {
   constructor() {
     this.temporal = createTemporal();
-    this.currentDay = useDay(this.temporal);
+    this.currentDay = periods.day({ temporal: this.temporal });
   }
 
   get dayName() {
@@ -241,7 +242,7 @@ class Calendar {
 Create framework-agnostic components:
 
 ```javascript
-import { createTemporal, useMonth } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 
 class TimeDisplay extends HTMLElement {
   constructor() {
@@ -249,7 +250,7 @@ class TimeDisplay extends HTMLElement {
     this.attachShadow({ mode: "open" });
 
     this.temporal = createTemporal();
-    this.month = useMonth(this.temporal);
+    this.month = periods.month({ temporal: this.temporal });
   }
 
   connectedCallback() {
@@ -294,7 +295,7 @@ useTemporal works perfectly with SSR:
 // Next.js example
 export async function getServerSideProps() {
   const temporal = createTemporal();
-  const month = useMonth(temporal);
+  const month = periods.month({ temporal });
 
   return {
     props: {
@@ -308,7 +309,7 @@ export async function getServerSideProps() {
 export default {
   async asyncData() {
     const temporal = createTemporal();
-    const year = useYear(temporal);
+    const year = periods.year({ temporal });
 
     return {
       currentYear: year.name.value,
@@ -323,11 +324,11 @@ Framework-agnostic design makes testing simple:
 
 ```javascript
 import { test, expect } from "vitest";
-import { createTemporal, useDay } from "usetemporal";
+import { createTemporal, periods } from "usetemporal";
 
 test("day navigation works", () => {
   const temporal = createTemporal();
-  const day = useDay(temporal);
+  const day = periods.day({ temporal });
 
   const initialDay = day.number.value;
   day.future();
@@ -337,7 +338,7 @@ test("day navigation works", () => {
 
 test("reactive updates trigger", () => {
   const temporal = createTemporal();
-  const hour = useHour(temporal);
+  const hour = periods.hour({ temporal });
 
   let updateCount = 0;
   hour.name.subscribe(() => updateCount++);
@@ -357,9 +358,9 @@ test("reactive updates trigger", () => {
 // Good - single instance
 const temporal = createTemporal();
 export const timeService = {
-  year: useYear(temporal),
-  month: useMonth(temporal),
-  day: useDay(temporal),
+  year: periods.year({ temporal }),
+  month: periods.month({ temporal }),
+  day: periods.day({ temporal }),
 };
 
 // Avoid - multiple instances
@@ -375,8 +376,8 @@ Create reusable adapters for your framework:
 
 ```javascript
 // React adapter
-export function useTemporalUnit(composable) {
-  const [unit] = useState(() => composable(temporal));
+export function useTemporalUnit(periodType) {
+  const [unit] = useState(() => periods[periodType]({ temporal }));
   const [value, setValue] = useState(unit.name.value);
 
   useEffect(() => {
@@ -387,7 +388,7 @@ export function useTemporalUnit(composable) {
 }
 
 // Usage
-const [monthName, month] = useTemporalUnit(useMonth);
+const [monthName, month] = useTemporalUnit("month");
 ```
 
 ### 3. Type Safety
@@ -418,19 +419,19 @@ Moving from framework-specific solutions:
 // From Moment.js
 // Before: moment().format('YYYY')
 // After:
-const year = useYear(temporal);
+const year = periods.year({ temporal });
 console.log(year.name.value);
 
 // From React hooks
 // Before: const [date, setDate] = useState(new Date())
 // After:
-const day = useDay(temporal);
+const day = periods.day({ temporal });
 // day.name.value is always current
 
 // From Angular services
 // Before: dateService.currentMonth$
 // After:
-const month = useMonth(temporal);
+const month = periods.month({ temporal });
 // month.name is reactive
 ```
 

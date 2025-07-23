@@ -34,7 +34,7 @@ import { nativeAdapter } from "usetemporal";
 
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
-  locale: "en-US",
+  weekStartsOn: 1, // 0 = Sunday, 1 = Monday (default), ..., 6 = Saturday
 });
 ```
 
@@ -47,15 +47,27 @@ temporal.now.value; // Current system time
 temporal.browsing.value; // Date being browsed
 ```
 
-### 3. Use Time Unit Composables
+### 3. Use Time Unit Periods
 
 ```typescript
-import { useYear, useMonth, useDay } from "usetemporal";
+import { periods } from "usetemporal";
 
 // Create reactive time units
-const year = useYear(temporal);
-const month = useMonth(temporal);
-const day = useDay(temporal);
+const year = periods.year({
+  now: temporal.now,
+  browsing: temporal.browsing,
+  adapter: temporal.adapter,
+});
+const month = periods.month({
+  now: temporal.now,
+  browsing: temporal.browsing,
+  adapter: temporal.adapter,
+});
+const day = periods.day({
+  now: temporal.now,
+  browsing: temporal.browsing,
+  adapter: temporal.adapter,
+});
 
 // Access properties
 console.log(year.number.value); // 2024
@@ -67,8 +79,10 @@ console.log(day.weekDay.value); // 1 (Monday)
 
 ```typescript
 // Navigate to next/previous periods
-month.future(); // Go to next month
-month.past(); // Go to previous month
+month.next(); // Go to next month
+month.previous(); // Go to previous month
+month.go(3); // Go forward 3 months
+month.go(-2); // Go back 2 months
 
 // Check if current
 if (month.isNow.value) {
@@ -80,7 +94,11 @@ if (month.isNow.value) {
 
 ```typescript
 // Divide any time unit into smaller units
-const year = useYear(temporal);
+const year = periods.year({
+  now: temporal.now,
+  browsing: temporal.browsing,
+  adapter: temporal.adapter,
+});
 const months = temporal.divide(year, "month");
 
 // Each month is a fully reactive time unit
@@ -101,9 +119,9 @@ Here's a complete example showing a simple calendar:
 <template>
   <div class="calendar">
     <div class="header">
-      <button @click="month.past()">←</button>
+      <button @click="month.previous()">←</button>
       <h2>{{ month.name.value }}</h2>
-      <button @click="month.future()">→</button>
+      <button @click="month.next()">→</button>
     </div>
 
     <div class="days-grid">
@@ -123,13 +141,18 @@ Here's a complete example showing a simple calendar:
 </template>
 
 <script setup>
-import { createTemporal, useMonth, nativeAdapter, same } from "usetemporal";
+import { createTemporal, periods, nativeAdapter, same } from "usetemporal";
 
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
+  weekStartsOn: 1, // Start week on Monday
 });
 
-const month = useMonth(temporal);
+const month = periods.month({
+  now: temporal.now,
+  browsing: temporal.browsing,
+  adapter: temporal.adapter,
+});
 const days = temporal.divide(month, "day");
 
 const isSame = (a, b) => same(a, b, "day", temporal.adapter);
@@ -142,10 +165,14 @@ const isSame = (a, b) => same(a, b, "day", temporal.adapter);
 
 ```vue
 <script setup>
-import { createTemporal, useMonth, nativeAdapter } from "usetemporal";
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
 
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
-const month = useMonth(temporal);
+const month = periods.month({
+  now: temporal.now,
+  browsing: temporal.browsing,
+  adapter: temporal.adapter,
+});
 </script>
 
 <template>
@@ -156,7 +183,7 @@ const month = useMonth(temporal);
 ### React
 
 ```tsx
-import { createTemporal, useMonth, nativeAdapter } from "usetemporal";
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
 import { useEffect, useState } from "react";
 
 function Calendar() {
@@ -166,7 +193,11 @@ function Calendar() {
   const [monthName, setMonthName] = useState("");
 
   useEffect(() => {
-    const month = useMonth(temporal);
+    const month = periods.month({
+      now: temporal.now,
+      browsing: temporal.browsing,
+      adapter: temporal.adapter,
+    });
     // Subscribe to reactive changes
     const unsubscribe = month.name.subscribe((name) => {
       setMonthName(name);
@@ -181,10 +212,14 @@ function Calendar() {
 ### Vanilla JavaScript
 
 ```javascript
-import { createTemporal, useMonth, nativeAdapter } from "usetemporal";
+import { createTemporal, periods, nativeAdapter } from "usetemporal";
 
 const temporal = createTemporal({ dateAdapter: nativeAdapter });
-const month = useMonth(temporal);
+const month = periods.month({
+  now: temporal.now,
+  browsing: temporal.browsing,
+  adapter: temporal.adapter,
+});
 
 // Direct access
 console.log(month.name.value);

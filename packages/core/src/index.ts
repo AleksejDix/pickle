@@ -14,8 +14,16 @@ export type * from "./types/reactive";
 // Periods - export the consolidated periods object
 export { periods } from "./composables/periods";
 
+// Navigation exports
+export { next, previous, go } from "./navigation";
+
 // Type exports for adapters
-export type { DateAdapter, AdapterName, DateDuration } from "./types";
+export type {
+  DateAdapter,
+  AdapterName,
+  DateDuration,
+  DateAdapterOptions,
+} from "./types";
 
 // Default export for convenience
 export { createTemporal as default } from "./core/createTemporal";

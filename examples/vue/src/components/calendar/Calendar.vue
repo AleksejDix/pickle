@@ -77,6 +77,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import { createTemporal, periods, type TimeUnit } from 'usetemporal'
+import { nativeAdapter } from '@usetemporal/adapter-native'
 import YearView from './YearView.vue'
 import MonthView from './MonthView.vue'
 import WeekView from './WeekView.vue'
@@ -84,18 +85,17 @@ import DayView from './DayView.vue'
 
 type ViewType = 'year' | 'month' | 'week' | 'day'
 
-const temporal = createTemporal()
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+  weekStartsOn: 1, // Monday
+})
 
 const currentView = ref<ViewType>('month')
-const year = periods.year(temporal)
-const month = periods.month(temporal)
-const week = periods.week(temporal)
-const day = periods.day(temporal)
 
-const currentYear = ref(year)
-const currentMonth = ref(month)
-const currentWeek = ref(week)
-const currentDay = ref(day)
+const currentYear = periods.year(temporal)
+const currentMonth = periods.month(temporal)
+const currentWeek = periods.week(temporal)
+const currentDay = periods.day(temporal)
 
 const views = [
   { type: 'day' as ViewType, label: 'Day' },
@@ -107,19 +107,19 @@ const views = [
 const currentPeriodLabel = computed(() => {
   switch (currentView.value) {
     case 'year':
-      return currentYear.value.number.value.toString()
+      return currentYear.number.value.toString()
     case 'month':
-      return currentMonth.value.name.value
+      return currentMonth.raw.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     case 'week':
-      const weekStart = currentWeek.value.timespan.value.start
-      const weekEnd = currentWeek.value.timespan.value.end
+      const weekStart = currentWeek.period.value.start
+      const weekEnd = currentWeek.period.value.end
       if (weekStart.getMonth() === weekEnd.getMonth()) {
         return `${weekStart.getDate()}-${weekEnd.getDate()} ${weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
       } else {
         return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
       }
     case 'day':
-      return currentDay.value.raw.value.toLocaleDateString('en-US', {
+      return currentDay.raw.value.toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -139,25 +139,22 @@ function switchView(view: ViewType) {
 }
 
 function goToToday() {
-  currentYear.value = periods.year(temporal)
-  currentMonth.value = periods.month(temporal)
-  currentWeek.value = periods.week(temporal)
-  currentDay.value = periods.day(temporal)
+  temporal.browsing.value = new Date()
 }
 
 function navigatePrevious() {
   switch (currentView.value) {
     case 'year':
-      currentYear.value.past()
+      currentYear.previous()
       break
     case 'month':
-      currentMonth.value.past()
+      currentMonth.previous()
       break
     case 'week':
-      currentWeek.value.past()
+      currentWeek.previous()
       break
     case 'day':
-      currentDay.value.past()
+      currentDay.previous()
       break
   }
 }
@@ -165,27 +162,27 @@ function navigatePrevious() {
 function navigateNext() {
   switch (currentView.value) {
     case 'year':
-      currentYear.value.future()
+      currentYear.next()
       break
     case 'month':
-      currentMonth.value.future()
+      currentMonth.next()
       break
     case 'week':
-      currentWeek.value.future()
+      currentWeek.next()
       break
     case 'day':
-      currentDay.value.future()
+      currentDay.next()
       break
   }
 }
 
 function handleMonthSelect(month: TimeUnit) {
-  currentMonth.value = periods.month(temporal, month.raw.value)
+  temporal.browsing.value = month.raw.value
   currentView.value = 'month'
 }
 
 function handleDaySelect(day: TimeUnit) {
-  currentDay.value = periods.day(temporal, day.raw.value)
+  temporal.browsing.value = day.raw.value
   currentView.value = 'day'
 }
 </script>
