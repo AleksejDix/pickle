@@ -1,5 +1,12 @@
 # RFC-012: Unified Time Navigation - Combining Zoom and Period Operations
 
+## Status: PARTIALLY IMPLEMENTED ✅
+
+- ✅ `split()` method with flexible options
+- ✅ `merge()` method with natural unit detection  
+- ✅ `createPeriod()` for custom time periods
+- ⏳ `zoomIn()`, `zoomOut()`, `zoomTo()` methods (pending)
+
 ## Summary
 
 Combine the zoom navigation API (RFC-011) with the unified period system (RFC-008) to create a complete time manipulation system where zooming, merging, and splitting are all part of the same coherent API.

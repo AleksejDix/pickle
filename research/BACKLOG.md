@@ -6,13 +6,15 @@
 2. **International Week Support** - `weekStartsOn` configuration
 3. **StableMonth Unit** - 6-week calendar grid
 4. **Universal Contains Method** - Check if dates/units fall within boundaries
+5. **Unified Period Operations** - `split()`, `merge()`, `createPeriod()` methods
 
 ## High Priority 🔴
 
-1. **Unified Time Navigation** - [RFC-012](./RFC/012-unified-time-navigation.md)
-   - Combines zoom navigation with period operations
-   - Single mental model for all time manipulation
-   - Includes: [RFC-011](./RFC/011-zoom-navigation.md) + [RFC-008](./RFC/008-time-ranges.md)
+1. **Zoom Navigation Methods** - [RFC-011](./RFC/011-zoom-navigation.md)
+   - Implement `zoomIn()`, `zoomOut()`, `zoomTo()` methods
+   - Semantic wrappers over split/merge operations
+   - Intuitive bidirectional time navigation
+   
 2. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
    - Common checks: isWeekend, isToday, isPast, isFuture
    - Reduce repetitive date operations

@@ -13,6 +13,10 @@ research/
 │   ├── 003-type-constants.md
 │   └── ...
 ├── COMPLETED/        # Completed feature stories
+│   ├── USER-STORY-CONTAINS-METHOD.md
+│   ├── USER-STORY-STABLE-MONTH.md
+│   ├── USER-STORY-UNIFIED-NAVIGATION.md
+│   └── USER-STORY-WEEK-START.md
 └── ARCHIVE/          # Historical documents
 ```
 
@@ -33,6 +37,15 @@ Each RFC follows this structure:
 - **Drawbacks** - Potential downsides
 - **Alternatives** - Other approaches considered
 - **Migration Path** - How to adopt the feature
+
+## Recent Major Features
+
+The library has recently implemented several powerful features:
+
+1. **Unified Period Operations** - `split()`, `merge()`, and `createPeriod()` methods provide flexible time manipulation
+2. **Universal Contains Method** - All time units can check if they contain dates or other units
+3. **StableMonth** - A 6-week calendar grid that always starts at the beginning of the week
+4. **International Week Support** - Configurable week start day (Monday by default)
 
 ## Contributing
 

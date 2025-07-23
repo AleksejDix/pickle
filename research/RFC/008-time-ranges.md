@@ -1,5 +1,9 @@
 # RFC-008: Unified Period System - Merge and Split Operations
 
+## Status: IMPLEMENTED ✅
+
+Implemented as part of RFC-012 unified navigation system.
+
 ## Summary
 
 Extend the existing Period concept to support merging and splitting operations, where standard time units naturally emerge from merged periods (e.g., 7 days → week, 3 months → quarter).
