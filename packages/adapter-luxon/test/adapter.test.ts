@@ -1,0 +1,598 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { LuxonAdapter, createLuxonAdapter } from "../src/index";
+import type { DateAdapter } from "@usetemporal/core/types";
+
+describe("LuxonAdapter", () => {
+  let adapter: DateAdapter;
+  let testDate: Date;
+
+  beforeEach(() => {
+    adapter = new LuxonAdapter();
+    testDate = new Date("2024-06-15T10:30:45.123");
+  });
+
+  describe("Factory Function", () => {
+    it("should create a LuxonAdapter instance", () => {
+      const adapter = createLuxonAdapter();
+      expect(adapter).toBeInstanceOf(LuxonAdapter);
+      expect(adapter.name).toBe("luxon");
+    });
+  });
+
+  describe("add", () => {
+    it("should add years", () => {
+      const result = adapter.add(testDate, { years: 1 });
+      expect(result.getFullYear()).toBe(2025);
+      expect(result.getMonth()).toBe(5); // June
+      expect(result.getDate()).toBe(15);
+    });
+
+    it("should add months", () => {
+      const result = adapter.add(testDate, { months: 3 });
+      expect(result.getFullYear()).toBe(2024);
+      expect(result.getMonth()).toBe(8); // September
+      expect(result.getDate()).toBe(15);
+    });
+
+    it("should add weeks", () => {
+      const result = adapter.add(testDate, { weeks: 2 });
+      expect(result.getDate()).toBe(29);
+    });
+
+    it("should add days", () => {
+      const result = adapter.add(testDate, { days: 10 });
+      expect(result.getDate()).toBe(25);
+    });
+
+    it("should add hours", () => {
+      const result = adapter.add(testDate, { hours: 5 });
+      expect(result.getHours()).toBe(15);
+    });
+
+    it("should add minutes", () => {
+      const result = adapter.add(testDate, { minutes: 45 });
+      expect(result.getMinutes()).toBe(15); // 30 + 45 = 75, which is 1:15
+      expect(result.getHours()).toBe(11);
+    });
+
+    it("should add seconds", () => {
+      const result = adapter.add(testDate, { seconds: 30 });
+      expect(result.getSeconds()).toBe(15); // 45 + 30 = 75, which is 1:15
+      expect(result.getMinutes()).toBe(31);
+    });
+
+    it("should add milliseconds", () => {
+      const result = adapter.add(testDate, { milliseconds: 500 });
+      expect(result.getMilliseconds()).toBe(623); // 123 + 500
+    });
+
+    it("should handle complex durations", () => {
+      const result = adapter.add(testDate, {
+        years: 1,
+        months: 2,
+        days: 3,
+        hours: 4,
+        minutes: 5,
+        seconds: 6,
+        milliseconds: 7,
+      });
+      expect(result.getFullYear()).toBe(2025);
+      expect(result.getMonth()).toBe(7); // August
+      expect(result.getDate()).toBe(18);
+      expect(result.getHours()).toBe(14);
+      expect(result.getMinutes()).toBe(35);
+      expect(result.getSeconds()).toBe(51);
+      expect(result.getMilliseconds()).toBe(130); // 123 + 7
+    });
+
+    it("should handle month overflow", () => {
+      const endOfMonth = new Date("2024-01-31");
+      const result = adapter.add(endOfMonth, { months: 1 });
+      // Luxon handles month overflow differently - it may go to Feb 29 (leap year)
+      expect(result.getMonth()).toBe(1); // February
+      expect(result.getDate()).toBeLessThanOrEqual(29);
+    });
+
+    it("should add nothing when duration is empty", () => {
+      const result = adapter.add(testDate, {});
+      expect(result.getTime()).toBe(testDate.getTime());
+    });
+  });
+
+  describe("subtract", () => {
+    it("should subtract years", () => {
+      const result = adapter.subtract(testDate, { years: 1 });
+      expect(result.getFullYear()).toBe(2023);
+    });
+
+    it("should subtract months", () => {
+      const result = adapter.subtract(testDate, { months: 3 });
+      expect(result.getMonth()).toBe(2); // March
+    });
+
+    it("should subtract weeks", () => {
+      const result = adapter.subtract(testDate, { weeks: 2 });
+      expect(result.getDate()).toBe(1);
+    });
+
+    it("should subtract days", () => {
+      const result = adapter.subtract(testDate, { days: 10 });
+      expect(result.getDate()).toBe(5);
+    });
+
+    it("should subtract hours", () => {
+      const result = adapter.subtract(testDate, { hours: 5 });
+      expect(result.getHours()).toBe(5);
+    });
+
+    it("should subtract minutes", () => {
+      const result = adapter.subtract(testDate, { minutes: 45 });
+      expect(result.getMinutes()).toBe(45); // 30 - 45 = -15, which is 45 minutes earlier
+      expect(result.getHours()).toBe(9);
+    });
+
+    it("should subtract seconds", () => {
+      const result = adapter.subtract(testDate, { seconds: 50 });
+      expect(result.getSeconds()).toBe(55); // 45 - 50 = -5, which is 55 seconds earlier
+      expect(result.getMinutes()).toBe(29);
+    });
+
+    it("should subtract milliseconds", () => {
+      const result = adapter.subtract(testDate, { milliseconds: 200 });
+      expect(result.getMilliseconds()).toBe(923); // 123 - 200 = -77, which is 923
+      expect(result.getSeconds()).toBe(44);
+    });
+
+    it("should handle complex subtractions", () => {
+      const result = adapter.subtract(testDate, {
+        years: 1,
+        months: 2,
+        days: 3,
+        hours: 4,
+        minutes: 5,
+        seconds: 6,
+        milliseconds: 7,
+      });
+      expect(result.getFullYear()).toBe(2023);
+      expect(result.getMonth()).toBe(3); // April
+      expect(result.getDate()).toBe(12);
+      expect(result.getHours()).toBe(6);
+      expect(result.getMinutes()).toBe(25);
+      expect(result.getSeconds()).toBe(39);
+      expect(result.getMilliseconds()).toBe(116); // 123 - 7
+    });
+
+    it("should subtract nothing when duration is empty", () => {
+      const result = adapter.subtract(testDate, {});
+      expect(result.getTime()).toBe(testDate.getTime());
+    });
+  });
+
+  describe("startOf", () => {
+    it("should get start of year", () => {
+      const result = adapter.startOf(testDate, "year");
+      expect(result).toEqual(new Date("2024-01-01T00:00:00.000"));
+    });
+
+    it("should get start of month", () => {
+      const result = adapter.startOf(testDate, "month");
+      expect(result).toEqual(new Date("2024-06-01T00:00:00.000"));
+    });
+
+    it("should get start of week", () => {
+      const result = adapter.startOf(testDate, "week");
+      // Luxon defaults to Monday as start of week
+      expect(result.getDay()).toBe(1); // Monday
+      expect(result.getHours()).toBe(0);
+      expect(result.getMinutes()).toBe(0);
+      expect(result.getSeconds()).toBe(0);
+      expect(result.getMilliseconds()).toBe(0);
+    });
+
+    it("should get start of day", () => {
+      const result = adapter.startOf(testDate, "day");
+      expect(result).toEqual(new Date("2024-06-15T00:00:00.000"));
+    });
+
+    it("should get start of hour", () => {
+      const result = adapter.startOf(testDate, "hour");
+      expect(result).toEqual(new Date("2024-06-15T10:00:00.000"));
+    });
+
+    it("should get start of minute", () => {
+      const result = adapter.startOf(testDate, "minute");
+      expect(result).toEqual(new Date("2024-06-15T10:30:00.000"));
+    });
+
+    it("should get start of second", () => {
+      const result = adapter.startOf(testDate, "second");
+      expect(result).toEqual(new Date("2024-06-15T10:30:45.000"));
+    });
+
+    it("should get start of decade", () => {
+      const result = adapter.startOf(testDate, "decade");
+      expect(result).toEqual(new Date("2020-01-01T00:00:00.000"));
+    });
+
+    it("should get start of century", () => {
+      const result = adapter.startOf(testDate, "century");
+      expect(result).toEqual(new Date("2000-01-01T00:00:00.000"));
+    });
+
+    it("should get start of millennium", () => {
+      const result = adapter.startOf(testDate, "millennium");
+      expect(result).toEqual(new Date("2000-01-01T00:00:00.000"));
+    });
+
+    it("should handle unknown unit", () => {
+      const result = adapter.startOf(testDate, "unknown" as any);
+      expect(result.getTime()).toBe(testDate.getTime());
+    });
+  });
+
+  describe("endOf", () => {
+    it("should get end of year", () => {
+      const result = adapter.endOf(testDate, "year");
+      expect(result.getFullYear()).toBe(2024);
+      expect(result.getMonth()).toBe(11); // December
+      expect(result.getDate()).toBe(31);
+      expect(result.getHours()).toBe(23);
+      expect(result.getMinutes()).toBe(59);
+      expect(result.getSeconds()).toBe(59);
+      expect(result.getMilliseconds()).toBeGreaterThan(990);
+    });
+
+    it("should get end of month", () => {
+      const result = adapter.endOf(testDate, "month");
+      expect(result.getMonth()).toBe(5); // June
+      expect(result.getDate()).toBe(30);
+      expect(result.getHours()).toBe(23);
+      expect(result.getMinutes()).toBe(59);
+      expect(result.getSeconds()).toBe(59);
+    });
+
+    it("should get end of week", () => {
+      const result = adapter.endOf(testDate, "week");
+      // Luxon defaults to Sunday as end of week
+      expect(result.getDay()).toBe(0); // Sunday
+      expect(result.getHours()).toBe(23);
+      expect(result.getMinutes()).toBe(59);
+      expect(result.getSeconds()).toBe(59);
+    });
+
+    it("should get end of day", () => {
+      const result = adapter.endOf(testDate, "day");
+      expect(result.getDate()).toBe(15);
+      expect(result.getHours()).toBe(23);
+      expect(result.getMinutes()).toBe(59);
+      expect(result.getSeconds()).toBe(59);
+    });
+
+    it("should get end of hour", () => {
+      const result = adapter.endOf(testDate, "hour");
+      expect(result.getHours()).toBe(10);
+      expect(result.getMinutes()).toBe(59);
+      expect(result.getSeconds()).toBe(59);
+    });
+
+    it("should get end of minute", () => {
+      const result = adapter.endOf(testDate, "minute");
+      expect(result.getMinutes()).toBe(30);
+      expect(result.getSeconds()).toBe(59);
+    });
+
+    it("should get end of second", () => {
+      const result = adapter.endOf(testDate, "second");
+      expect(result.getSeconds()).toBe(45);
+      expect(result.getMilliseconds()).toBeGreaterThan(990);
+    });
+
+    it("should get end of decade", () => {
+      const result = adapter.endOf(testDate, "decade");
+      expect(result).toEqual(new Date("2029-12-31T23:59:59.999"));
+    });
+
+    it("should get end of century", () => {
+      const result = adapter.endOf(testDate, "century");
+      expect(result).toEqual(new Date("2099-12-31T23:59:59.999"));
+    });
+
+    it("should get end of millennium", () => {
+      const result = adapter.endOf(testDate, "millennium");
+      expect(result).toEqual(new Date("2999-12-31T23:59:59.999"));
+    });
+
+    it("should handle unknown unit", () => {
+      const result = adapter.endOf(testDate, "unknown" as any);
+      expect(result.getTime()).toBe(testDate.getTime());
+    });
+  });
+
+  describe("isSame", () => {
+    it("should check same year", () => {
+      const date1 = new Date("2024-01-01");
+      const date2 = new Date("2024-12-31");
+      const date3 = new Date("2025-01-01");
+
+      expect(adapter.isSame(date1, date2, "year")).toBe(true);
+      expect(adapter.isSame(date1, date3, "year")).toBe(false);
+    });
+
+    it("should check same month", () => {
+      const date1 = new Date("2024-06-01");
+      const date2 = new Date("2024-06-30");
+      const date3 = new Date("2024-07-01");
+
+      expect(adapter.isSame(date1, date2, "month")).toBe(true);
+      expect(adapter.isSame(date1, date3, "month")).toBe(false);
+    });
+
+    it("should check same week", () => {
+      // Luxon uses ISO week (Monday start)
+      const monday = new Date("2024-06-10"); // Monday
+      const sunday = new Date("2024-06-16"); // Sunday of same week
+      const nextMonday = new Date("2024-06-17");
+
+      expect(adapter.isSame(monday, sunday, "week")).toBe(true);
+      expect(adapter.isSame(monday, nextMonday, "week")).toBe(false);
+    });
+
+    it("should check same day", () => {
+      const date1 = new Date("2024-06-15T00:00:00");
+      const date2 = new Date("2024-06-15T23:59:59");
+      const date3 = new Date("2024-06-16T00:00:00");
+
+      expect(adapter.isSame(date1, date2, "day")).toBe(true);
+      expect(adapter.isSame(date1, date3, "day")).toBe(false);
+    });
+
+    it("should check same hour", () => {
+      const date1 = new Date("2024-06-15T10:00:00");
+      const date2 = new Date("2024-06-15T10:59:59");
+      const date3 = new Date("2024-06-15T11:00:00");
+
+      expect(adapter.isSame(date1, date2, "hour")).toBe(true);
+      expect(adapter.isSame(date1, date3, "hour")).toBe(false);
+    });
+
+    it("should check same minute", () => {
+      const date1 = new Date("2024-06-15T10:30:00");
+      const date2 = new Date("2024-06-15T10:30:59");
+      const date3 = new Date("2024-06-15T10:31:00");
+
+      expect(adapter.isSame(date1, date2, "minute")).toBe(true);
+      expect(adapter.isSame(date1, date3, "minute")).toBe(false);
+    });
+
+    it("should check same second", () => {
+      const date1 = new Date("2024-06-15T10:30:45.000");
+      const date2 = new Date("2024-06-15T10:30:45.999");
+      const date3 = new Date("2024-06-15T10:30:46.000");
+
+      expect(adapter.isSame(date1, date2, "second")).toBe(true);
+      expect(adapter.isSame(date1, date3, "second")).toBe(false);
+    });
+
+    it("should check same decade", () => {
+      const date1 = new Date("2020-01-01");
+      const date2 = new Date("2029-12-31");
+      const date3 = new Date("2030-01-01");
+
+      expect(adapter.isSame(date1, date2, "decade")).toBe(true);
+      expect(adapter.isSame(date1, date3, "decade")).toBe(false);
+    });
+
+    it("should check same century", () => {
+      const date1 = new Date("2000-01-01");
+      const date2 = new Date("2099-12-31");
+      const date3 = new Date("2100-01-01");
+
+      expect(adapter.isSame(date1, date2, "century")).toBe(true);
+      expect(adapter.isSame(date1, date3, "century")).toBe(false);
+    });
+
+    it("should check same millennium", () => {
+      const date1 = new Date("2000-01-01");
+      const date2 = new Date("2999-12-31");
+      const date3 = new Date("3000-01-01");
+
+      expect(adapter.isSame(date1, date2, "millennium")).toBe(true);
+      expect(adapter.isSame(date1, date3, "millennium")).toBe(false);
+    });
+
+    it("should handle unknown unit", () => {
+      const date1 = new Date("2024-06-15T10:30:45.123");
+      const date2 = new Date("2024-06-15T10:30:45.123");
+      const date3 = new Date("2024-06-15T10:30:45.124");
+
+      expect(adapter.isSame(date1, date2, "unknown" as any)).toBe(true);
+      expect(adapter.isSame(date1, date3, "unknown" as any)).toBe(false);
+    });
+
+    it("should handle undefined valueOf cases", () => {
+      // Create dates that might have valueOf issues
+      const invalidDate1 = new Date("invalid");
+      const invalidDate2 = new Date("invalid");
+      
+      // For invalid dates, Luxon should handle them gracefully
+      expect(adapter.isSame(invalidDate1, invalidDate2, "day")).toBe(false);
+    });
+  });
+
+  describe("isBefore", () => {
+    it("should check if date is before another", () => {
+      const earlier = new Date("2024-06-14");
+      const later = new Date("2024-06-15");
+
+      expect(adapter.isBefore(earlier, later)).toBe(true);
+      expect(adapter.isBefore(later, earlier)).toBe(false);
+      expect(adapter.isBefore(earlier, earlier)).toBe(false);
+    });
+
+    it("should handle millisecond precision", () => {
+      const date1 = new Date("2024-06-15T10:30:45.123");
+      const date2 = new Date("2024-06-15T10:30:45.124");
+
+      expect(adapter.isBefore(date1, date2)).toBe(true);
+      expect(adapter.isBefore(date2, date1)).toBe(false);
+    });
+  });
+
+  describe("isAfter", () => {
+    it("should check if date is after another", () => {
+      const earlier = new Date("2024-06-14");
+      const later = new Date("2024-06-15");
+
+      expect(adapter.isAfter(later, earlier)).toBe(true);
+      expect(adapter.isAfter(earlier, later)).toBe(false);
+      expect(adapter.isAfter(later, later)).toBe(false);
+    });
+
+    it("should handle millisecond precision", () => {
+      const date1 = new Date("2024-06-15T10:30:45.123");
+      const date2 = new Date("2024-06-15T10:30:45.124");
+
+      expect(adapter.isAfter(date2, date1)).toBe(true);
+      expect(adapter.isAfter(date1, date2)).toBe(false);
+    });
+  });
+
+  describe("eachInterval", () => {
+    it("should generate years in interval", () => {
+      const start = new Date("2020-01-01");
+      const end = new Date("2023-12-31");
+      const result = adapter.eachInterval(start, end, "year");
+
+      expect(result).toHaveLength(4);
+      expect(result[0].getFullYear()).toBe(2020);
+      expect(result[1].getFullYear()).toBe(2021);
+      expect(result[2].getFullYear()).toBe(2022);
+      expect(result[3].getFullYear()).toBe(2023);
+    });
+
+    it("should generate months in interval", () => {
+      const start = new Date("2024-01-15");
+      const end = new Date("2024-04-15");
+      const result = adapter.eachInterval(start, end, "month");
+
+      expect(result).toHaveLength(4);
+      expect(result[0].getMonth()).toBe(0); // January
+      expect(result[1].getMonth()).toBe(1); // February
+      expect(result[2].getMonth()).toBe(2); // March
+      expect(result[3].getMonth()).toBe(3); // April
+    });
+
+    it("should generate weeks in interval", () => {
+      const start = new Date("2024-06-01");
+      const end = new Date("2024-06-22");
+      const result = adapter.eachInterval(start, end, "week");
+
+      expect(result.length).toBeGreaterThanOrEqual(3);
+      // Check that dates are roughly a week apart
+      for (let i = 1; i < result.length; i++) {
+        const diff = result[i].getTime() - result[i - 1].getTime();
+        const daysDiff = diff / (1000 * 60 * 60 * 24);
+        expect(daysDiff).toBeCloseTo(7, 0);
+      }
+    });
+
+    it("should generate days in interval", () => {
+      const start = new Date("2024-06-01");
+      const end = new Date("2024-06-05");
+      const result = adapter.eachInterval(start, end, "day");
+
+      // Luxon's splitBy doesn't include the end boundary
+      expect(result.length).toBeGreaterThanOrEqual(4);
+      expect(result[0].getDate()).toBe(1);
+      expect(result[result.length - 1].getDate()).toBeLessThanOrEqual(5);
+    });
+
+    it("should generate hours in interval", () => {
+      const start = new Date("2024-06-15T10:00:00");
+      const end = new Date("2024-06-15T14:00:00");
+      const result = adapter.eachInterval(start, end, "hour");
+
+      // Luxon's splitBy doesn't include the end boundary
+      expect(result.length).toBeGreaterThanOrEqual(4);
+      expect(result[0].getHours()).toBe(10);
+      expect(result[result.length - 1].getHours()).toBeLessThanOrEqual(14);
+    });
+
+    it("should generate minutes in interval", () => {
+      const start = new Date("2024-06-15T10:00:00");
+      const end = new Date("2024-06-15T10:03:00");
+      const result = adapter.eachInterval(start, end, "minute");
+
+      // Luxon's splitBy doesn't include the end boundary
+      expect(result.length).toBeGreaterThanOrEqual(3);
+      expect(result[0].getMinutes()).toBe(0);
+      expect(result[result.length - 1].getMinutes()).toBeLessThanOrEqual(3);
+    });
+
+    it("should handle decades", () => {
+      const start = new Date("2000-01-01");
+      const end = new Date("2030-01-01");
+      const result = adapter.eachInterval(start, end, "decade");
+
+      // Luxon doesn't have specific decade handling, so it uses year
+      expect(result.length).toBeGreaterThan(0);
+    });
+
+    it("should handle unknown unit", () => {
+      const start = new Date("2024-06-15");
+      const end = new Date("2024-06-20");
+      const result = adapter.eachInterval(start, end, "unknown" as any);
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toEqual(start);
+    });
+  });
+
+  describe("getWeekday", () => {
+    it("should get weekday with default Sunday start", () => {
+      const sunday = new Date("2024-06-09");
+      const monday = new Date("2024-06-10");
+      const saturday = new Date("2024-06-15");
+
+      expect(adapter.getWeekday(sunday)).toBe(0);
+      expect(adapter.getWeekday(monday)).toBe(1);
+      expect(adapter.getWeekday(saturday)).toBe(6);
+    });
+
+    it("should get weekday with Monday start", () => {
+      const options = { weekStartsOn: 1 };
+      const sunday = new Date("2024-06-09");
+      const monday = new Date("2024-06-10");
+      const saturday = new Date("2024-06-15");
+
+      expect(adapter.getWeekday(sunday, options)).toBe(6);
+      expect(adapter.getWeekday(monday, options)).toBe(0);
+      expect(adapter.getWeekday(saturday, options)).toBe(5);
+    });
+
+    it("should handle various week start days", () => {
+      const wednesday = new Date("2024-06-12");
+      
+      // Week starts on Wednesday (3)
+      expect(adapter.getWeekday(wednesday, { weekStartsOn: 3 })).toBe(0);
+      
+      // Week starts on Friday (5)
+      const friday = new Date("2024-06-14");
+      expect(adapter.getWeekday(friday, { weekStartsOn: 5 })).toBe(0);
+    });
+  });
+
+  describe("isWeekend", () => {
+    it("should identify weekend days", () => {
+      const friday = new Date("2024-06-14");
+      const saturday = new Date("2024-06-15");
+      const sunday = new Date("2024-06-16");
+      const monday = new Date("2024-06-17");
+
+      expect(adapter.isWeekend(friday)).toBe(false);
+      expect(adapter.isWeekend(saturday)).toBe(true);
+      expect(adapter.isWeekend(sunday)).toBe(true);
+      expect(adapter.isWeekend(monday)).toBe(false);
+    });
+  });
+});
