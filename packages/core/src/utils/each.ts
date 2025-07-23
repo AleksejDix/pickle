@@ -1,19 +1,21 @@
-import { add, type Duration } from "date-fns";
+import type { DateAdapter, Duration } from "../types/core";
 
 interface EachOptions {
   start: Date;
   end: Date;
   step?: Duration;
+  adapter: DateAdapter;
 }
 
 export function each(options: EachOptions): Date[] {
-  const endTime = options.end.getTime();
+  const { start, end, step, adapter } = options;
+  const endTime = end.getTime();
   const dates: Date[] = [];
-  let currentDate = options.start;
+  let currentDate = start;
 
   while (currentDate.getTime() <= endTime) {
     dates.push(currentDate);
-    currentDate = add(currentDate, options.step || { months: 1 });
+    currentDate = adapter.add(currentDate, step || { months: 1 });
   }
   return dates;
 }

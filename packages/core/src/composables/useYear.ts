@@ -73,5 +73,7 @@ export default function useYear(options: UseTimeUnitOptions): ExtendedTimeUnit {
     isSame,
     browsing,
     weekDay,
+    start,
+    end,
   };
 }

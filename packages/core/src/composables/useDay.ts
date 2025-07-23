@@ -65,6 +65,11 @@ export default function useDay(options: UseTimeUnitOptions): ExtendedTimeUnit {
     browsing.value = adapter.subtract(browsing.value, { days: 1 });
   };
 
+  const weekDay: ComputedRef<number> = computed(() => {
+    const day = adapter.getWeekday(browsing.value);
+    return day === 0 ? 7 : day;
+  });
+
   return {
     future,
     past,
@@ -77,5 +82,8 @@ export default function useDay(options: UseTimeUnitOptions): ExtendedTimeUnit {
     isSame,
     browsing,
     we,
+    weekDay,
+    start,
+    end,
   };
 }

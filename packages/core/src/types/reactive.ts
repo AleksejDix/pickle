@@ -21,6 +21,8 @@ export interface ExtendedTimeUnit extends TimeUnit {
   weekDay?: ComputedRef<number>;
   format?: (date: Date) => number | string;
   we?: ComputedRef<boolean>; // weekend indicator
+  start?: ComputedRef<Date>;
+  end?: ComputedRef<Date>;
 }
 
 // Framework-agnostic reactive Composable Options

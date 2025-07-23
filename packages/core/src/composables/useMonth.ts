@@ -79,5 +79,7 @@ export default function useMonth(
     isSame,
     browsing,
     weekDay,
+    start,
+    end,
   };
 }

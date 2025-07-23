@@ -40,7 +40,11 @@ export default function useWeek(options: UseTimeUnitOptions): ExtendedTimeUnit {
     start: start.value,
     end: end.value,
   }));
-  const name: ComputedRef<string> = computed(() => number.value.toString());
+  const name: ComputedRef<string> = computed(() => {
+    const year = browsing.value.getFullYear();
+    const weekNum = format(browsing.value);
+    return `${year}-W${weekNum}`;
+  });
 
   const format = (date: Date): number => {
     // TODO: Add getWeekOfYear to adapter interface
@@ -59,6 +63,11 @@ export default function useWeek(options: UseTimeUnitOptions): ExtendedTimeUnit {
     browsing.value = adapter.subtract(browsing.value, { weeks: 1 });
   };
 
+  const weekDay: ComputedRef<number> = computed(() => {
+    const day = adapter.getWeekday(start.value);
+    return day === 0 ? 7 : day;
+  });
+
   return {
     future,
     past,
@@ -70,5 +79,8 @@ export default function useWeek(options: UseTimeUnitOptions): ExtendedTimeUnit {
     isSame,
     browsing,
     format,
+    weekDay,
+    start,
+    end,
   };
 }

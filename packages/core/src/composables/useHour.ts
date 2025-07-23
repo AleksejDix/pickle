@@ -64,6 +64,11 @@ export default function useHour(options: UseTimeUnitOptions): ExtendedTimeUnit {
     browsing.value = adapter.subtract(browsing.value, { hours: 1 });
   };
 
+  const weekDay: ComputedRef<number> = computed(() => {
+    const day = adapter.getWeekday(browsing.value);
+    return day === 0 ? 7 : day;
+  });
+
   return {
     future,
     past,
@@ -75,5 +80,8 @@ export default function useHour(options: UseTimeUnitOptions): ExtendedTimeUnit {
     isSame,
     browsing,
     format: formatNumber,
+    weekDay,
+    start,
+    end,
   };
 }
