@@ -1,0 +1,56 @@
+{
+  "name": "@usetemporal/adapter-native",
+  "version": "2.0.0-alpha.1",
+  "type": "module",
+  "description": "Native JavaScript Date adapter for useTemporal - zero dependencies",
+  "license": "MIT",
+  "author": "useTemporal Contributors",
+  "homepage": "https://github.com/usetemporal/usetemporal#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usetemporal/usetemporal.git",
+    "directory": "packages/adapter-native"
+  },
+  "bugs": {
+    "url": "https://github.com/usetemporal/usetemporal/issues"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc",
+    "dev": "vite build --watch",
+    "test": "vitest run",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist node_modules",
+    "test:coverage": "vitest run --coverage --passWithNoTests"
+  },
+  "devDependencies": {
+    "@types/node": "^22.12.1",
+    "@usetemporal/tsconfig": "2.0.0-alpha.1",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vite-plugin-dts": "^4.4.0",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "@usetemporal/core": "2.0.0-alpha.1"
+  },
+  "keywords": [
+    "usetemporal",
+    "adapter",
+    "date",
+    "native",
+    "zero-dependencies"
+  ]
+}

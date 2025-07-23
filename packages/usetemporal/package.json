@@ -1,0 +1,54 @@
+{
+  "name": "usetemporal",
+  "version": "2.0.0-alpha.1",
+  "type": "module",
+  "description": "Revolutionary time library with unique divide() pattern - Meta package",
+  "license": "MIT",
+  "author": "useTemporal Contributors",
+  "homepage": "https://github.com/usetemporal/usetemporal#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usetemporal/usetemporal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/usetemporal/usetemporal/issues"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc",
+    "dev": "vite build --watch",
+    "clean": "rm -rf dist node_modules",
+    "test:coverage": "vitest run --coverage --passWithNoTests"
+  },
+  "dependencies": {
+    "@usetemporal/adapter-native": "2.0.0-alpha.1",
+    "@usetemporal/core": "2.0.0-alpha.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vite-plugin-dts": "^4.4.0",
+    "@usetemporal/tsconfig": "2.0.0-alpha.1"
+  },
+  "keywords": [
+    "time",
+    "date",
+    "temporal",
+    "divide",
+    "reactive",
+    "composable",
+    "zero-dependencies"
+  ]
+}

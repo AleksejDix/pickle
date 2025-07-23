@@ -1,0 +1,87 @@
+{
+  "name": "@usetemporal/core",
+  "version": "2.0.0-alpha.1",
+  "type": "module",
+  "description": "Revolutionary time library with unique divide() pattern for hierarchical time management",
+  "license": "MIT",
+  "author": "useTemporal Contributors",
+  "homepage": "https://github.com/usetemporal/usetemporal#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/usetemporal/usetemporal.git"
+  },
+  "bugs": {
+    "url": "https://github.com/usetemporal/usetemporal/issues"
+  },
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./composables": {
+      "types": "./dist/composables/index.d.ts",
+      "import": "./dist/composables/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc",
+    "dev": "vite build --watch",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage --passWithNoTests",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist node_modules"
+  },
+  "dependencies": {
+    "@vue/reactivity": "^3.5.18"
+  },
+  "devDependencies": {
+    "@types/node": "^22.12.1",
+    "@usetemporal/tsconfig": "2.0.0-alpha.1",
+    "@vitest/coverage-v8": "^3.2.4",
+    "jsdom": "^26.0.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.7",
+    "vite-plugin-dts": "^4.4.0",
+    "vitest": "^3.2.4"
+  },
+  "peerDependencies": {
+    "@usetemporal/adapter-date-fns": "2.0.0-alpha.1",
+    "@usetemporal/adapter-luxon": "2.0.0-alpha.1",
+    "@usetemporal/adapter-native": "2.0.0-alpha.1",
+    "@usetemporal/adapter-temporal": "2.0.0-alpha.1"
+  },
+  "peerDependenciesMeta": {
+    "@usetemporal/adapter-date-fns": {
+      "optional": true
+    },
+    "@usetemporal/adapter-luxon": {
+      "optional": true
+    },
+    "@usetemporal/adapter-native": {
+      "optional": true
+    },
+    "@usetemporal/adapter-temporal": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "time",
+    "date",
+    "temporal",
+    "divide",
+    "reactive",
+    "composable",
+    "typescript",
+    "vue-reactivity"
+  ]
+}

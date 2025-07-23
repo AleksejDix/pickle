@@ -16,7 +16,10 @@
   },
   "dependencies": {
     "vue": "^3.5.17",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "usetemporal": "file:../../packages/usetemporal",
+    "@usetemporal/adapter-date-fns": "file:../../packages/adapter-date-fns",
+    "@usetemporal/adapter-luxon": "file:../../packages/adapter-luxon"
   },
   "devDependencies": {
     "@tsconfig/node22": "^22.0.2",

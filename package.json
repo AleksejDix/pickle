@@ -1,97 +1,25 @@
 {
   "name": "usetemporal",
-  "version": "2.0.0-alpha.1",
-  "description": "Framework-agnostic reactive time library with revolutionary divide() pattern",
-  "type": "module",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "import": "./dist/index.js",
-      "types": "./dist/index.d.ts"
-    },
-    "./adapters": {
-      "import": "./dist/adapters/index.js",
-      "types": "./dist/adapters/index.d.ts"
-    },
-    "./core": {
-      "import": "./dist/core/index.js",
-      "types": "./dist/core/index.d.ts"
-    },
-    "./composables": {
-      "import": "./dist/composables/index.js",
-      "types": "./dist/composables/index.d.ts"
-    }
-  },
-  "files": [
-    "dist",
-    "lib",
-    "README.md"
+  "private": true,
+  "workspaces": [
+    "packages/*",
+    "examples/*"
   ],
   "scripts": {
-    "build": "vite build",
-    "dev": "vite build --watch",
-    "type-check": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "test:coverage": "vitest run --coverage",
-    "lint": "oxlint lib test",
-    "lint:fix": "oxlint lib test --fix",
+    "build": "npm run build --workspaces --if-present",
+    "test": "npm run test --workspaces --if-present",
+    "test:coverage": "npm run test:coverage --workspaces --if-present",
+    "dev": "npm run dev --workspace=@usetemporal/core",
+    "lint": "npm run lint --workspaces --if-present",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "quality": "npm run format:check && npm run lint"
-  },
-  "keywords": [
-    "time",
-    "date",
-    "calendar",
-    "reactive",
-    "temporal",
-    "divide",
-    "framework-agnostic",
-    "typescript",
-    "vue",
-    "react",
-    "vanilla-js"
-  ],
-  "author": "useTemporal Team",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/aleksejdix/usetemporal.git"
-  },
-  "homepage": "https://github.com/aleksejdix/usetemporal#readme",
-  "bugs": {
-    "url": "https://github.com/aleksejdix/usetemporal/issues"
+    "type-check": "npm run type-check --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present && rm -rf node_modules",
+    "release": "npm run build && changeset publish"
   },
   "devDependencies": {
-    "@types/luxon": "^3.6.2",
-    "@types/node": "^24.0.0",
-    "@vitest/coverage-v8": "^3.2.4",
-    "date-fns": "^4.1.0",
-    "jsdom": "^26.1.0",
-    "luxon": "^3.7.0",
-    "oxlint": "^1.8.0",
-    "prettier": "^3.6.2",
-    "typescript": "^5.0.0",
-    "vite": "^7.0.5",
-    "vite-plugin-dts": "^4.5.4",
-    "vitest": "^3.2.4"
-  },
-  "dependencies": {
-    "@vue/reactivity": "^3.5.0"
-  },
-  "peerDependencies": {
-    "date-fns": "^4.0.0",
-    "luxon": "^3.7.0"
-  },
-  "peerDependenciesMeta": {
-    "date-fns": {
-      "optional": true
-    },
-    "luxon": {
-      "optional": true
-    }
+    "@changesets/cli": "^2.27.0",
+    "prettier": "^3.6.2"
   },
   "engines": {
     "node": ">=16.0.0"
