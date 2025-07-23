@@ -1,7 +1,6 @@
 {
   "extends": "@usetemporal/tsconfig/library.json",
   "compilerOptions": {
-    
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": "."

@@ -19,11 +19,7 @@ export { default as useDay } from "./composables/useDay";
 export { default as useHour } from "./composables/useHour";
 
 // Type exports for adapters
-export type {
-  DateAdapter,
-  AdapterName,
-  DateDuration,
-} from "./types";
+export type { DateAdapter, AdapterName, DateDuration } from "./types";
 
 // Default export for convenience
 export { createTemporal as default } from "./core/createTemporal";

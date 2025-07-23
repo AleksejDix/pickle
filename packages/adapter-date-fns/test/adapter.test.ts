@@ -21,7 +21,7 @@ describe("DateFnsAdapter", () => {
     it("should throw error if date-fns is not available", () => {
       // Mock the date-fns import to simulate missing dependency
       const originalImport = (DateFnsAdapter as any).prototype.dateFns;
-      
+
       // Test with null import
       vi.doMock("date-fns", () => null);
       expect(() => {
@@ -35,7 +35,7 @@ describe("DateFnsAdapter", () => {
         };
         mockCreateDateFnsAdapter();
       }).toThrow("date-fns is required when using DateFnsAdapter");
-      
+
       // Restore
       vi.doUnmock("date-fns");
     });
@@ -460,5 +460,4 @@ describe("DateFnsAdapter", () => {
       expect(result[0]).toEqual(start);
     });
   });
-
 });

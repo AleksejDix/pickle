@@ -1,41 +1,53 @@
-import type { DateAdapter, DateDuration, TimeUnitKind } from "../../src/types/core";
+import type {
+  DateAdapter,
+  DateDuration,
+  TimeUnitKind,
+} from "../../src/types/core";
 
 export class MockDateAdapter implements DateAdapter {
   name = "mock";
 
   add(date: Date, duration: DateDuration): Date {
     const result = new Date(date);
-    
-    if (duration.years) result.setFullYear(result.getFullYear() + duration.years);
+
+    if (duration.years)
+      result.setFullYear(result.getFullYear() + duration.years);
     if (duration.months) result.setMonth(result.getMonth() + duration.months);
     if (duration.weeks) result.setDate(result.getDate() + duration.weeks * 7);
     if (duration.days) result.setDate(result.getDate() + duration.days);
     if (duration.hours) result.setHours(result.getHours() + duration.hours);
-    if (duration.minutes) result.setMinutes(result.getMinutes() + duration.minutes);
-    if (duration.seconds) result.setSeconds(result.getSeconds() + duration.seconds);
-    if (duration.milliseconds) result.setMilliseconds(result.getMilliseconds() + duration.milliseconds);
-    
+    if (duration.minutes)
+      result.setMinutes(result.getMinutes() + duration.minutes);
+    if (duration.seconds)
+      result.setSeconds(result.getSeconds() + duration.seconds);
+    if (duration.milliseconds)
+      result.setMilliseconds(result.getMilliseconds() + duration.milliseconds);
+
     return result;
   }
 
   subtract(date: Date, duration: DateDuration): Date {
     const result = new Date(date);
-    
-    if (duration.years) result.setFullYear(result.getFullYear() - duration.years);
+
+    if (duration.years)
+      result.setFullYear(result.getFullYear() - duration.years);
     if (duration.months) result.setMonth(result.getMonth() - duration.months);
     if (duration.weeks) result.setDate(result.getDate() - duration.weeks * 7);
     if (duration.days) result.setDate(result.getDate() - duration.days);
     if (duration.hours) result.setHours(result.getHours() - duration.hours);
-    if (duration.minutes) result.setMinutes(result.getMinutes() - duration.minutes);
-    if (duration.seconds) result.setSeconds(result.getSeconds() - duration.seconds);
-    if (duration.milliseconds) result.setMilliseconds(result.getMilliseconds() - duration.milliseconds);
-    
+    if (duration.minutes)
+      result.setMinutes(result.getMinutes() - duration.minutes);
+    if (duration.seconds)
+      result.setSeconds(result.getSeconds() - duration.seconds);
+    if (duration.milliseconds)
+      result.setMilliseconds(result.getMilliseconds() - duration.milliseconds);
+
     return result;
   }
 
   startOf(date: Date, unit: TimeUnitKind): Date {
     const result = new Date(date);
-    
+
     switch (unit) {
       case "year":
         result.setMonth(0, 1);
@@ -63,13 +75,13 @@ export class MockDateAdapter implements DateAdapter {
         result.setMilliseconds(0);
         break;
     }
-    
+
     return result;
   }
 
   endOf(date: Date, unit: TimeUnitKind): Date {
     const result = new Date(date);
-    
+
     switch (unit) {
       case "year":
         result.setMonth(11, 31);
@@ -97,7 +109,7 @@ export class MockDateAdapter implements DateAdapter {
         result.setMilliseconds(999);
         break;
     }
-    
+
     return result;
   }
 
@@ -106,7 +118,9 @@ export class MockDateAdapter implements DateAdapter {
       case "year":
         return a.getFullYear() === b.getFullYear();
       case "month":
-        return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth();
+        return (
+          a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth()
+        );
       case "week":
         const startA = this.startOf(a, "week");
         const startB = this.startOf(b, "week");
@@ -139,10 +153,10 @@ export class MockDateAdapter implements DateAdapter {
   eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
     const result: Date[] = [];
     let current = new Date(start);
-    
+
     while (current.getTime() <= end.getTime()) {
       result.push(new Date(current));
-      
+
       switch (unit) {
         case "year":
           current = this.add(current, { years: 1 });
@@ -158,8 +172,7 @@ export class MockDateAdapter implements DateAdapter {
           return result;
       }
     }
-    
+
     return result;
   }
-
 }

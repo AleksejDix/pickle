@@ -8,24 +8,27 @@ Traditional date libraries focus on parsing, formatting, and basic arithmetic. u
 
 ```typescript
 // Traditional approach
-const date = new Date()
-const month = date.getMonth()
-const year = date.getFullYear()
+const date = new Date();
+const month = date.getMonth();
+const year = date.getFullYear();
 
 // useTemporal approach
-const temporal = createTemporal({ dateAdapter })
-const year = useYear(temporal)
-const months = temporal.divide(year, 'month')
-const days = temporal.divide(months[0], 'day')
+const temporal = createTemporal({ dateAdapter });
+const year = useYear(temporal);
+const months = temporal.divide(year, "month");
+const days = temporal.divide(months[0], "day");
 ```
 
 ## Key Features
 
-### 1. **The divide() Pattern** 
+### 1. **The divide() Pattern**
+
 The revolutionary feature that sets useTemporal apart. Infinitely subdivide any time unit into smaller units with perfect synchronization.
 
 ### 2. **Framework Agnostic**
+
 Works seamlessly with:
+
 - Vue 3
 - React
 - Angular
@@ -33,21 +36,25 @@ Works seamlessly with:
 - Vanilla JavaScript
 
 ### 3. **Pluggable Date Adapters**
+
 Choose your preferred date manipulation library:
+
 - **Native**: Zero dependencies, full functionality
 - **date-fns**: Popular functional date library
 - **Luxon**: Powerful internationalization
 - **Temporal API**: Future-proof with TC39 proposal
 
 ### 4. **Reactive Time Units**
+
 All time units are reactive by default, perfect for building dynamic UIs:
 
 ```typescript
-const month = useMonth(temporal)
+const month = useMonth(temporal);
 // month.number, month.name, month.start, month.end are all reactive
 ```
 
 ### 5. **Zero Dependencies Mode**
+
 The native adapter provides complete functionality without any external dependencies.
 
 ## Architecture
@@ -82,6 +89,7 @@ useTemporal excels in applications that need:
 ## Browser Support
 
 Works in all modern browsers that support:
+
 - ES2020 features
 - Proxy API (for reactivity)
 - Intl.DateTimeFormat (for i18n)

@@ -4,8 +4,6 @@ export interface TimeSpan {
   end: Date;
 }
 
-
-
 // Time Unit Types - unified type for all time units
 export type TimeUnitKind =
   | "millennium"
@@ -21,8 +19,6 @@ export type TimeUnitKind =
   | "second"
   | "millisecond";
 
-
-
 // Date Adapter Types
 export type AdapterName = "native" | "date-fns" | "luxon" | "temporal";
 
@@ -36,9 +32,6 @@ export interface DateDuration {
   seconds?: number;
   milliseconds?: number;
 }
-
-
-
 
 export interface DateAdapter {
   name: string;

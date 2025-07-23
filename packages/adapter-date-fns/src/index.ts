@@ -110,11 +110,7 @@ export class DateFnsAdapter implements DateAdapter {
     }
   }
 
-  isSame(
-    a: Date,
-    b: Date,
-    unit: TimeUnitKind
-  ): boolean {
+  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
     const {
       isSameYear,
       isSameMonth,
@@ -187,8 +183,6 @@ export class DateFnsAdapter implements DateAdapter {
         return [start];
     }
   }
-
-
 }
 
 // Factory function to create adapter instance

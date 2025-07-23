@@ -14,14 +14,17 @@ describe("createTemporal", () => {
   describe("timeUnitFactory", () => {
     it("should create time units with correct properties", async () => {
       const { createTimeUnit } = await import("../../src/core/timeUnitFactory");
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 5, 15) });
-      
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 5, 15),
+      });
+
       const unit = createTimeUnit("day", {
         now: temporal.now,
         browsing: temporal.browsing,
-        adapter: temporal.adapter
+        adapter: temporal.adapter,
       });
-      
+
       expect(unit).toBeDefined();
       expect(unit.raw).toBeDefined();
       expect(unit.start).toBeDefined();
@@ -37,14 +40,17 @@ describe("createTemporal", () => {
 
     it("should handle unknown time unit", async () => {
       const { createTimeUnit } = await import("../../src/core/timeUnitFactory");
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 5, 15) });
-      
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 5, 15),
+      });
+
       const unit = createTimeUnit("unknown" as any, {
         now: temporal.now,
         browsing: temporal.browsing,
-        adapter: temporal.adapter
+        adapter: temporal.adapter,
       });
-      
+
       expect(unit).toBeNull();
     });
   });
@@ -62,7 +68,10 @@ describe("createTemporal", () => {
 
     it("should accept date option", () => {
       const testDate = createTestDate(2023, 5, 15);
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: testDate });
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: testDate,
+      });
 
       expect(temporal.picked.value).toEqual(testDate);
       expect(temporal.browsing.value).toEqual(testDate);
@@ -72,7 +81,8 @@ describe("createTemporal", () => {
       const testDate = createTestDate(2023, 5, 15);
       const nowDate = createTestDate(2024, 0, 1);
 
-      const temporal = createTemporal({ dateAdapter: mockAdapter,
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
         date: testDate,
         now: nowDate,
       });
@@ -80,7 +90,6 @@ describe("createTemporal", () => {
       expect(temporal.picked.value).toEqual(testDate);
       expect(temporal.now.value).toEqual(nowDate);
     });
-
   });
 
   describe("Adapter System Integration", () => {
@@ -107,7 +116,6 @@ describe("createTemporal", () => {
       expect(typeof temporal.adapter.startOf).toBe("function");
       expect(typeof temporal.adapter.endOf).toBe("function");
     });
-
   });
 
   describe("Reactive Properties", () => {
@@ -141,7 +149,6 @@ describe("createTemporal", () => {
     });
   });
 
-
   describe("Framework Agnostic Usage", () => {
     it("should work without Vue framework", () => {
       // This test ensures we only use @vue/reactivity, not full Vue
@@ -157,7 +164,10 @@ describe("createTemporal", () => {
 
     it("should provide direct value access for any framework", () => {
       const testDate = createTestDate(2024, 5, 15);
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: testDate });
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: testDate,
+      });
 
       // Vanilla JS access pattern
       const pickedValue = temporal.picked.value;
@@ -259,70 +269,85 @@ describe("createTemporal", () => {
 
   describe("Composables Integration", () => {
     it("should test useYear composable", async () => {
-      const { default: useYear } = await import("../../src/composables/useYear");
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 5, 15) });
-      
+      const { default: useYear } = await import(
+        "../../src/composables/useYear"
+      );
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 5, 15),
+      });
+
       const year = useYear({
         now: temporal.now,
         browsing: temporal.browsing,
-        adapter: temporal.adapter
+        adapter: temporal.adapter,
       });
-      
+
       expect(year.number.value).toBe(2024);
       // Just test the year part, avoid timezone issues
       expect(year.start.value.getFullYear()).toBe(2024);
       expect(year.start.value.getMonth()).toBe(0);
       expect(year.start.value.getDate()).toBe(1);
-      
+
       // Test navigation
       year.future();
       expect(year.number.value).toBe(2025);
-      
+
       year.past();
       year.past();
       expect(year.number.value).toBe(2023);
     });
 
     it("should test useMonth composable", async () => {
-      const { default: useMonth } = await import("../../src/composables/useMonth");
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 5, 15) });
-      
+      const { default: useMonth } = await import(
+        "../../src/composables/useMonth"
+      );
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 5, 15),
+      });
+
       const month = useMonth({
         now: temporal.now,
         browsing: temporal.browsing,
-        adapter: temporal.adapter
+        adapter: temporal.adapter,
       });
-      
+
       expect(month.number.value).toBe(6);
       // Note: days property doesn't exist on month composable
-      
+
       // Test navigation
       month.future();
       expect(month.number.value).toBe(7);
-      
+
       month.past();
       month.past();
       expect(month.number.value).toBe(5);
     });
 
     it("should test useWeek composable", async () => {
-      const { default: useWeek } = await import("../../src/composables/useWeek");
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 5, 15) }); // Saturday
-      
+      const { default: useWeek } = await import(
+        "../../src/composables/useWeek"
+      );
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 5, 15),
+      }); // Saturday
+
       const week = useWeek({
         now: temporal.now,
         browsing: temporal.browsing,
-        adapter: temporal.adapter
+        adapter: temporal.adapter,
       });
-      
+
       // Just test the date parts, avoid timezone issues
       expect(week.start.value.getDate()).toBe(9); // Sunday
       expect(week.end.value.getDate()).toBe(15); // Saturday
-      
+
       // Test navigation
       week.future();
       expect(week.start.value.getDate()).toBe(16);
-      
+
       week.past();
       week.past();
       expect(week.start.value.getDate()).toBe(2);
@@ -330,41 +355,49 @@ describe("createTemporal", () => {
 
     it("should test useDay composable", async () => {
       const { default: useDay } = await import("../../src/composables/useDay");
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 5, 15) });
-      
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 5, 15),
+      });
+
       const day = useDay({
         now: temporal.now,
         browsing: temporal.browsing,
-        adapter: temporal.adapter
+        adapter: temporal.adapter,
       });
-      
+
       expect(day.number.value).toBe(15);
-      
+
       // Test navigation
       day.future();
       expect(day.number.value).toBe(16);
-      
+
       day.past();
       day.past();
       expect(day.number.value).toBe(14);
     });
 
     it("should test useHour composable", async () => {
-      const { default: useHour } = await import("../../src/composables/useHour");
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 5, 15, 14, 30) });
-      
+      const { default: useHour } = await import(
+        "../../src/composables/useHour"
+      );
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: createTestDate(2024, 5, 15, 14, 30),
+      });
+
       const hour = useHour({
         now: temporal.now,
         browsing: temporal.browsing,
-        adapter: temporal.adapter
+        adapter: temporal.adapter,
       });
-      
+
       expect(hour.number.value).toBe(14);
-      
+
       // Test navigation
       hour.future();
       expect(hour.number.value).toBe(15);
-      
+
       hour.past();
       hour.past();
       expect(hour.number.value).toBe(13);
@@ -419,18 +452,20 @@ describe("createTemporal", () => {
     it("should divide time intervals into smaller units", () => {
       const temporal = createTemporal({ dateAdapter: mockAdapter });
       const mockUnit = {
-        timespan: { value: { start: new Date(2024, 0, 1), end: new Date(2024, 0, 31) } },
+        timespan: {
+          value: { start: new Date(2024, 0, 1), end: new Date(2024, 0, 31) },
+        },
         raw: { value: new Date(2024, 0, 15) },
         isNow: { value: false },
         number: { value: 1 },
         browsing: { value: new Date(2024, 0, 15) },
         future: () => {},
         past: () => {},
-        isSame: () => false
+        isSame: () => false,
       };
-      
+
       const result = temporal.divide(mockUnit as any, "day");
-      
+
       // January has 31 days
       expect(result.length).toBe(31);
       expect(result[0]).toBeDefined();
@@ -442,12 +477,15 @@ describe("createTemporal", () => {
     it("should accept ref for date option", async () => {
       const { ref } = await import("@vue/reactivity");
       const dateRef = ref(createTestDate(2024, 5, 15));
-      
-      const temporal = createTemporal({ dateAdapter: mockAdapter, date: dateRef });
-      
+
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        date: dateRef,
+      });
+
       expect(temporal.picked).toBe(dateRef);
       expect(temporal.picked.value).toEqual(dateRef.value);
-      
+
       // Update ref and check if temporal reflects the change
       dateRef.value = createTestDate(2025, 0, 1);
       expect(temporal.picked.value).toEqual(createTestDate(2025, 0, 1));
@@ -456,25 +494,28 @@ describe("createTemporal", () => {
     it("should accept ref for now option", async () => {
       const { ref } = await import("@vue/reactivity");
       const nowRef = ref(createTestDate(2024, 0, 1));
-      
-      const temporal = createTemporal({ dateAdapter: mockAdapter, now: nowRef });
-      
+
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
+        now: nowRef,
+      });
+
       expect(temporal.now).toBe(nowRef);
       expect(temporal.now.value).toEqual(nowRef.value);
     });
-
 
     it("should handle mix of refs and values", async () => {
       const { ref } = await import("@vue/reactivity");
       const dateRef = ref(createTestDate(2024, 5, 15));
       const plainNow = createTestDate(2024, 0, 1);
-      
-      const temporal = createTemporal({ dateAdapter: mockAdapter, 
+
+      const temporal = createTemporal({
+        dateAdapter: mockAdapter,
         date: dateRef,
         now: plainNow,
-        locale: "de-DE"
+        locale: "de-DE",
       });
-      
+
       expect(temporal.picked).toBe(dateRef);
       expect(temporal.now.value).toEqual(plainNow);
       expect(isRef(temporal.now)).toBe(true);
@@ -484,11 +525,11 @@ describe("createTemporal", () => {
   describe("Utils Functions", () => {
     it("should test same() helper function", () => {
       const adapter = mockAdapter;
-      
+
       const date1 = createTestDate(2024, 0, 15, 10, 30);
       const date2 = createTestDate(2024, 0, 15, 14, 45);
       const date3 = createTestDate(2024, 0, 16);
-      
+
       expect(same(date1, date2, "day", adapter)).toBe(true);
       expect(same(date1, date3, "day", adapter)).toBe(false);
       expect(same(date1, date2, "hour", adapter)).toBe(false);
@@ -497,7 +538,7 @@ describe("createTemporal", () => {
     it("should handle null/undefined dates in same()", () => {
       const adapter = mockAdapter;
       const date = createTestDate(2024, 0, 15);
-      
+
       expect(same(null, date, "day", adapter)).toBe(false);
       expect(same(date, null, "day", adapter)).toBe(false);
       expect(same(undefined, date, "day", adapter)).toBe(false);
@@ -508,10 +549,10 @@ describe("createTemporal", () => {
 
     it("should work with different units in same()", () => {
       const adapter = mockAdapter;
-      
+
       const date1 = createTestDate(2024, 5, 15);
       const date2 = createTestDate(2024, 6, 20);
-      
+
       expect(same(date1, date2, "year", adapter)).toBe(true);
       expect(same(date1, date2, "month", adapter)).toBe(false);
     });
@@ -519,20 +560,20 @@ describe("createTemporal", () => {
     it("should test each() helper function", async () => {
       const { each } = await import("../../src/utils/each");
       const adapter = mockAdapter;
-      
+
       const start = createTestDate(2024, 0, 1);
       const end = createTestDate(2024, 0, 5);
-      
+
       const days = each({
         start,
         end,
         step: { days: 1 },
-        adapter
+        adapter,
       });
       expect(days).toHaveLength(5);
       expect(days[0].getDate()).toBe(1);
       expect(days[4].getDate()).toBe(5);
-      
+
       // Test with months
       const monthStart = createTestDate(2024, 0, 1);
       const monthEnd = createTestDate(2024, 2, 1);
@@ -540,10 +581,10 @@ describe("createTemporal", () => {
         start: monthStart,
         end: monthEnd,
         step: { months: 1 },
-        adapter
+        adapter,
       });
       expect(months).toHaveLength(3);
-      
+
       // Test with years
       const yearStart = createTestDate(2020, 0, 1);
       const yearEnd = createTestDate(2022, 0, 1);
@@ -551,7 +592,7 @@ describe("createTemporal", () => {
         start: yearStart,
         end: yearEnd,
         step: { years: 1 },
-        adapter
+        adapter,
       });
       expect(years).toHaveLength(3);
     });
@@ -559,17 +600,17 @@ describe("createTemporal", () => {
     it("should handle edge cases in each()", async () => {
       const { each } = await import("../../src/utils/each");
       const adapter = mockAdapter;
-      
+
       // Same date
       const date = createTestDate(2024, 0, 1);
       const sameDates = each({
         start: date,
         end: date,
         step: { days: 1 },
-        adapter
+        adapter,
       });
       expect(sameDates).toHaveLength(1);
-      
+
       // End before start
       const start = createTestDate(2024, 0, 5);
       const end = createTestDate(2024, 0, 1);
@@ -577,7 +618,7 @@ describe("createTemporal", () => {
         start,
         end,
         step: { days: 1 },
-        adapter
+        adapter,
       });
       expect(reversed).toHaveLength(0);
     });

@@ -5,64 +5,68 @@ The main factory function that creates a temporal instance with reactive date ma
 ## Syntax
 
 ```typescript
-function createTemporal(options?: CreateTemporalOptions): Temporal
+function createTemporal(options?: CreateTemporalOptions): Temporal;
 ```
 
 ## Parameters
 
 ### options
+
 Type: `CreateTemporalOptions`
 
 Configuration object with the following properties:
 
 #### dateAdapter (required)
+
 - Type: `DateAdapter`
 - Description: The date adapter instance to use for date operations
 
 ```typescript
-import { nativeAdapter } from '@usetemporal/adapter-native'
+import { nativeAdapter } from "@usetemporal/adapter-native";
 
-const temporal = createTemporal({ 
-  dateAdapter: nativeAdapter 
-})
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+});
 ```
 
 #### date
+
 - Type: `Date | Ref<Date>`
 - Default: `new Date()`
 - Description: Initial date for `picked` and `browsing` values
 
 ```typescript
-const temporal = createTemporal({ 
+const temporal = createTemporal({
   dateAdapter,
-  date: new Date(2024, 0, 15) 
-})
+  date: new Date(2024, 0, 15),
+});
 ```
 
 #### now
+
 - Type: `Date | Ref<Date>`
 - Default: `new Date()`
 - Description: Reference time for "current" calculations
 
 ```typescript
-const temporal = createTemporal({ 
+const temporal = createTemporal({
   dateAdapter,
-  now: ref(new Date()) // Updates reactively
-})
+  now: ref(new Date()), // Updates reactively
+});
 ```
 
 #### locale
+
 - Type: `string | Ref<string>`
 - Default: `'en-US'`
 - Description: Locale for date formatting
 
 ```typescript
-const temporal = createTemporal({ 
+const temporal = createTemporal({
   dateAdapter,
-  locale: 'fr-FR' 
-})
+  locale: "fr-FR",
+});
 ```
-
 
 ## Return Value
 
@@ -71,60 +75,67 @@ Returns a `Temporal` object with the following properties:
 ### Properties
 
 #### picked
+
 - Type: `Ref<Date>`
 - Description: The currently selected date
 
 ```typescript
-temporal.picked.value = new Date(2024, 5, 15)
+temporal.picked.value = new Date(2024, 5, 15);
 ```
 
 #### now
+
 - Type: `Ref<Date>`
 - Description: The current system time reference
 
 ```typescript
-console.log(temporal.now.value) // Current date/time
+console.log(temporal.now.value); // Current date/time
 ```
 
 #### browsing
+
 - Type: `Ref<Date>`
 - Description: The date currently being browsed/viewed
 
 ```typescript
 // Separate browsing from selection
-temporal.browsing.value = new Date(2024, 11, 25)
+temporal.browsing.value = new Date(2024, 11, 25);
 ```
 
 #### adapter
+
 - Type: `DateAdapter`
 - Description: The date adapter instance being used
 
 ```typescript
-const startOfMonth = temporal.adapter.startOf(date, 'month')
+const startOfMonth = temporal.adapter.startOf(date, "month");
 ```
 
 ### Methods
 
 #### divide()
+
 Subdivides a time unit into smaller units.
 
 ```typescript
-function divide(unit: TimeUnit, into: TimeUnitType): TimeUnit[]
+function divide(unit: TimeUnit, into: TimeUnitType): TimeUnit[];
 ```
 
 See [divide() API](/api/divide) for detailed documentation.
 
 #### f()
+
 Formats a date using Intl.DateTimeFormat.
 
 ```typescript
-function f(date: Date, options?: Intl.DateTimeFormatOptions): string
+function f(date: Date, options?: Intl.DateTimeFormatOptions): string;
 ```
 
 Example:
+
 ```typescript
-temporal.f(new Date(), { month: 'long' }) // "January"
-temporal.f(new Date(), { weekday: 'short' }) // "Mon"
+temporal.f(new Date(), { month: "long" }); // "January"
+temporal.f(new Date(), { weekday: "short" }); // "Mon"
 ```
 
 ## Examples
@@ -132,47 +143,46 @@ temporal.f(new Date(), { weekday: 'short' }) // "Mon"
 ### Basic Setup
 
 ```typescript
-import { createTemporal } from '@usetemporal/core'
-import { nativeAdapter } from '@usetemporal/adapter-native'
+import { createTemporal } from "@usetemporal/core";
+import { nativeAdapter } from "@usetemporal/adapter-native";
 
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
-  locale: 'en-US'
-})
+  locale: "en-US",
+});
 ```
 
 ### With Reactive Refs
 
 ```typescript
-import { ref } from 'vue'
+import { ref } from "vue";
 
-const selectedDate = ref(new Date())
-const currentLocale = ref('en-US')
+const selectedDate = ref(new Date());
+const currentLocale = ref("en-US");
 
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
-  date: selectedDate,      // Will stay in sync
-  locale: currentLocale    // Formatting updates on change
-})
+  date: selectedDate, // Will stay in sync
+  locale: currentLocale, // Formatting updates on change
+});
 ```
-
 
 ### With Different Adapters
 
 ```typescript
 // date-fns adapter
-import { dateFnsAdapter } from '@usetemporal/adapter-date-fns'
+import { dateFnsAdapter } from "@usetemporal/adapter-date-fns";
 
 const temporal = createTemporal({
-  dateAdapter: dateFnsAdapter
-})
+  dateAdapter: dateFnsAdapter,
+});
 
 // Luxon adapter
-import { luxonAdapter } from '@usetemporal/adapter-luxon'
+import { luxonAdapter } from "@usetemporal/adapter-luxon";
 
 const temporal = createTemporal({
-  dateAdapter: luxonAdapter
-})
+  dateAdapter: luxonAdapter,
+});
 ```
 
 ### Framework Integration
@@ -181,26 +191,26 @@ const temporal = createTemporal({
 // Vue 3 Composition API
 export function useCalendar() {
   const temporal = createTemporal({
-    dateAdapter: nativeAdapter
-  })
-  
-  const month = useMonth(temporal)
-  const days = temporal.divide(month, 'day')
-  
+    dateAdapter: nativeAdapter,
+  });
+
+  const month = useMonth(temporal);
+  const days = temporal.divide(month, "day");
+
   return {
     temporal,
     month,
-    days
-  }
+    days,
+  };
 }
 
 // React Hook
 export function useCalendar() {
-  const [temporal] = useState(() => 
+  const [temporal] = useState(() =>
     createTemporal({ dateAdapter: nativeAdapter })
-  )
-  
-  return temporal
+  );
+
+  return temporal;
 }
 ```
 
@@ -208,19 +218,19 @@ export function useCalendar() {
 
 ```typescript
 interface CreateTemporalOptions {
-  dateAdapter: DateAdapter
-  date?: Date | Ref<Date>
-  now?: Date | Ref<Date>
-  locale?: string | Ref<string>
+  dateAdapter: DateAdapter;
+  date?: Date | Ref<Date>;
+  now?: Date | Ref<Date>;
+  locale?: string | Ref<string>;
 }
 
 interface Temporal {
-  picked: Ref<Date>
-  now: Ref<Date>
-  browsing: Ref<Date>
-  adapter: DateAdapter
-  divide: (unit: TimeUnit, into: TimeUnitType) => TimeUnit[]
-  f: (date: Date, options?: Intl.DateTimeFormatOptions) => string
+  picked: Ref<Date>;
+  now: Ref<Date>;
+  browsing: Ref<Date>;
+  adapter: DateAdapter;
+  divide: (unit: TimeUnit, into: TimeUnitType) => TimeUnit[];
+  f: (date: Date, options?: Intl.DateTimeFormatOptions) => string;
 }
 ```
 

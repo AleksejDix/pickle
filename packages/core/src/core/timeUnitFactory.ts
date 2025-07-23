@@ -2,7 +2,10 @@ import type { TimeUnit, UseTimeUnitOptions } from "../types/reactive";
 import type { TimeUnitKind } from "../types/core";
 
 // Registry for composable functions
-const composableRegistry = new Map<TimeUnitKind, (options: UseTimeUnitOptions) => TimeUnit>();
+const composableRegistry = new Map<
+  TimeUnitKind,
+  (options: UseTimeUnitOptions) => TimeUnit
+>();
 
 // Register a composable for a specific time unit
 export function registerComposable(
@@ -13,7 +16,9 @@ export function registerComposable(
 }
 
 // Get a composable for a specific time unit
-export function getComposable(unit: TimeUnitKind): ((options: UseTimeUnitOptions) => TimeUnit) | undefined {
+export function getComposable(
+  unit: TimeUnitKind
+): ((options: UseTimeUnitOptions) => TimeUnit) | undefined {
   return composableRegistry.get(unit);
 }
 

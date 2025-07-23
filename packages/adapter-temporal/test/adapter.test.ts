@@ -1,4 +1,12 @@
-import { describe, it, expect, beforeEach, vi, beforeAll, afterAll } from "vitest";
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  vi,
+  beforeAll,
+  afterAll,
+} from "vitest";
 import { TemporalAdapter, createTemporalAdapter } from "../src/index";
 import type { DateAdapter } from "@usetemporal/core/types";
 
@@ -16,7 +24,11 @@ const mockTemporal = {
         second: new Date(ms).getSeconds(),
         millisecond: new Date(ms).getMilliseconds(),
         dayOfWeek: new Date(ms).getDay() === 0 ? 7 : new Date(ms).getDay(),
-        daysInMonth: new Date(new Date(ms).getFullYear(), new Date(ms).getMonth() + 1, 0).getDate(),
+        daysInMonth: new Date(
+          new Date(ms).getFullYear(),
+          new Date(ms).getMonth() + 1,
+          0
+        ).getDate(),
         timeZone: tz,
         epochMilliseconds: ms,
         toPlainDate: () => ({
@@ -24,8 +36,12 @@ const mockTemporal = {
           month: new Date(ms).getMonth() + 1,
           day: new Date(ms).getDate(),
           dayOfWeek: new Date(ms).getDay() === 0 ? 7 : new Date(ms).getDay(),
-          daysInMonth: new Date(new Date(ms).getFullYear(), new Date(ms).getMonth() + 1, 0).getDate(),
-          equals: function(other: any) {
+          daysInMonth: new Date(
+            new Date(ms).getFullYear(),
+            new Date(ms).getMonth() + 1,
+            0
+          ).getDate(),
+          equals: function (other: any) {
             const d1 = new Date(ms);
             // Handle both plain date objects and other date representations
             let d2;
@@ -37,18 +53,28 @@ const mockTemporal = {
             } else if (other.epochMilliseconds !== undefined) {
               d2 = new Date(other.epochMilliseconds);
             } else {
-              d2 = new Date(other.year || 2024, (other.month || 1) - 1, other.day || 1);
+              d2 = new Date(
+                other.year || 2024,
+                (other.month || 1) - 1,
+                other.day || 1
+              );
             }
-            return d1.getFullYear() === d2.getFullYear() &&
-                   d1.getMonth() === d2.getMonth() &&
-                   d1.getDate() === d2.getDate();
+            return (
+              d1.getFullYear() === d2.getFullYear() &&
+              d1.getMonth() === d2.getMonth() &&
+              d1.getDate() === d2.getDate()
+            );
           },
           with: (fields: any) => ({
             day: fields.day,
-            _date: new Date(new Date(ms).getFullYear(), new Date(ms).getMonth(), fields.day || new Date(ms).getDate())
-          })
+            _date: new Date(
+              new Date(ms).getFullYear(),
+              new Date(ms).getMonth(),
+              fields.day || new Date(ms).getDate()
+            ),
+          }),
         }),
-        with: function(fields: any) {
+        with: function (fields: any) {
           const d = new Date(ms);
           if (fields.year !== undefined) d.setFullYear(fields.year);
           if (fields.month !== undefined) d.setMonth(fields.month - 1);
@@ -56,10 +82,13 @@ const mockTemporal = {
           if (fields.hour !== undefined) d.setHours(fields.hour);
           if (fields.minute !== undefined) d.setMinutes(fields.minute);
           if (fields.second !== undefined) d.setSeconds(fields.second);
-          if (fields.millisecond !== undefined) d.setMilliseconds(fields.millisecond);
-          return mockTemporal.Instant.fromEpochMilliseconds(d.getTime()).toZonedDateTimeISO(tz);
+          if (fields.millisecond !== undefined)
+            d.setMilliseconds(fields.millisecond);
+          return mockTemporal.Instant.fromEpochMilliseconds(
+            d.getTime()
+          ).toZonedDateTimeISO(tz);
         },
-        add: function(duration: any) {
+        add: function (duration: any) {
           const d = new Date(ms);
           if (duration.years) d.setFullYear(d.getFullYear() + duration.years);
           if (duration.months) d.setMonth(d.getMonth() + duration.months);
@@ -68,10 +97,13 @@ const mockTemporal = {
           if (duration.hours) d.setHours(d.getHours() + duration.hours);
           if (duration.minutes) d.setMinutes(d.getMinutes() + duration.minutes);
           if (duration.seconds) d.setSeconds(d.getSeconds() + duration.seconds);
-          if (duration.milliseconds) d.setMilliseconds(d.getMilliseconds() + duration.milliseconds);
-          return mockTemporal.Instant.fromEpochMilliseconds(d.getTime()).toZonedDateTimeISO(tz);
+          if (duration.milliseconds)
+            d.setMilliseconds(d.getMilliseconds() + duration.milliseconds);
+          return mockTemporal.Instant.fromEpochMilliseconds(
+            d.getTime()
+          ).toZonedDateTimeISO(tz);
         },
-        subtract: function(duration: any) {
+        subtract: function (duration: any) {
           const d = new Date(ms);
           if (duration.years) d.setFullYear(d.getFullYear() - duration.years);
           if (duration.months) d.setMonth(d.getMonth() - duration.months);
@@ -80,19 +112,22 @@ const mockTemporal = {
           if (duration.hours) d.setHours(d.getHours() - duration.hours);
           if (duration.minutes) d.setMinutes(d.getMinutes() - duration.minutes);
           if (duration.seconds) d.setSeconds(d.getSeconds() - duration.seconds);
-          if (duration.milliseconds) d.setMilliseconds(d.getMilliseconds() - duration.milliseconds);
-          return mockTemporal.Instant.fromEpochMilliseconds(d.getTime()).toZonedDateTimeISO(tz);
-        }
-      })
+          if (duration.milliseconds)
+            d.setMilliseconds(d.getMilliseconds() - duration.milliseconds);
+          return mockTemporal.Instant.fromEpochMilliseconds(
+            d.getTime()
+          ).toZonedDateTimeISO(tz);
+        },
+      }),
     }),
     compare: (a: any, b: any) => {
       const diff = a.epochMilliseconds - b.epochMilliseconds;
       return diff < 0 ? -1 : diff > 0 ? 1 : 0;
-    }
+    },
   },
   Now: {
-    timeZone: () => "UTC"
-  }
+    timeZone: () => "UTC",
+  },
 };
 
 describe("TemporalAdapter", () => {
@@ -446,7 +481,7 @@ describe("TemporalAdapter", () => {
     it("should handle unknown unit", () => {
       // Create a mock console.warn to suppress warning
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      
+
       const start = new Date("2024-06-15");
       const end = new Date("2024-06-20");
       const result = adapter.eachInterval(start, end, "unknown" as any);
@@ -454,14 +489,14 @@ describe("TemporalAdapter", () => {
       // For unknown unit, it should break after the second iteration due to no advance
       expect(result.length).toBeGreaterThanOrEqual(1);
       expect(result[0]).toEqual(start);
-      
+
       warnSpy.mockRestore();
     });
 
     it("should handle infinite loop protection", () => {
       // Create a mock console.warn
       const warnSpy = vi.spyOn(console, "warn").mockImplementation(() => {});
-      
+
       // Try to generate a very large interval that would hit the limit
       const start = new Date("1900-01-01");
       const end = new Date("2200-01-01"); // 300 years of days = ~109,500 days
@@ -476,7 +511,6 @@ describe("TemporalAdapter", () => {
       warnSpy.mockRestore();
     });
   });
-
 
   describe("Error handling", () => {
     it("should throw error when accessing temporal getter without API", () => {

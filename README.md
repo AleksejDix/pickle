@@ -29,26 +29,26 @@ npm install usetemporal
 ### Basic Usage
 
 ```typescript
-import { createTemporal, useYear, useMonth } from 'usetemporal';
+import { createTemporal, useYear, useMonth } from "usetemporal";
 
 const temporal = createTemporal({
   date: new Date(),
-  locale: 'en-US'
+  locale: "en-US",
 });
 
 const year = useYear(temporal);
-const months = temporal.divide(year, 'month');
+const months = temporal.divide(year, "month");
 ```
 
 ### Vue Example
 
 ```vue
 <script setup>
-import { createTemporal, useYear, useMonth } from 'usetemporal';
+import { createTemporal, useYear, useMonth } from "usetemporal";
 
 const temporal = createTemporal();
 const year = useYear(temporal);
-const months = temporal.divide(year, 'month');
+const months = temporal.divide(year, "month");
 </script>
 
 <template>
@@ -64,13 +64,13 @@ const months = temporal.divide(year, 'month');
 ### React Example
 
 ```jsx
-import { createTemporal, useYear } from 'usetemporal';
-import { useEffect, useState } from 'react';
+import { createTemporal, useYear } from "usetemporal";
+import { useEffect, useState } from "react";
 
 function Calendar() {
   const [temporal] = useState(() => createTemporal());
   const [year, setYear] = useState(null);
-  
+
   useEffect(() => {
     const yearUnit = useYear(temporal);
     setYear(yearUnit);
@@ -88,9 +88,9 @@ The revolutionary `divide()` method allows you to break down any time unit into 
 
 ```typescript
 const year = useYear(temporal);
-const months = temporal.divide(year, 'month');  // 12 months
-const weeks = temporal.divide(months[0], 'week'); // ~4 weeks
-const days = temporal.divide(weeks[0], 'day');    // 7 days
+const months = temporal.divide(year, "month"); // 12 months
+const weeks = temporal.divide(months[0], "week"); // ~4 weeks
+const days = temporal.divide(weeks[0], "day"); // 7 days
 ```
 
 ### Reactive Updates
@@ -102,7 +102,7 @@ All time units stay synchronized automatically:
 temporal.picked.value = new Date(2024, 11, 25);
 
 // All units update automatically
-console.log(year.name.value);  // "2024"
+console.log(year.name.value); // "2024"
 console.log(month.name.value); // "December 2024"
 ```
 
@@ -112,13 +112,13 @@ UseTemporal supports multiple date libraries through adapters:
 
 ```typescript
 // Native JavaScript Date (default, zero dependencies)
-const temporal = createTemporal({ dateAdapter: 'native' });
+const temporal = createTemporal({ dateAdapter: "native" });
 
 // date-fns (requires date-fns installation)
-const temporal = createTemporal({ dateAdapter: 'date-fns' });
+const temporal = createTemporal({ dateAdapter: "date-fns" });
 
 // Luxon (requires luxon installation)
-const temporal = createTemporal({ dateAdapter: 'luxon' });
+const temporal = createTemporal({ dateAdapter: "luxon" });
 ```
 
 ## 📚 Examples

@@ -21,21 +21,21 @@ Year
 ## Basic Usage
 
 ```typescript
-const temporal = createTemporal({ dateAdapter })
-const year = useYear(temporal)
+const temporal = createTemporal({ dateAdapter });
+const year = useYear(temporal);
 
 // Divide year into months
-const months = temporal.divide(year, 'month')
+const months = temporal.divide(year, "month");
 // Returns array of 12 month units
 
 // Divide a month into days
-const january = months[0]
-const days = temporal.divide(january, 'day')
+const january = months[0];
+const days = temporal.divide(january, "day");
 // Returns array of 31 day units for January
 
 // Continue dividing...
-const firstDay = days[0]
-const hours = temporal.divide(firstDay, 'hour')
+const firstDay = days[0];
+const hours = temporal.divide(firstDay, "hour");
 // Returns array of 24 hour units
 ```
 
@@ -54,11 +54,11 @@ year → months → days → hours → minutes → seconds
 All subdivisions stay synchronized with their parent:
 
 ```typescript
-const month = useMonth(temporal)
-const days = temporal.divide(month, 'day')
+const month = useMonth(temporal);
+const days = temporal.divide(month, "day");
 
 // When month changes, days automatically update
-month.future() // Move to next month
+month.future(); // Move to next month
 // days array now contains days of the new month
 ```
 
@@ -67,14 +67,17 @@ month.future() // Move to next month
 Each subdivided unit is fully reactive:
 
 ```typescript
-const days = temporal.divide(month, 'day')
+const days = temporal.divide(month, "day");
 
-days.forEach(day => {
+days.forEach((day) => {
   // Each day has reactive properties
-  watch(() => day.isNow.value, (isToday) => {
-    if (isToday) console.log(`Day ${day.number.value} is today!`)
-  })
-})
+  watch(
+    () => day.isNow.value,
+    (isToday) => {
+      if (isToday) console.log(`Day ${day.number.value} is today!`);
+    }
+  );
+});
 ```
 
 ## Advanced Examples
@@ -82,49 +85,51 @@ days.forEach(day => {
 ### Calendar Grid
 
 ```typescript
-const month = useMonth(temporal)
-const weeks = temporal.divide(month, 'week')
+const month = useMonth(temporal);
+const weeks = temporal.divide(month, "week");
 
-weeks.forEach(week => {
-  const days = temporal.divide(week, 'day')
+weeks.forEach((week) => {
+  const days = temporal.divide(week, "day");
   // Render 7 days per week
-})
+});
 ```
 
 ### Year Overview
 
 ```typescript
-const year = useYear(temporal)
-const months = temporal.divide(year, 'month')
+const year = useYear(temporal);
+const months = temporal.divide(year, "month");
 
-const yearOverview = months.map(month => {
-  const days = temporal.divide(month, 'day')
-  const workDays = days.filter(day => day.weekDay.value >= 1 && day.weekDay.value <= 5)
-  
+const yearOverview = months.map((month) => {
+  const days = temporal.divide(month, "day");
+  const workDays = days.filter(
+    (day) => day.weekDay.value >= 1 && day.weekDay.value <= 5
+  );
+
   return {
     name: month.name.value,
     totalDays: days.length,
     workDays: workDays.length,
-    weekends: days.length - workDays.length
-  }
-})
+    weekends: days.length - workDays.length,
+  };
+});
 ```
 
 ### Time Picker
 
 ```typescript
-const day = useDay(temporal)
-const hours = temporal.divide(day, 'hour')
+const day = useDay(temporal);
+const hours = temporal.divide(day, "hour");
 
 // Create hour slots
-const hourSlots = hours.map(hour => {
-  const minutes = temporal.divide(hour, 'minute')
-  
+const hourSlots = hours.map((hour) => {
+  const minutes = temporal.divide(hour, "minute");
+
   return {
     hour: hour.number.value,
-    slots: minutes.filter((m, i) => i % 15 === 0) // 00, 15, 30, 45
-  }
-})
+    slots: minutes.filter((m, i) => i % 15 === 0), // 00, 15, 30, 45
+  };
+});
 ```
 
 ## Performance Considerations
@@ -134,12 +139,10 @@ const hourSlots = hours.map(hour => {
 Subdivisions are created on-demand:
 
 ```typescript
-const months = temporal.divide(year, 'month')
+const months = temporal.divide(year, "month");
 // 12 month objects created
 
-const allDays = months.flatMap(month => 
-  temporal.divide(month, 'day')
-)
+const allDays = months.flatMap((month) => temporal.divide(month, "day"));
 // 365/366 day objects created only when accessed
 ```
 
@@ -148,8 +151,8 @@ const allDays = months.flatMap(month =>
 Results are cached for performance:
 
 ```typescript
-const days1 = temporal.divide(month, 'day')
-const days2 = temporal.divide(month, 'day')
+const days1 = temporal.divide(month, "day");
+const days2 = temporal.divide(month, "day");
 // days1 === days2 (same reference)
 ```
 
@@ -159,7 +162,7 @@ Subdivisions are garbage collected when no longer referenced:
 
 ```typescript
 function showMonth(month) {
-  const days = temporal.divide(month, 'day')
+  const days = temporal.divide(month, "day");
   // Use days...
 } // days eligible for GC after function exits
 ```
@@ -170,22 +173,22 @@ function showMonth(month) {
 
 ```typescript
 function createMonthCalendar(temporal) {
-  const month = useMonth(temporal)
-  const days = temporal.divide(month, 'day')
-  
+  const month = useMonth(temporal);
+  const days = temporal.divide(month, "day");
+
   // Group by weeks
-  const weeks = []
-  let currentWeek = []
-  
-  days.forEach(day => {
-    currentWeek.push(day)
+  const weeks = [];
+  let currentWeek = [];
+
+  days.forEach((day) => {
+    currentWeek.push(day);
     if (day.weekDay.value === 6 || day === days[days.length - 1]) {
-      weeks.push(currentWeek)
-      currentWeek = []
+      weeks.push(currentWeek);
+      currentWeek = [];
     }
-  })
-  
-  return weeks
+  });
+
+  return weeks;
 }
 ```
 
@@ -193,23 +196,23 @@ function createMonthCalendar(temporal) {
 
 ```typescript
 function getAvailableSlots(temporal, duration = 30) {
-  const day = useDay(temporal)
-  const hours = temporal.divide(day, 'hour')
-  
-  const slots = []
-  hours.forEach(hour => {
+  const day = useDay(temporal);
+  const hours = temporal.divide(day, "hour");
+
+  const slots = [];
+  hours.forEach((hour) => {
     if (hour.number.value >= 9 && hour.number.value < 17) {
-      const minutes = temporal.divide(hour, 'minute')
+      const minutes = temporal.divide(hour, "minute");
       for (let i = 0; i < 60; i += duration) {
         slots.push({
-          time: `${hour.number.value}:${i.toString().padStart(2, '0')}`,
-          available: true
-        })
+          time: `${hour.number.value}:${i.toString().padStart(2, "0")}`,
+          available: true,
+        });
       }
     }
-  })
-  
-  return slots
+  });
+
+  return slots;
 }
 ```
 
@@ -217,27 +220,27 @@ function getAvailableSlots(temporal, duration = 30) {
 
 ```typescript
 function createDateNavigator(temporal) {
-  const year = useYear(temporal)
-  const months = temporal.divide(year, 'month')
-  
+  const year = useYear(temporal);
+  const months = temporal.divide(year, "month");
+
   return {
     selectMonth(index) {
-      temporal.browsing.value = months[index].raw.value
+      temporal.browsing.value = months[index].raw.value;
     },
-    
+
     getMonthDetails(index) {
-      const month = months[index]
-      const days = temporal.divide(month, 'day')
-      
+      const month = months[index];
+      const days = temporal.divide(month, "day");
+
       return {
         name: month.name.value,
         days: days.length,
         weeks: Math.ceil(days.length / 7),
         firstDay: days[0].weekDay.value,
-        lastDay: days[days.length - 1].weekDay.value
-      }
-    }
-  }
+        lastDay: days[days.length - 1].weekDay.value,
+      };
+    },
+  };
 }
 ```
 
@@ -247,13 +250,13 @@ The divide pattern works seamlessly with all time unit composables:
 
 ```typescript
 // Start with any composable
-const week = useWeek(temporal)
-const days = temporal.divide(week, 'day')
+const week = useWeek(temporal);
+const days = temporal.divide(week, "day");
 
 // Or combine multiple levels
-const year = useYear(temporal)
-const quarters = temporal.divide(year, 'quarter')
-const monthsInQ1 = temporal.divide(quarters[0], 'month')
+const year = useYear(temporal);
+const quarters = temporal.divide(year, "quarter");
+const monthsInQ1 = temporal.divide(quarters[0], "month");
 ```
 
 ## Best Practices

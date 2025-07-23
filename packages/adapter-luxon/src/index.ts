@@ -140,11 +140,7 @@ export class LuxonAdapter implements DateAdapter {
     }
   }
 
-  isSame(
-    a: Date,
-    b: Date,
-    unit: TimeUnitKind
-  ): boolean {
+  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
     const { DateTime } = this.luxon;
     const dtA = DateTime.fromJSDate(a);
     const dtB = DateTime.fromJSDate(b);
@@ -241,8 +237,6 @@ export class LuxonAdapter implements DateAdapter {
         return [start];
     }
   }
-
-
 }
 
 // Factory function to create adapter instance

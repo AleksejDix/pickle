@@ -3,23 +3,19 @@
     <div class="month-header">
       <h2>{{ month.name?.value || 'Loading...' }}</h2>
     </div>
-    
+
     <div class="calendar-grid">
       <div class="weekday-headers">
         <div v-for="weekday in weekdays" :key="weekday" class="weekday">
           {{ weekday }}
         </div>
       </div>
-      
+
       <div class="days-grid">
-        <div
-          v-for="n in monthStartPadding"
-          :key="`pad-start-${n}`"
-          class="day-pad"
-        >
+        <div v-for="n in monthStartPadding" :key="`pad-start-${n}`" class="day-pad">
           <span class="day-number">{{ previousMonthDays[n - 1] }}</span>
         </div>
-        
+
         <div
           v-for="day in days"
           :key="day.raw.value.toISOString()"
@@ -27,20 +23,15 @@
           :class="{
             'is-today': day.isNow.value,
             'is-weekend': day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
-            'is-selected': selectedDay?.raw.value.getTime() === day.raw.value.getTime()
+            'is-selected': selectedDay?.raw.value.getTime() === day.raw.value.getTime(),
           }"
           @click="selectDay(day)"
         >
           <span class="day-number">{{ day.number.value }}</span>
-          <div class="day-content">
-          </div>
+          <div class="day-content"></div>
         </div>
-        
-        <div
-          v-for="n in monthEndPadding"
-          :key="`pad-end-${n}`"
-          class="day-pad"
-        >
+
+        <div v-for="n in monthEndPadding" :key="`pad-end-${n}`" class="day-pad">
           <span class="day-number">{{ n }}</span>
         </div>
       </div>
@@ -49,55 +40,55 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import type { TemporalCore, TimeUnit } from 'usetemporal';
-import { useMonth } from 'usetemporal';
+import { computed, ref } from 'vue'
+import type { TemporalCore, TimeUnit } from 'usetemporal'
+import { useMonth } from 'usetemporal'
 
 const props = defineProps<{
-  temporal: TemporalCore;
-  initialMonth?: TimeUnit;
-}>();
+  temporal: TemporalCore
+  initialMonth?: TimeUnit
+}>()
 
 const emit = defineEmits<{
-  selectDay: [day: TimeUnit];
-}>();
+  selectDay: [day: TimeUnit]
+}>()
 
-const month = props.initialMonth ? props.initialMonth : useMonth(props.temporal);
-const days = computed(() => props.temporal.divide(month, 'day'));
-const selectedDay = ref<TimeUnit | null>(null);
+const month = props.initialMonth ? props.initialMonth : useMonth(props.temporal)
+const days = computed(() => props.temporal.divide(month, 'day'))
+const selectedDay = ref<TimeUnit | null>(null)
 
-const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 
 const monthStartPadding = computed(() => {
-  if (days.value.length === 0) return 0;
-  const firstDay = days.value[0];
-  return firstDay.raw.value.getDay();
-});
+  if (days.value.length === 0) return 0
+  const firstDay = days.value[0]
+  return firstDay.raw.value.getDay()
+})
 
 const monthEndPadding = computed(() => {
-  if (days.value.length === 0) return 0;
-  const lastDay = days.value[days.value.length - 1];
-  const lastDayOfWeek = lastDay.raw.value.getDay();
-  return lastDayOfWeek === 6 ? 0 : 6 - lastDayOfWeek;
-});
+  if (days.value.length === 0) return 0
+  const lastDay = days.value[days.value.length - 1]
+  const lastDayOfWeek = lastDay.raw.value.getDay()
+  return lastDayOfWeek === 6 ? 0 : 6 - lastDayOfWeek
+})
 
 const previousMonthDays = computed(() => {
-  if (monthStartPadding.value === 0) return [];
-  
-  const prevMonth = new Date(month.raw.value);
-  prevMonth.setMonth(prevMonth.getMonth() - 1);
-  const daysInPrevMonth = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0).getDate();
-  
-  const result: number[] = [];
+  if (monthStartPadding.value === 0) return []
+
+  const prevMonth = new Date(month.raw.value)
+  prevMonth.setMonth(prevMonth.getMonth() - 1)
+  const daysInPrevMonth = new Date(prevMonth.getFullYear(), prevMonth.getMonth() + 1, 0).getDate()
+
+  const result: number[] = []
   for (let i = monthStartPadding.value - 1; i >= 0; i--) {
-    result.push(daysInPrevMonth - i);
+    result.push(daysInPrevMonth - i)
   }
-  return result;
-});
+  return result
+})
 
 function selectDay(day: TimeUnit) {
-  selectedDay.value = day;
-  emit('selectDay', day);
+  selectedDay.value = day
+  emit('selectDay', day)
 }
 </script>
 
@@ -153,7 +144,8 @@ function selectDay(day: TimeUnit) {
   border: 1px solid #e0e0e0;
 }
 
-.day, .day-pad {
+.day,
+.day-pad {
   background: white;
   min-height: 100px;
   padding: 8px;
@@ -215,16 +207,17 @@ function selectDay(day: TimeUnit) {
   .month-view {
     padding: 10px;
   }
-  
-  .day, .day-pad {
+
+  .day,
+  .day-pad {
     min-height: 60px;
     padding: 4px;
   }
-  
+
   .weekday {
     font-size: 11px;
   }
-  
+
   .day-number {
     font-size: 12px;
   }

@@ -3,7 +3,7 @@
     <div class="year-header">
       <h1>{{ year.number.value }}</h1>
     </div>
-    
+
     <div class="months-grid">
       <div
         v-for="(month, index) in months"
@@ -15,28 +15,24 @@
         <div class="month-header">
           {{ month.name.value }}
         </div>
-        
+
         <div class="month-calendar">
           <div class="weekday-headers">
             <div v-for="weekday in weekdays" :key="weekday" class="weekday">
               {{ weekday }}
             </div>
           </div>
-          
+
           <div class="days-grid">
-            <div
-              v-for="n in getMonthStartPadding(month)"
-              :key="`pad-${n}`"
-              class="day-pad"
-            ></div>
-            
+            <div v-for="n in getMonthStartPadding(month)" :key="`pad-${n}`" class="day-pad"></div>
+
             <div
               v-for="day in getDaysInMonth(month)"
               :key="day.raw.value.toISOString()"
               class="day"
               :class="{
                 'is-today': day.isNow.value,
-                'is-weekend': day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6
+                'is-weekend': day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
               }"
             >
               {{ day.number.value }}
@@ -49,34 +45,35 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
-import type { TemporalCore, TimeUnit } from 'usetemporal';
-import { useYear } from 'usetemporal';
+import { computed } from 'vue'
+import type { TemporalCore, TimeUnit } from 'usetemporal'
+import { useYear } from 'usetemporal'
 
 const props = defineProps<{
-  temporal: TemporalCore;
-}>();
+  temporal: TemporalCore
+}>()
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits<{
-  selectMonth: [month: TimeUnit];
-}>();
+  selectMonth: [month: TimeUnit]
+}>()
 
-const year = useYear(props.temporal);
-const months = computed(() => props.temporal.divide(year, 'month'));
+const year = useYear(props.temporal)
+const months = computed(() => props.temporal.divide(year, 'month'))
 
-const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
+const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 function getDaysInMonth(month: TimeUnit) {
-  return props.temporal.divide(month, 'day');
+  return props.temporal.divide(month, 'day')
 }
 
 function getMonthStartPadding(month: TimeUnit) {
-  const days = getDaysInMonth(month);
-  if (days.length === 0) return 0;
-  
-  const firstDay = days[0];
-  const dayOfWeek = firstDay.raw.value.getDay();
-  return dayOfWeek;
+  const days = getDaysInMonth(month)
+  if (days.length === 0) return 0
+
+  const firstDay = days[0]
+  const dayOfWeek = firstDay.raw.value.getDay()
+  return dayOfWeek
 }
 </script>
 
@@ -156,7 +153,8 @@ function getMonthStartPadding(month: TimeUnit) {
   gap: 2px;
 }
 
-.day, .day-pad {
+.day,
+.day-pad {
   aspect-ratio: 1;
   display: flex;
   align-items: center;

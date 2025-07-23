@@ -16,20 +16,16 @@
         </div>
       </div>
     </div>
-    
+
     <div class="week-body">
       <div class="time-labels">
         <div v-for="hour in 24" :key="hour" class="time-label">
           {{ formatHour(hour - 1) }}
         </div>
       </div>
-      
+
       <div class="days-grid">
-        <div
-          v-for="day in days"
-          :key="day.raw.value.toISOString()"
-          class="day-column"
-        >
+        <div v-for="day in days" :key="day.raw.value.toISOString()" class="day-column">
           <div class="hours-grid">
             <div
               v-for="hour in 24"
@@ -40,7 +36,7 @@
               <div class="hour-content"></div>
             </div>
           </div>
-          
+
           <div
             v-if="day.isNow.value"
             class="current-time-indicator"
@@ -55,55 +51,55 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import type { TemporalCore, TimeUnit } from 'usetemporal';
-import { useWeek } from 'usetemporal';
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import type { TemporalCore, TimeUnit } from 'usetemporal'
+import { useWeek } from 'usetemporal'
 
 const props = defineProps<{
-  temporal: TemporalCore;
-  initialWeek?: TimeUnit;
-}>();
+  temporal: TemporalCore
+  initialWeek?: TimeUnit
+}>()
 
-const week = props.initialWeek ? props.initialWeek : useWeek(props.temporal);
-const days = computed(() => props.temporal.divide(week, 'day'));
+const week = props.initialWeek ? props.initialWeek : useWeek(props.temporal)
+const days = computed(() => props.temporal.divide(week, 'day'))
 
-const currentTime = ref(new Date());
-let intervalId: number;
+const currentTime = ref(new Date())
+let intervalId: number
 
 onMounted(() => {
   intervalId = window.setInterval(() => {
-    currentTime.value = new Date();
-  }, 60000); // Update every minute
-});
+    currentTime.value = new Date()
+  }, 60000) // Update every minute
+})
 
 onUnmounted(() => {
   if (intervalId) {
-    clearInterval(intervalId);
+    clearInterval(intervalId)
   }
-});
+})
 
 const currentTimePosition = computed(() => {
-  const hours = currentTime.value.getHours();
-  const minutes = currentTime.value.getMinutes();
-  const totalMinutes = hours * 60 + minutes;
-  return (totalMinutes / (24 * 60)) * (24 * 60); // 60px per hour
-});
+  const hours = currentTime.value.getHours()
+  const minutes = currentTime.value.getMinutes()
+  const totalMinutes = hours * 60 + minutes
+  return (totalMinutes / (24 * 60)) * (24 * 60) // 60px per hour
+})
 
 function getDayName(day: TimeUnit) {
-  const date = day.raw.value;
-  return date.toLocaleDateString('en-US', { weekday: 'short' });
+  const date = day.raw.value
+  return date.toLocaleDateString('en-US', { weekday: 'short' })
 }
 
 function formatHour(hour: number) {
-  if (hour === 0) return '12 AM';
-  if (hour === 12) return '12 PM';
-  if (hour < 12) return `${hour} AM`;
-  return `${hour - 12} PM`;
+  if (hour === 0) return '12 AM'
+  if (hour === 12) return '12 PM'
+  if (hour < 12) return `${hour} AM`
+  return `${hour - 12} PM`
 }
 
 function isCurrentHour(day: TimeUnit, hour: number) {
-  if (!day.isNow.value) return false;
-  return currentTime.value.getHours() === hour;
+  if (!day.isNow.value) return false
+  return currentTime.value.getHours() === hour
 }
 </script>
 
@@ -263,14 +259,15 @@ function isCurrentHour(day: TimeUnit, hour: number) {
 }
 
 @media (max-width: 768px) {
-  .time-gutter, .time-labels {
+  .time-gutter,
+  .time-labels {
     width: 50px;
   }
-  
+
   .day-name {
     font-size: 11px;
   }
-  
+
   .day-date {
     font-size: 16px;
     width: 30px;

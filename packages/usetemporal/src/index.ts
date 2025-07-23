@@ -5,7 +5,10 @@ export * from "@usetemporal/core";
 export { NativeDateAdapter as DateAdapter } from "@usetemporal/adapter-native";
 import { NativeDateAdapter } from "@usetemporal/adapter-native";
 import { createTemporal as createTemporalCore } from "@usetemporal/core";
-import type { ReactiveCreateTemporalOptions, TemporalCore } from "@usetemporal/core";
+import type {
+  ReactiveCreateTemporalOptions,
+  TemporalCore,
+} from "@usetemporal/core";
 
 // Convenience function that uses native adapter by default
 export function createTemporal(

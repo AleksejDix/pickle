@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
   <div class="calendar-container">
     <div class="calendar-toolbar">
@@ -6,21 +7,33 @@
         <div class="navigation-arrows">
           <button class="btn-nav" @click="navigatePrevious" :disabled="!canNavigateBack">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path
+                d="M12.5 15L7.5 10L12.5 5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </button>
           <button class="btn-nav" @click="navigateNext">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <path d="M7.5 15L12.5 10L7.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path
+                d="M7.5 15L12.5 10L7.5 5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              />
             </svg>
           </button>
         </div>
       </div>
-      
+
       <div class="toolbar-center">
         <h1 class="current-period">{{ currentPeriodLabel }}</h1>
       </div>
-      
+
       <div class="toolbar-right">
         <div class="view-switcher">
           <button
@@ -35,149 +48,145 @@
         </div>
       </div>
     </div>
-    
+
     <div class="calendar-content">
       <YearView
         v-if="currentView === 'year'"
         :temporal="temporal"
         @select-month="handleMonthSelect"
       />
-      
+
       <MonthView
         v-else-if="currentView === 'month'"
         :temporal="temporal"
         :initial-month="currentMonth"
         @select-day="handleDaySelect"
       />
-      
+
       <WeekView
         v-else-if="currentView === 'week'"
         :temporal="temporal"
         :initial-week="currentWeek"
       />
-      
-      <DayView
-        v-else-if="currentView === 'day'"
-        :temporal="temporal"
-        :initial-day="currentDay"
-      />
+
+      <DayView v-else-if="currentView === 'day'" :temporal="temporal" :initial-day="currentDay" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { createTemporal, useYear, useMonth, useWeek, useDay, type TimeUnit } from 'usetemporal';
-import YearView from './YearView.vue';
-import MonthView from './MonthView.vue';
-import WeekView from './WeekView.vue';
-import DayView from './DayView.vue';
+import { ref, computed } from 'vue'
+import { createTemporal, useYear, useMonth, useWeek, useDay, type TimeUnit } from 'usetemporal'
+import YearView from './YearView.vue'
+import MonthView from './MonthView.vue'
+import WeekView from './WeekView.vue'
+import DayView from './DayView.vue'
 
-type ViewType = 'year' | 'month' | 'week' | 'day';
+type ViewType = 'year' | 'month' | 'week' | 'day'
 
-const temporal = createTemporal();
+const temporal = createTemporal()
 
-const currentView = ref<ViewType>('month');
-const year = useYear(temporal);
-const month = useMonth(temporal);
-const week = useWeek(temporal);
-const day = useDay(temporal);
+const currentView = ref<ViewType>('month')
+const year = useYear(temporal)
+const month = useMonth(temporal)
+const week = useWeek(temporal)
+const day = useDay(temporal)
 
-const currentYear = ref(year);
-const currentMonth = ref(month);
-const currentWeek = ref(week);
-const currentDay = ref(day);
+const currentYear = ref(year)
+const currentMonth = ref(month)
+const currentWeek = ref(week)
+const currentDay = ref(day)
 
 const views = [
   { type: 'day' as ViewType, label: 'Day' },
   { type: 'week' as ViewType, label: 'Week' },
   { type: 'month' as ViewType, label: 'Month' },
-  { type: 'year' as ViewType, label: 'Year' }
-];
+  { type: 'year' as ViewType, label: 'Year' },
+]
 
 const currentPeriodLabel = computed(() => {
   switch (currentView.value) {
     case 'year':
-      return currentYear.value.number.value.toString();
+      return currentYear.value.number.value.toString()
     case 'month':
-      return currentMonth.value.name.value;
+      return currentMonth.value.name.value
     case 'week':
-      const weekStart = currentWeek.value.timespan.value.start;
-      const weekEnd = currentWeek.value.timespan.value.end;
+      const weekStart = currentWeek.value.timespan.value.start
+      const weekEnd = currentWeek.value.timespan.value.end
       if (weekStart.getMonth() === weekEnd.getMonth()) {
-        return `${weekStart.getDate()}-${weekEnd.getDate()} ${weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`;
+        return `${weekStart.getDate()}-${weekEnd.getDate()} ${weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
       } else {
-        return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+        return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
       }
     case 'day':
       return currentDay.value.raw.value.toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
-        day: 'numeric'
-      });
+        day: 'numeric',
+      })
     default:
-      return '';
+      return ''
   }
-});
+})
 
 const canNavigateBack = computed(() => {
-  return true;
-});
+  return true
+})
 
 function switchView(view: ViewType) {
-  currentView.value = view;
+  currentView.value = view
 }
 
 function goToToday() {
-  currentYear.value = useYear(temporal);
-  currentMonth.value = useMonth(temporal);
-  currentWeek.value = useWeek(temporal);
-  currentDay.value = useDay(temporal);
+  currentYear.value = useYear(temporal)
+  currentMonth.value = useMonth(temporal)
+  currentWeek.value = useWeek(temporal)
+  currentDay.value = useDay(temporal)
 }
 
 function navigatePrevious() {
   switch (currentView.value) {
     case 'year':
-      currentYear.value.past();
-      break;
+      currentYear.value.past()
+      break
     case 'month':
-      currentMonth.value.past();
-      break;
+      currentMonth.value.past()
+      break
     case 'week':
-      currentWeek.value.past();
-      break;
+      currentWeek.value.past()
+      break
     case 'day':
-      currentDay.value.past();
-      break;
+      currentDay.value.past()
+      break
   }
 }
 
 function navigateNext() {
   switch (currentView.value) {
     case 'year':
-      currentYear.value.future();
-      break;
+      currentYear.value.future()
+      break
     case 'month':
-      currentMonth.value.future();
-      break;
+      currentMonth.value.future()
+      break
     case 'week':
-      currentWeek.value.future();
-      break;
+      currentWeek.value.future()
+      break
     case 'day':
-      currentDay.value.future();
-      break;
+      currentDay.value.future()
+      break
   }
 }
 
 function handleMonthSelect(month: TimeUnit) {
-  currentMonth.value = useMonth(temporal, month.raw.value);
-  currentView.value = 'month';
+  currentMonth.value = useMonth(temporal, month.raw.value)
+  currentView.value = 'month'
 }
 
 function handleDaySelect(day: TimeUnit) {
-  currentDay.value = useDay(temporal, day.raw.value);
-  currentView.value = 'day';
+  currentDay.value = useDay(temporal, day.raw.value)
+  currentView.value = 'day'
 }
 </script>
 
@@ -308,22 +317,22 @@ function handleDaySelect(day: TimeUnit) {
     flex-wrap: wrap;
     padding: 10px;
   }
-  
+
   .toolbar-center {
     order: -1;
     width: 100%;
     margin-bottom: 10px;
   }
-  
+
   .toolbar-left,
   .toolbar-right {
     flex: 1;
   }
-  
+
   .current-period {
     font-size: 18px;
   }
-  
+
   .btn-view {
     padding: 4px 12px;
     font-size: 12px;

@@ -11,7 +11,7 @@ useDay(temporal: Temporal, date?: Date): TimeUnit
 ## Parameters
 
 - **temporal** `Temporal` - The temporal instance created by `createTemporal()`
-- **date** `Date` *(optional)* - Initial date. Defaults to current date if not provided
+- **date** `Date` _(optional)_ - Initial date. Defaults to current date if not provided
 
 ## Returns
 
@@ -19,14 +19,14 @@ useDay(temporal: Temporal, date?: Date): TimeUnit
 
 ```typescript
 interface TimeUnit {
-  name: Ref<string>      // Day name (e.g., "Monday")
-  number: Ref<number>    // Day of month (1-31)
-  start: Ref<Date>       // Start of day (00:00:00)
-  end: Ref<Date>         // End of day (23:59:59)
-  
-  past(): void           // Navigate to previous day
-  future(): void         // Navigate to next day  
-  now(): void           // Navigate to current day (today)
+  name: Ref<string>; // Day name (e.g., "Monday")
+  number: Ref<number>; // Day of month (1-31)
+  start: Ref<Date>; // Start of day (00:00:00)
+  end: Ref<Date>; // End of day (23:59:59)
+
+  past(): void; // Navigate to previous day
+  future(): void; // Navigate to next day
+  now(): void; // Navigate to current day (today)
 }
 ```
 
@@ -35,56 +35,56 @@ interface TimeUnit {
 ### Basic Usage
 
 ```typescript
-import { createTemporal, useDay } from 'usetemporal'
+import { createTemporal, useDay } from "usetemporal";
 
-const temporal = createTemporal()
-const day = useDay(temporal)
+const temporal = createTemporal();
+const day = useDay(temporal);
 
-console.log(day.name.value)   // "Monday"
-console.log(day.number.value) // 15 (day of month)
-console.log(day.start.value)  // Date: 2024-03-15T00:00:00
-console.log(day.end.value)    // Date: 2024-03-15T23:59:59
+console.log(day.name.value); // "Monday"
+console.log(day.number.value); // 15 (day of month)
+console.log(day.start.value); // Date: 2024-03-15T00:00:00
+console.log(day.end.value); // Date: 2024-03-15T23:59:59
 ```
 
 ### Navigation
 
 ```typescript
-const day = useDay(temporal)
+const day = useDay(temporal);
 
 // Navigate through days
-day.future()  // Move to tomorrow
-console.log(day.name.value) // "Tuesday"
+day.future(); // Move to tomorrow
+console.log(day.name.value); // "Tuesday"
 
-day.past()    // Move to today
-day.past()    // Move to yesterday
-console.log(day.name.value) // "Sunday"
+day.past(); // Move to today
+day.past(); // Move to yesterday
+console.log(day.name.value); // "Sunday"
 
-day.now()     // Return to current day (today)
+day.now(); // Return to current day (today)
 ```
 
 ### Day Divisions
 
 ```typescript
-const day = useDay(temporal)
+const day = useDay(temporal);
 
 // Divide day into hours
-const hours = temporal.divide(day, 'hour')
-console.log(hours.length) // 24
+const hours = temporal.divide(day, "hour");
+console.log(hours.length); // 24
 
 // Get business hours (9 AM - 5 PM)
-const businessHours = hours.slice(9, 17)
+const businessHours = hours.slice(9, 17);
 
 // Divide day into minutes
-const minutes = temporal.divide(day, 'minute')
-console.log(minutes.length) // 1440
+const minutes = temporal.divide(day, "minute");
+console.log(minutes.length); // 1440
 
 // Create 30-minute time slots
-const timeSlots = []
+const timeSlots = [];
 for (let i = 0; i < hours.length; i++) {
-  const hour = hours[i]
-  const hourMinutes = temporal.divide(hour, 'minute')
-  timeSlots.push(hourMinutes[0])  // :00
-  timeSlots.push(hourMinutes[30]) // :30
+  const hour = hours[i];
+  const hourMinutes = temporal.divide(hour, "minute");
+  timeSlots.push(hourMinutes[0]); // :00
+  timeSlots.push(hourMinutes[30]); // :30
 }
 ```
 
@@ -92,14 +92,14 @@ for (let i = 0; i < hours.length; i++) {
 
 ```typescript
 // Start at end of month
-const temporal = createTemporal()
-const day = useDay(temporal, new Date('2024-03-31'))
+const temporal = createTemporal();
+const day = useDay(temporal, new Date("2024-03-31"));
 
-console.log(day.number.value) // 31
-console.log(day.name.value)   // "Sunday"
+console.log(day.number.value); // 31
+console.log(day.name.value); // "Sunday"
 
-day.future() // Navigate to next day
-console.log(day.number.value) // 1 (April 1st)
+day.future(); // Navigate to next day
+console.log(day.number.value); // 1 (April 1st)
 // Month automatically updates when crossing boundaries
 ```
 
@@ -109,31 +109,31 @@ console.log(day.number.value) // 1 (April 1st)
 
 ```typescript
 function DailyAgenda() {
-  const temporal = createTemporal()
-  const day = useDay(temporal)
-  const month = useMonth(temporal)
-  const year = useYear(temporal)
-  
+  const temporal = createTemporal();
+  const day = useDay(temporal);
+  const month = useMonth(temporal);
+  const year = useYear(temporal);
+
   const agenda = computed(() => {
-    const hours = temporal.divide(day, 'hour')
-    
+    const hours = temporal.divide(day, "hour");
+
     return {
       date: `${day.name.value}, ${month.name.value} ${day.number.value}, ${year.number.value}`,
-      timeSlots: hours.map(hour => ({
+      timeSlots: hours.map((hour) => ({
         time: hour.name.value,
         hour: hour.number.value,
         isBusinessHour: hour.number.value >= 9 && hour.number.value < 17,
-        isPast: hour.end.value < new Date()
-      }))
-    }
-  })
-  
+        isPast: hour.end.value < new Date(),
+      })),
+    };
+  });
+
   return {
     agenda,
     previousDay: () => day.past(),
     nextDay: () => day.future(),
-    today: () => day.now()
-  }
+    today: () => day.now(),
+  };
 }
 ```
 
@@ -141,44 +141,47 @@ function DailyAgenda() {
 
 ```typescript
 function DatePicker() {
-  const temporal = createTemporal()
-  const selectedDay = useDay(temporal)
-  const displayMonth = useMonth(temporal)
-  
+  const temporal = createTemporal();
+  const selectedDay = useDay(temporal);
+  const displayMonth = useMonth(temporal);
+
   const calendarDays = computed(() => {
-    const weeks = temporal.divide(displayMonth, 'week')
-    const days = []
-    
-    weeks.forEach(week => {
-      const weekDays = temporal.divide(week, 'day')
-      days.push(...weekDays)
-    })
-    
-    return days.map(day => ({
+    const weeks = temporal.divide(displayMonth, "week");
+    const days = [];
+
+    weeks.forEach((week) => {
+      const weekDays = temporal.divide(week, "day");
+      days.push(...weekDays);
+    });
+
+    return days.map((day) => ({
       number: day.number.value,
       name: day.name.value,
-      isCurrentMonth: day.start.value.getMonth() === displayMonth.number.value - 1,
-      isSelected: day.start.value.toDateString() === selectedDay.start.value.toDateString(),
-      isToday: day.start.value.toDateString() === new Date().toDateString()
-    }))
-  })
-  
+      isCurrentMonth:
+        day.start.value.getMonth() === displayMonth.number.value - 1,
+      isSelected:
+        day.start.value.toDateString() ===
+        selectedDay.start.value.toDateString(),
+      isToday: day.start.value.toDateString() === new Date().toDateString(),
+    }));
+  });
+
   const selectDay = (dayNumber: number) => {
     // Navigate to specific day in current month
     while (selectedDay.number.value !== dayNumber) {
       if (selectedDay.number.value < dayNumber) {
-        selectedDay.future()
+        selectedDay.future();
       } else {
-        selectedDay.past()
+        selectedDay.past();
       }
     }
-  }
-  
+  };
+
   return {
     selectedDate: selectedDay,
     calendarDays,
-    selectDay
-  }
+    selectDay,
+  };
 }
 ```
 
@@ -186,39 +189,39 @@ function DatePicker() {
 
 ```typescript
 function WorkingDaysCalculator() {
-  const temporal = createTemporal()
-  const startDay = useDay(temporal)
-  
+  const temporal = createTemporal();
+  const startDay = useDay(temporal);
+
   const calculateWorkingDays = (numberOfDays: number) => {
-    let workingDays = 0
-    const tempDay = useDay(temporal, startDay.start.value)
-    
+    let workingDays = 0;
+    const tempDay = useDay(temporal, startDay.start.value);
+
     for (let i = 0; i < numberOfDays; i++) {
-      const dayOfWeek = tempDay.start.value.getDay()
+      const dayOfWeek = tempDay.start.value.getDay();
       if (dayOfWeek !== 0 && dayOfWeek !== 6) {
-        workingDays++
+        workingDays++;
       }
-      tempDay.future()
+      tempDay.future();
     }
-    
-    return workingDays
-  }
-  
+
+    return workingDays;
+  };
+
   const isWeekend = computed(() => {
-    const dayOfWeek = startDay.start.value.getDay()
-    return dayOfWeek === 0 || dayOfWeek === 6
-  })
-  
+    const dayOfWeek = startDay.start.value.getDay();
+    return dayOfWeek === 0 || dayOfWeek === 6;
+  });
+
   return {
     currentDay: startDay,
     isWeekend,
     calculateWorkingDays,
     nextWorkingDay: () => {
       do {
-        startDay.future()
-      } while (isWeekend.value)
-    }
-  }
+        startDay.future();
+      } while (isWeekend.value);
+    },
+  };
 }
 ```
 
@@ -237,89 +240,90 @@ function WorkingDaysCalculator() {
       </div>
       <button @click="day.future()">›</button>
     </header>
-    
+
     <div class="hours">
-      <div v-for="hour in hours" 
-           :key="hour.start.value"
-           :class="{ past: isPastHour(hour) }">
+      <div
+        v-for="hour in hours"
+        :key="hour.start.value"
+        :class="{ past: isPastHour(hour) }"
+      >
         <span>{{ hour.name.value }}</span>
         <slot :hour="hour" />
       </div>
     </div>
-    
+
     <button @click="day.now()">Today</button>
   </div>
 </template>
 
 <script setup>
-import { createTemporal, useDay } from 'usetemporal'
+import { createTemporal, useDay } from "usetemporal";
 
-const temporal = createTemporal()
-const day = useDay(temporal)
-const hours = temporal.divide(day, 'hour')
+const temporal = createTemporal();
+const day = useDay(temporal);
+const hours = temporal.divide(day, "hour");
 
 const formatDate = (date) => {
-  return date.toLocaleDateString('en', { 
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
+  return date.toLocaleDateString("en", {
+    weekday: "long",
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+};
 
 const isPastHour = (hour) => {
-  return hour.end.value < new Date()
-}
+  return hour.end.value < new Date();
+};
 </script>
 ```
 
 ### React
 
 ```jsx
-import { useState, useEffect } from 'react'
-import { createTemporal, useDay } from 'usetemporal'
+import { useState, useEffect } from "react";
+import { createTemporal, useDay } from "usetemporal";
 
 function DayScheduler() {
-  const [temporal] = useState(() => createTemporal())
-  const [day] = useState(() => useDay(temporal))
+  const [temporal] = useState(() => createTemporal());
+  const [day] = useState(() => useDay(temporal));
   const [dayInfo, setDayInfo] = useState({
     name: day.name.value,
     number: day.number.value,
-    date: day.start.value
-  })
-  
+    date: day.start.value,
+  });
+
   useEffect(() => {
     const subscriptions = [
-      day.name.subscribe(name => 
-        setDayInfo(prev => ({ ...prev, name }))),
-      day.number.subscribe(number => 
-        setDayInfo(prev => ({ ...prev, number }))),
-      day.start.subscribe(date => 
-        setDayInfo(prev => ({ ...prev, date })))
-    ]
-    
-    return () => subscriptions.forEach(unsub => unsub())
-  }, [day])
-  
-  const hours = temporal.divide(day, 'hour')
-  
+      day.name.subscribe((name) => setDayInfo((prev) => ({ ...prev, name }))),
+      day.number.subscribe((number) =>
+        setDayInfo((prev) => ({ ...prev, number }))
+      ),
+      day.start.subscribe((date) => setDayInfo((prev) => ({ ...prev, date }))),
+    ];
+
+    return () => subscriptions.forEach((unsub) => unsub());
+  }, [day]);
+
+  const hours = temporal.divide(day, "hour");
+
   return (
     <div>
-      <h2>{dayInfo.name}, {dayInfo.date.toLocaleDateString()}</h2>
+      <h2>
+        {dayInfo.name}, {dayInfo.date.toLocaleDateString()}
+      </h2>
       <div>
         <button onClick={() => day.past()}>Previous</button>
         <button onClick={() => day.now()}>Today</button>
         <button onClick={() => day.future()}>Next</button>
       </div>
       <div>
-        {hours.slice(8, 18).map(hour => (
-          <div key={hour.start.value.toString()}>
-            {hour.name.value}
-          </div>
+        {hours.slice(8, 18).map((hour) => (
+          <div key={hour.start.value.toString()}>{hour.name.value}</div>
         ))}
       </div>
     </div>
-  )
+  );
 }
 ```
 
@@ -328,28 +332,28 @@ function DayScheduler() {
 ```typescript
 // Check if day is weekend
 function isWeekend(day: TimeUnit): boolean {
-  const dayOfWeek = day.start.value.getDay()
-  return dayOfWeek === 0 || dayOfWeek === 6
+  const dayOfWeek = day.start.value.getDay();
+  return dayOfWeek === 0 || dayOfWeek === 6;
 }
 
 // Check if day is today
 function isToday(day: TimeUnit): boolean {
-  const today = new Date()
-  return day.start.value.toDateString() === today.toDateString()
+  const today = new Date();
+  return day.start.value.toDateString() === today.toDateString();
 }
 
 // Get day of week number (0-6)
 function getDayOfWeek(day: TimeUnit): number {
-  return day.start.value.getDay()
+  return day.start.value.getDay();
 }
 
 // Format day for display
 function formatDay(day: TimeUnit): string {
-  return day.start.value.toLocaleDateString('en', {
-    weekday: 'short',
-    month: 'short',
-    day: 'numeric'
-  })
+  return day.start.value.toLocaleDateString("en", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
 }
 ```
 
@@ -358,21 +362,21 @@ function formatDay(day: TimeUnit): string {
 Full TypeScript support with type inference:
 
 ```typescript
-import type { Temporal, TimeUnit } from 'usetemporal'
+import type { Temporal, TimeUnit } from "usetemporal";
 
-const temporal: Temporal = createTemporal()
-const day: TimeUnit = useDay(temporal)
+const temporal: Temporal = createTemporal();
+const day: TimeUnit = useDay(temporal);
 
 // Type-safe access
-const dayName: string = day.name.value      // "Monday", "Tuesday", etc.
-const dayNumber: number = day.number.value  // 1-31
-const dayStart: Date = day.start.value
-const dayEnd: Date = day.end.value
+const dayName: string = day.name.value; // "Monday", "Tuesday", etc.
+const dayNumber: number = day.number.value; // 1-31
+const dayStart: Date = day.start.value;
+const dayEnd: Date = day.end.value;
 
 // Methods are typed
-day.past()    // void
-day.future()  // void
-day.now()     // void
+day.past(); // void
+day.future(); // void
+day.now(); // void
 ```
 
 ## Performance Notes

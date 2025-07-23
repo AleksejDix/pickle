@@ -13,7 +13,7 @@ export interface TimeUnit {
   isNow: ComputedRef<boolean>;
   number: ComputedRef<number>;
   browsing: Ref<Date>;
-  
+
   // Methods - available in all time units
   future: () => void;
   past: () => void;

@@ -6,7 +6,7 @@
         {{ getDayOfWeek(day.raw.value) }}
       </div>
     </div>
-    
+
     <div class="day-timeline">
       <div class="hours-container">
         <div
@@ -22,7 +22,7 @@
             <div class="hour-line"></div>
           </div>
         </div>
-        
+
         <div
           v-if="day.isNow.value"
           class="current-time-indicator"
@@ -37,70 +37,70 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue';
-import type { TemporalCore, TimeUnit } from 'usetemporal';
-import { useDay } from 'usetemporal';
+import { computed, onMounted, onUnmounted, ref } from 'vue'
+import type { TemporalCore, TimeUnit } from 'usetemporal'
+import { useDay } from 'usetemporal'
 
 const props = defineProps<{
-  temporal: TemporalCore;
-  initialDay?: TimeUnit;
-}>();
+  temporal: TemporalCore
+  initialDay?: TimeUnit
+}>()
 
-const day = props.initialDay ? props.initialDay : useDay(props.temporal);
-const hours = computed(() => props.temporal.divide(day, 'hour'));
+const day = props.initialDay ? props.initialDay : useDay(props.temporal)
+const hours = computed(() => props.temporal.divide(day, 'hour'))
 
-const currentTime = ref(new Date());
-let intervalId: number;
+const currentTime = ref(new Date())
+let intervalId: number
 
 onMounted(() => {
-  updateTime();
-  intervalId = window.setInterval(updateTime, 60000); // Update every minute
-});
+  updateTime()
+  intervalId = window.setInterval(updateTime, 60000) // Update every minute
+})
 
 onUnmounted(() => {
   if (intervalId) {
-    clearInterval(intervalId);
+    clearInterval(intervalId)
   }
-});
+})
 
 function updateTime() {
-  currentTime.value = new Date();
+  currentTime.value = new Date()
 }
 
 const currentTimePosition = computed(() => {
-  const now = currentTime.value;
-  const hours = now.getHours();
-  const minutes = now.getMinutes();
-  const totalMinutes = hours * 60 + minutes;
-  return (totalMinutes / (24 * 60)) * (24 * 80); // 80px per hour
-});
+  const now = currentTime.value
+  const hours = now.getHours()
+  const minutes = now.getMinutes()
+  const totalMinutes = hours * 60 + minutes
+  return (totalMinutes / (24 * 60)) * (24 * 80) // 80px per hour
+})
 
 function formatDate(date: Date) {
   return date.toLocaleDateString('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
-  });
+    day: 'numeric',
+  })
 }
 
 function getDayOfWeek(date: Date) {
-  const today = new Date();
-  const diffTime = date.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 0) return 'Today';
-  if (diffDays === 1) return 'Tomorrow';
-  if (diffDays === -1) return 'Yesterday';
-  
-  return '';
+  const today = new Date()
+  const diffTime = date.getTime() - today.getTime()
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+  if (diffDays === 0) return 'Today'
+  if (diffDays === 1) return 'Tomorrow'
+  if (diffDays === -1) return 'Yesterday'
+
+  return ''
 }
 
 function formatHour(hour: number) {
-  if (hour === 0) return '12 AM';
-  if (hour === 12) return '12 PM';
-  if (hour < 12) return `${hour} AM`;
-  return `${hour - 12} PM`;
+  if (hour === 0) return '12 AM'
+  if (hour === 12) return '12 PM'
+  if (hour < 12) return `${hour} AM`
+  return `${hour - 12} PM`
 }
 </script>
 
@@ -220,11 +220,11 @@ function formatHour(hour: number) {
     font-size: 11px;
     padding: 8px;
   }
-  
+
   .hour-block {
     height: 60px;
   }
-  
+
   .current-time-indicator {
     left: 60px;
   }

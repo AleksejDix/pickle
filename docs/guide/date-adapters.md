@@ -8,13 +8,13 @@ Date adapters are plugins that handle all date operations for useTemporal. They 
 
 ```typescript
 // Using the default native adapter
-const temporal = createTemporal()
+const temporal = createTemporal();
 
 // Using a specific adapter
-import { luxonAdapter } from '@usetemporal/adapter-luxon'
+import { luxonAdapter } from "@usetemporal/adapter-luxon";
 const temporal = createTemporal({
-  adapter: luxonAdapter()
-})
+  adapter: luxonAdapter(),
+});
 ```
 
 ## Why Adapters?
@@ -34,22 +34,22 @@ Every adapter implements the same interface, ensuring consistent behavior:
 ```typescript
 interface DateAdapter {
   // Core operations
-  now(): Date
-  startOf(date: Date, unit: TimeUnit): Date
-  endOf(date: Date, unit: TimeUnit): Date
-  
+  now(): Date;
+  startOf(date: Date, unit: TimeUnit): Date;
+  endOf(date: Date, unit: TimeUnit): Date;
+
   // Manipulation
-  add(date: Date, amount: number, unit: TimeUnit): Date
-  subtract(date: Date, amount: number, unit: TimeUnit): Date
-  set(date: Date, value: number, unit: TimeUnit): Date
-  
+  add(date: Date, amount: number, unit: TimeUnit): Date;
+  subtract(date: Date, amount: number, unit: TimeUnit): Date;
+  set(date: Date, value: number, unit: TimeUnit): Date;
+
   // Information
-  get(date: Date, unit: TimeUnit): number
-  diff(date1: Date, date2: Date, unit: TimeUnit): number
-  
+  get(date: Date, unit: TimeUnit): number;
+  diff(date1: Date, date2: Date, unit: TimeUnit): number;
+
   // Formatting
-  format(date: Date, format: string): string
-  parse(dateString: string, format: string): Date
+  format(date: Date, format: string): string;
+  parse(dateString: string, format: string): Date;
 }
 ```
 
@@ -57,12 +57,12 @@ interface DateAdapter {
 
 useTemporal provides four official adapters:
 
-| Adapter | Package | Use Case |
-|---------|---------|----------|
-| [Native](/api/adapter-native) | Built-in | Simple apps, minimal dependencies |
+| Adapter                           | Package                         | Use Case                             |
+| --------------------------------- | ------------------------------- | ------------------------------------ |
+| [Native](/api/adapter-native)     | Built-in                        | Simple apps, minimal dependencies    |
 | [date-fns](/api/adapter-date-fns) | `@usetemporal/adapter-date-fns` | Functional programming, tree-shaking |
-| [Luxon](/api/adapter-luxon) | `@usetemporal/adapter-luxon` | Complex timezone handling, i18n |
-| [Temporal](/api/adapter-temporal) | `@usetemporal/adapter-temporal` | Future-proof, standard-compliant |
+| [Luxon](/api/adapter-luxon)       | `@usetemporal/adapter-luxon`    | Complex timezone handling, i18n      |
+| [Temporal](/api/adapter-temporal) | `@usetemporal/adapter-temporal` | Future-proof, standard-compliant     |
 
 ## Choosing an Adapter
 
@@ -83,14 +83,14 @@ graph TD
 
 ### Comparison Matrix
 
-| Feature | Native | date-fns | Luxon | Temporal |
-|---------|--------|----------|-------|----------|
-| Bundle Size | ~0KB | ~2-20KB | ~70KB | Varies |
-| Timezone Support | Basic | With addon | Excellent | Excellent |
-| i18n Support | Basic | Good | Excellent | Excellent |
-| Date Math | Basic | Good | Excellent | Excellent |
-| Performance | Fast | Fast | Good | Good |
-| Dependencies | None | date-fns | luxon | Polyfill |
+| Feature          | Native | date-fns   | Luxon     | Temporal  |
+| ---------------- | ------ | ---------- | --------- | --------- |
+| Bundle Size      | ~0KB   | ~2-20KB    | ~70KB     | Varies    |
+| Timezone Support | Basic  | With addon | Excellent | Excellent |
+| i18n Support     | Basic  | Good       | Excellent | Excellent |
+| Date Math        | Basic  | Good       | Excellent | Excellent |
+| Performance      | Fast   | Fast       | Good      | Good      |
+| Dependencies     | None   | date-fns   | luxon     | Polyfill  |
 
 ## Using Adapters
 
@@ -111,17 +111,17 @@ npm install @usetemporal/core @usetemporal/adapter-luxon luxon
 All adapters work the same way with useTemporal:
 
 ```typescript
-import { createTemporal } from '@usetemporal/core'
-import { luxonAdapter } from '@usetemporal/adapter-luxon'
+import { createTemporal } from "@usetemporal/core";
+import { luxonAdapter } from "@usetemporal/adapter-luxon";
 
 // Create temporal with adapter
 const temporal = createTemporal({
-  adapter: luxonAdapter()
-})
+  adapter: luxonAdapter(),
+});
 
 // Use the same API regardless of adapter
-const year = useYear(temporal)
-const months = temporal.divide(year, 'month')
+const year = useYear(temporal);
+const months = temporal.divide(year, "month");
 ```
 
 ### Adapter Configuration
@@ -132,17 +132,17 @@ Many adapters accept configuration options:
 // Luxon with timezone
 const temporal = createTemporal({
   adapter: luxonAdapter({
-    zone: 'America/New_York'
-  })
-})
+    zone: "America/New_York",
+  }),
+});
 
 // date-fns with locale
-import { fr } from 'date-fns/locale'
+import { fr } from "date-fns/locale";
 const temporal = createTemporal({
   adapter: dateFnsAdapter({
-    locale: fr
-  })
-})
+    locale: fr,
+  }),
+});
 ```
 
 ## Creating Custom Adapters
@@ -150,8 +150,8 @@ const temporal = createTemporal({
 You can create adapters for any date library:
 
 ```typescript
-import type { DateAdapter } from '@usetemporal/core'
-import { MyDateLibrary } from 'my-date-lib'
+import type { DateAdapter } from "@usetemporal/core";
+import { MyDateLibrary } from "my-date-lib";
 
 export function myAdapter(): DateAdapter {
   return {
@@ -159,7 +159,7 @@ export function myAdapter(): DateAdapter {
     startOf: (date, unit) => date.startOf(unit),
     endOf: (date, unit) => date.endOf(unit),
     // ... implement all required methods
-  }
+  };
 }
 ```
 
@@ -171,16 +171,16 @@ One of the key benefits is the ability to switch adapters without changing your 
 
 ```typescript
 // Development
-const temporal = createTemporal() // Native adapter
+const temporal = createTemporal(); // Native adapter
 
 // Production
 const temporal = createTemporal({
-  adapter: luxonAdapter() // Better timezone support
-})
+  adapter: luxonAdapter(), // Better timezone support
+});
 
 // Your code remains the same!
-const day = useDay(temporal)
-const hours = temporal.divide(day, 'hour')
+const day = useDay(temporal);
+const hours = temporal.divide(day, "hour");
 ```
 
 ## Performance Tips
@@ -193,8 +193,8 @@ const hours = temporal.divide(day, 'hour')
 ```typescript
 // Lazy loading example
 async function createTemporalWithLuxon() {
-  const { luxonAdapter } = await import('@usetemporal/adapter-luxon')
-  return createTemporal({ adapter: luxonAdapter() })
+  const { luxonAdapter } = await import("@usetemporal/adapter-luxon");
+  return createTemporal({ adapter: luxonAdapter() });
 }
 ```
 

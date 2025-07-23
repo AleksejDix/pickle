@@ -413,7 +413,7 @@ describe("LuxonAdapter", () => {
       // Create dates that might have valueOf issues
       const invalidDate1 = new Date("invalid");
       const invalidDate2 = new Date("invalid");
-      
+
       // For invalid dates, Luxon should handle them gracefully
       expect(adapter.isSame(invalidDate1, invalidDate2, "day")).toBe(false);
     });
@@ -547,5 +547,4 @@ describe("LuxonAdapter", () => {
       expect(result[0]).toEqual(start);
     });
   });
-
 });

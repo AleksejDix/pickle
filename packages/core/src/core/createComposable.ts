@@ -23,17 +23,21 @@ export function createComposable(
     // Adapter is required
     const adapter = options.adapter;
     if (!adapter) {
-      throw new Error(`Adapter is required for use${unitKind.charAt(0).toUpperCase() + unitKind.slice(1)} composable`);
+      throw new Error(
+        `Adapter is required for use${unitKind.charAt(0).toUpperCase() + unitKind.slice(1)} composable`
+      );
     }
 
     const raw: ComputedRef<Date> = computed(() => browsing.value);
-    
-    const number: ComputedRef<number> = computed(() => getNumber(raw.value, adapter));
+
+    const number: ComputedRef<number> = computed(() =>
+      getNumber(raw.value, adapter)
+    );
 
     const start: ComputedRef<Date> = computed(() =>
       adapter.startOf(raw.value, unitKind)
     );
-    
+
     const end: ComputedRef<Date> = computed(() =>
       adapter.endOf(raw.value, unitKind)
     );
@@ -53,11 +57,15 @@ export function createComposable(
     );
 
     const future = (): void => {
-      browsing.value = adapter.add(browsing.value, { [`${unitKind}s`]: 1 } as any);
+      browsing.value = adapter.add(browsing.value, {
+        [`${unitKind}s`]: 1,
+      } as any);
     };
 
     const past = (): void => {
-      browsing.value = adapter.subtract(browsing.value, { [`${unitKind}s`]: 1 } as any);
+      browsing.value = adapter.subtract(browsing.value, {
+        [`${unitKind}s`]: 1,
+      } as any);
     };
 
     return {

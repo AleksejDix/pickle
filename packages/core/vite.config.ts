@@ -20,7 +20,13 @@ export default defineConfig({
       formats: ["es"],
     },
     rollupOptions: {
-      external: ["@vue/reactivity", "@usetemporal/adapter-native", "@usetemporal/adapter-date-fns", "@usetemporal/adapter-luxon", "@usetemporal/adapter-temporal"],
+      external: [
+        "@vue/reactivity",
+        "@usetemporal/adapter-native",
+        "@usetemporal/adapter-date-fns",
+        "@usetemporal/adapter-luxon",
+        "@usetemporal/adapter-temporal",
+      ],
       output: {
         preserveModules: true,
         preserveModulesRoot: "src",

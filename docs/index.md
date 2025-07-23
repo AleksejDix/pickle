@@ -37,26 +37,26 @@ features:
 ## Quick Example
 
 ```typescript
-import { createTemporal } from 'usetemporal'
-import { nativeAdapter } from '@usetemporal/adapter-native'
+import { createTemporal } from "usetemporal";
+import { nativeAdapter } from "@usetemporal/adapter-native";
 
 // Create temporal instance
-const temporal = createTemporal({ 
+const temporal = createTemporal({
   dateAdapter: nativeAdapter,
-  locale: 'en-US'
-})
+  locale: "en-US",
+});
 
 // Divide time hierarchically
-const year = useYear(temporal)
-const months = temporal.divide(year, 'month')  // 12 months
-const days = temporal.divide(months[5], 'day') // ~30 days in June
+const year = useYear(temporal);
+const months = temporal.divide(year, "month"); // 12 months
+const days = temporal.divide(months[5], "day"); // ~30 days in June
 
 // Navigate through time
-months[5].future() // July
-months[5].past()   // May
+months[5].future(); // July
+months[5].past(); // May
 
 // Check relationships
-months[5].isNow    // true if current month
+months[5].isNow; // true if current month
 ```
 
 ## Why useTemporal?

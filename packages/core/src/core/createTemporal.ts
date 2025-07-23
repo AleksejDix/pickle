@@ -19,14 +19,13 @@ export function createTemporal(
     ? options.now
     : ref(options.now || new Date());
 
-
   // Use provided adapter or throw error
   if (!options.dateAdapter) {
     throw new Error(
       "A date adapter is required. Please install and provide an adapter from @usetemporal/adapter-* packages."
     );
   }
-  
+
   const adapter: DateAdapter = options.dateAdapter;
 
   const browsing = ref<Date>(unref(date));
@@ -34,30 +33,24 @@ export function createTemporal(
 
   function divide(interval: TimeUnit, unit: TimeUnitKind): TimeUnit[] {
     const timespan = interval.timespan.value;
-    const dates = adapter.eachInterval(
-      timespan.start,
-      timespan.end,
-      unit
-    );
+    const dates = adapter.eachInterval(timespan.start, timespan.end, unit);
 
     const results: TimeUnit[] = [];
-    
+
     for (const date of dates) {
       const timeUnit = createTimeUnit(unit, {
         now: now,
         browsing: ref(date),
         adapter: adapter,
       });
-      
+
       if (timeUnit) {
         results.push(timeUnit);
       }
     }
-    
+
     return results;
   }
 
-
   return { browsing, picked, now, adapter, divide };
 }
-

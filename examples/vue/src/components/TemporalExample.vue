@@ -1,7 +1,7 @@
 <template>
   <div class="temporal-example">
     <h2>useTemporal Example</h2>
-    
+
     <div class="adapter-selection">
       <label>Select Adapter:</label>
       <select v-model="selectedAdapter" @change="changeAdapter">
@@ -58,40 +58,45 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
-import { createTemporal, useYear, useMonth, useDay, type TemporalCore, type TimeUnit } from 'usetemporal';
-import { DateFnsAdapter } from '@usetemporal/adapter-date-fns';
-import { LuxonAdapter } from '@usetemporal/adapter-luxon';
+import { ref, computed } from 'vue'
+import {
+  createTemporal,
+  useYear,
+  type TemporalCore,
+  type TimeUnit,
+} from 'usetemporal'
+import { DateFnsAdapter } from '@usetemporal/adapter-date-fns'
+import { LuxonAdapter } from '@usetemporal/adapter-luxon'
 
 // Selected adapter
-const selectedAdapter = ref('native');
+const selectedAdapter = ref('native')
 
 // Create temporal instance
-const temporal = ref<TemporalCore>(createTemporal());
+const temporal = ref<TemporalCore>(createTemporal())
 
 // Create composables
-const year = useYear(temporal.value);
-const months = computed(() => temporal.value.divide(year, 'month'));
-const selectedMonth = ref<TimeUnit | null>(months.value[new Date().getMonth()]);
-const days = computed(() => 
-  selectedMonth.value ? temporal.value.divide(selectedMonth.value, 'day') : []
-);
+const year = useYear(temporal.value)
+const months = computed(() => temporal.value.divide(year, 'month'))
+const selectedMonth = ref<TimeUnit | null>(months.value[new Date().getMonth()])
+const days = computed(() =>
+  selectedMonth.value ? temporal.value.divide(selectedMonth.value, 'day') : [],
+)
 
 // Change adapter
 function changeAdapter() {
-  let adapter;
+  let adapter
   switch (selectedAdapter.value) {
     case 'date-fns':
-      adapter = new DateFnsAdapter();
-      break;
+      adapter = new DateFnsAdapter()
+      break
     case 'luxon':
-      adapter = new LuxonAdapter();
-      break;
+      adapter = new LuxonAdapter()
+      break
     default:
-      adapter = undefined; // Will use native adapter
+      adapter = undefined // Will use native adapter
   }
-  
-  temporal.value = createTemporal({ dateAdapter: adapter });
+
+  temporal.value = createTemporal({ dateAdapter: adapter })
 }
 
 // Format date for display
@@ -103,14 +108,10 @@ function formatDate(date: Date): string {
     day: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-    second: '2-digit'
-  }).format(date);
+    second: '2-digit',
+  }).format(date)
 }
 
-// Select a month when clicked
-function selectMonth(month: TimeUnit) {
-  selectedMonth.value = month;
-}
 </script>
 
 <style scoped>

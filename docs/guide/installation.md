@@ -25,6 +25,7 @@ pnpm add usetemporal
 :::
 
 This gives you:
+
 - ✅ Core functionality (`@usetemporal/core`)
 - ✅ Native adapter (`@usetemporal/adapter-native`)
 - ✅ Zero external dependencies
@@ -64,16 +65,17 @@ yarn add @usetemporal/adapter-temporal
 
 Each adapter has different dependency requirements:
 
-| Adapter | External Dependencies | Bundle Size |
-|---------|---------------------|-------------|
-| `@usetemporal/adapter-native` | None | ~2KB |
-| `@usetemporal/adapter-date-fns` | date-fns | ~4KB + date-fns |
-| `@usetemporal/adapter-luxon` | luxon | ~3KB + luxon |
+| Adapter                         | External Dependencies | Bundle Size     |
+| ------------------------------- | --------------------- | --------------- |
+| `@usetemporal/adapter-native`   | None                  | ~2KB            |
+| `@usetemporal/adapter-date-fns` | date-fns              | ~4KB + date-fns |
+| `@usetemporal/adapter-luxon`    | luxon                 | ~3KB + luxon    |
 | `@usetemporal/adapter-temporal` | @js-temporal/polyfill | ~3KB + polyfill |
 
 ## Module Formats
 
 All packages are distributed as:
+
 - **ESM** (ES Modules) - Primary format
 - **TypeScript** definitions included
 - **Source maps** for debugging
@@ -92,11 +94,14 @@ For quick prototyping, you can use a CDN:
 
 ```html
 <script type="module">
-  import { createTemporal, nativeAdapter } from 'https://unpkg.com/usetemporal/dist/index.js'
-  
-  const temporal = createTemporal({ 
-    dateAdapter: nativeAdapter 
-  })
+  import {
+    createTemporal,
+    nativeAdapter,
+  } from "https://unpkg.com/usetemporal/dist/index.js";
+
+  const temporal = createTemporal({
+    dateAdapter: nativeAdapter,
+  });
 </script>
 ```
 
@@ -121,14 +126,14 @@ For best experience, ensure your `tsconfig.json` includes:
 After installation, verify everything works:
 
 ```typescript
-import { createTemporal, nativeAdapter } from 'usetemporal'
+import { createTemporal, nativeAdapter } from "usetemporal";
 
-const temporal = createTemporal({ 
-  dateAdapter: nativeAdapter 
-})
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+});
 
-console.log('Current date:', temporal.now.value)
-console.log('useTemporal installed successfully! 🎉')
+console.log("Current date:", temporal.now.value);
+console.log("useTemporal installed successfully! 🎉");
 ```
 
 ## Next Steps

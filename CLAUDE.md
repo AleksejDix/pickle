@@ -95,6 +95,7 @@ pickle/
 ### Core Library Architecture
 
 The core library (`packages/core/src/`) provides:
+
 - `createTemporal()` - Main factory function
 - Time unit composables: `useYear()`, `useMonth()`, `useWeek()`, `useDay()`, `useHour()`
 - Reactive properties using `@vue/reactivity` (not Vue framework)
@@ -114,8 +115,8 @@ The core library (`packages/core/src/`) provides:
 const temporal = createTemporal();
 const year = useYear(temporal);
 const months = temporal.divide(year, "month"); // Returns 12 month units
-const weeks = temporal.divide(month, "week");   // Returns ~4 week units
-const days = temporal.divide(week, "day");      // Returns 7 day units
+const weeks = temporal.divide(month, "week"); // Returns ~4 week units
+const days = temporal.divide(week, "day"); // Returns 7 day units
 ```
 
 ### Date Adapter System
@@ -128,6 +129,7 @@ The library supports multiple date libraries through adapter packages:
 - `@usetemporal/adapter-temporal` - Temporal API (future-proof)
 
 Installation examples:
+
 ```bash
 # Basic installation (includes native adapter)
 npm install usetemporal
@@ -163,6 +165,7 @@ npm install @usetemporal/core @usetemporal/adapter-luxon luxon
 ## Current Status
 
 The project is at v2.0.0-alpha.1 with:
+
 - ✅ Framework-agnostic architecture complete
 - ✅ Modular adapter system with separate packages
 - ✅ Professional API naming (createTemporal)

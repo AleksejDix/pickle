@@ -165,11 +165,7 @@ export class NativeDateAdapter implements DateAdapter {
     return result;
   }
 
-  isSame(
-    a: Date,
-    b: Date,
-    unit: TimeUnitKind
-  ): boolean {
+  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
     switch (unit) {
       case "year":
         return a.getFullYear() === b.getFullYear();
@@ -252,8 +248,6 @@ export class NativeDateAdapter implements DateAdapter {
 
     return result;
   }
-
-
 }
 
 // Export default instance

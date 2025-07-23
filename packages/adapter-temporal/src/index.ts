@@ -226,11 +226,7 @@ export class TemporalAdapter implements DateAdapter {
     }
   }
 
-  isSame(
-    a: Date,
-    b: Date,
-    unit: TimeUnitKind
-  ): boolean {
+  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
     const { Instant, Now } = this.temporal;
 
     const instantA = Instant.fromEpochMilliseconds(a.getTime());
@@ -332,16 +328,16 @@ export class TemporalAdapter implements DateAdapter {
 
     return result;
   }
-
-
 }
 
 // Factory function to create adapter instance
 export function createTemporalAdapter(): TemporalAdapter {
   // Check if Temporal API is available before creating adapter
-  if (typeof (globalThis as any).Temporal === "undefined" || 
-      !(globalThis as any).Temporal.Instant ||
-      !(globalThis as any).Temporal.Now) {
+  if (
+    typeof (globalThis as any).Temporal === "undefined" ||
+    !(globalThis as any).Temporal.Instant ||
+    !(globalThis as any).Temporal.Now
+  ) {
     throw new Error(
       "Temporal API is not available in this environment. Please use a polyfill or different adapter."
     );
