@@ -10,9 +10,9 @@ Developers repeatedly implement the same basic checks:
 
 ```typescript
 // Current repetitive patterns
-isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6
-isToday: temporal.adapter.isSame(day.raw.value, now.value, "day")
-isPast: temporal.adapter.isBefore(day.raw.value, now.value)
+isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6;
+isToday: temporal.adapter.isSame(day.raw.value, now.value, "day");
+isPast: temporal.adapter.isBefore(day.raw.value, now.value);
 ```
 
 ## Detailed Design
@@ -31,7 +31,7 @@ interface TemporalUtils {
   isYesterday(date: Date | TimeUnit): boolean;
   isPast(date: Date | TimeUnit): boolean;
   isFuture(date: Date | TimeUnit): boolean;
-  
+
   // Relative to current period
   isThisWeek(date: Date | TimeUnit): boolean;
   isThisMonth(date: Date | TimeUnit): boolean;
@@ -39,24 +39,23 @@ interface TemporalUtils {
 }
 
 // Access via temporal.utils
-temporal.utils.isWeekend(day)
-temporal.utils.isToday(date)
+temporal.utils.isWeekend(day);
+temporal.utils.isToday(date);
 ```
 
 ### Usage Examples
 
 ```typescript
 // Filter business days
-const businessDays = days.filter(day => 
-  temporal.utils.isWeekday(day) && 
-  !temporal.utils.isPast(day)
+const businessDays = days.filter(
+  (day) => temporal.utils.isWeekday(day) && !temporal.utils.isPast(day)
 );
 
 // Highlight special days
 if (temporal.utils.isToday(day)) {
-  classList.add('today');
+  classList.add("today");
 } else if (temporal.utils.isWeekend(day)) {
-  classList.add('weekend');
+  classList.add("weekend");
 }
 
 // Show relative dates

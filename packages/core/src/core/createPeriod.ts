@@ -5,7 +5,11 @@ import {
   type Ref,
   type ComputedRef,
 } from "@vue/reactivity";
-import type { TimeUnit, UseTimeUnitOptions } from "../types/reactive";
+import type {
+  TimeUnit,
+  UseTimeUnitOptions,
+  DivideUnit,
+} from "../types/reactive";
 import type { TimeUnitKind } from "../types/core";
 import { same } from "../utils/same";
 
@@ -124,6 +128,25 @@ export function createPeriod(
       return targetTime >= startTime && targetTime <= endTime;
     };
 
+    // Placeholder zoom methods - will be enhanced by temporal
+    const zoomIn = (_unit: DivideUnit): TimeUnit[] => {
+      throw new Error(
+        "zoomIn requires temporal context. Use temporal.divide() for now."
+      );
+    };
+
+    const zoomOut = (_unit: DivideUnit): TimeUnit => {
+      throw new Error(
+        "zoomOut requires temporal context. This will be implemented soon."
+      );
+    };
+
+    const zoomTo = (_unit: DivideUnit): TimeUnit => {
+      throw new Error(
+        "zoomTo requires temporal context. This will be implemented soon."
+      );
+    };
+
     const result: TimeUnit = {
       raw,
       start,
@@ -139,6 +162,10 @@ export function createPeriod(
       isSame,
       // Universal contains method
       contains,
+      // Zoom navigation methods
+      zoomIn,
+      zoomOut,
+      zoomTo,
     };
 
     // Add type identifier for stableMonth

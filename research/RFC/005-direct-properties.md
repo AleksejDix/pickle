@@ -10,10 +10,10 @@ Accessing basic properties requires verbose syntax:
 
 ```typescript
 // Current verbose patterns
-day.raw.value.getDay()      // Day of week
-day.raw.value.getDate()     // Day of month  
-month.raw.value.getMonth()  // Month number
-year.raw.value.getFullYear() // Year
+day.raw.value.getDay(); // Day of week
+day.raw.value.getDate(); // Day of month
+month.raw.value.getMonth(); // Month number
+year.raw.value.getFullYear(); // Year
 
 // Checking properties
 if (day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6) {
@@ -27,32 +27,32 @@ if (day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6) {
 
 ```typescript
 interface DayUnit extends TimeUnit {
-  weekday: number;      // 0-6
-  weekdayName: string;  // "Monday"
-  date: number;         // 1-31
-  dayOfYear: number;    // 1-366
+  weekday: number; // 0-6
+  weekdayName: string; // "Monday"
+  date: number; // 1-31
+  dayOfYear: number; // 1-366
 }
 
 interface MonthUnit extends TimeUnit {
-  month: number;        // 0-11
-  monthName: string;    // "January"
-  daysInMonth: number;  // 28-31
-  quarter: number;      // 1-4
+  month: number; // 0-11
+  monthName: string; // "January"
+  daysInMonth: number; // 28-31
+  quarter: number; // 1-4
 }
 
 interface YearUnit extends TimeUnit {
-  year: number;         // 2024
-  isLeapYear: boolean;  // true/false
+  year: number; // 2024
+  isLeapYear: boolean; // true/false
 }
 
 interface WeekUnit extends TimeUnit {
-  weekNumber: number;   // 1-53
+  weekNumber: number; // 1-53
 }
 
 interface HourUnit extends TimeUnit {
-  hour: number;         // 0-23
-  hour12: number;       // 1-12
-  isPM: boolean;        // true/false
+  hour: number; // 0-23
+  hour12: number; // 1-12
+  isPM: boolean; // true/false
 }
 ```
 
@@ -64,7 +64,7 @@ if (day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6) {
   console.log("Weekend");
 }
 
-// After  
+// After
 if (day.weekday === 0 || day.weekday === 6) {
   console.log("Weekend");
 }
@@ -95,7 +95,7 @@ const directProperties = computed(() => {
           (date - new Date(date.getFullYear(), 0, 0)) / 86400000
         ),
       };
-      
+
     case "month":
       const lastDay = new Date(date.getFullYear(), date.getMonth() + 1, 0);
       return {
@@ -104,14 +104,14 @@ const directProperties = computed(() => {
         daysInMonth: lastDay.getDate(),
         quarter: Math.floor(date.getMonth() / 3) + 1,
       };
-      
+
     case "year":
       const year = date.getFullYear();
       return {
         year,
-        isLeapYear: (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0),
+        isLeapYear: (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0,
       };
-      
+
     default:
       return {};
   }
@@ -151,6 +151,6 @@ No breaking changes. This is purely additive:
 
 ```typescript
 // Both work
-day.raw.value.getDay()  // Old way
-day.weekday             // New way
+day.raw.value.getDay(); // Old way
+day.weekday; // New way
 ```

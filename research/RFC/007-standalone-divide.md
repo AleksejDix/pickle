@@ -52,13 +52,13 @@ const hours = hoursIn(day);
 
 ```typescript
 // These would be TypeScript errors
-daysIn(hour);    // Error: Can't divide hour into days
-yearsIn(month);  // Error: Can't divide month into years
+daysIn(hour); // Error: Can't divide hour into days
+yearsIn(month); // Error: Can't divide month into years
 
 // Valid operations
-monthsIn(year);  // ✓
-weeksIn(month);  // ✓ (partial weeks)
-daysIn(week);    // ✓
+monthsIn(year); // ✓
+weeksIn(month); // ✓ (partial weeks)
+daysIn(week); // ✓
 ```
 
 ## Implementation
@@ -69,13 +69,14 @@ export function divide(unit: TimeUnit, into: UnitValue): TimeUnit[] {
   // Extract logic from current temporal.divide
   const { start, end } = unit.period.value;
   const adapter = (unit as any).adapter;
-  
+
   // ... existing divide logic
 }
 
 // Convenience wrappers with type constraints
 export function monthsIn(unit: TimeUnit): TimeUnit[] {
-  if (unit.number.value < 12) { // Only years have 12+ as number
+  if (unit.number.value < 12) {
+    // Only years have 12+ as number
     throw new Error("Can only get months in a year");
   }
   return divide(unit, "month");

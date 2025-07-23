@@ -10,7 +10,7 @@ Current `divide` API only goes one direction and doesn't match how people think 
 
 ```typescript
 // Current limitations
-temporal.divide(year, "month");  // Get months in year ✓
+temporal.divide(year, "month"); // Get months in year ✓
 // But how do you go from month to its year? 🤔
 // How do you go from a day to its containing week? 🤔
 
@@ -24,6 +24,7 @@ temporal.divide(year, "month");  // Get months in year ✓
 ### Core Concept
 
 Time navigation as **zooming** - like a map or calendar app:
+
 - **Zoom in**: See more detail (year → months → days)
 - **Zoom out**: See the bigger picture (day → month → year)
 - **Zoom to**: Jump to any level (hour → year)
@@ -33,20 +34,20 @@ Time navigation as **zooming** - like a map or calendar app:
 ```typescript
 interface TimeUnit {
   // Zoom in to see contained units
-  zoomIn(unit: UnitValue): TimeUnit[]
-  
+  zoomIn(unit: UnitValue): TimeUnit[];
+
   // Zoom out to containing unit
-  zoomOut(unit: UnitValue): TimeUnit
-  
+  zoomOut(unit: UnitValue): TimeUnit;
+
   // Zoom directly to any level
-  zoomTo(unit: UnitValue): TimeUnit
+  zoomTo(unit: UnitValue): TimeUnit;
 }
 
 // Also available on temporal
 interface Temporal {
-  zoomIn(from: TimeUnit, to: UnitValue): TimeUnit[]
-  zoomOut(from: TimeUnit, to: UnitValue): TimeUnit
-  zoomTo(from: TimeUnit, to: UnitValue): TimeUnit
+  zoomIn(from: TimeUnit, to: UnitValue): TimeUnit[];
+  zoomOut(from: TimeUnit, to: UnitValue): TimeUnit;
+  zoomTo(from: TimeUnit, to: UnitValue): TimeUnit;
 }
 ```
 
@@ -55,17 +56,17 @@ interface Temporal {
 ```typescript
 // Calendar navigation
 const year2024 = periods.year(temporal);
-const months = year2024.zoomIn("month");        // See all months
+const months = year2024.zoomIn("month"); // See all months
 const january = months[0];
-const days = january.zoomIn("day");             // See all days in January
+const days = january.zoomIn("day"); // See all days in January
 const jan15 = days[14];
-const containingWeek = jan15.zoomOut("week");   // Which week is Jan 15 in?
-const containingYear = jan15.zoomTo("year");    // Jump directly to year
+const containingWeek = jan15.zoomOut("week"); // Which week is Jan 15 in?
+const containingYear = jan15.zoomTo("year"); // Jump directly to year
 
 // Date picker navigation
 function handleDayClick(day: TimeUnit) {
-  const month = day.zoomOut("month");           // Show month view
-  const year = day.zoomOut("year");             // Or jump to year view
+  const month = day.zoomOut("month"); // Show month view
+  const year = day.zoomOut("year"); // Or jump to year view
 }
 
 // Breadcrumb navigation
@@ -74,7 +75,7 @@ function getBreadcrumbs(day: TimeUnit) {
     year: day.zoomTo("year"),
     month: day.zoomTo("month"),
     week: day.zoomTo("week"),
-    day: day
+    day: day,
   };
 }
 ```
@@ -88,32 +89,34 @@ const months = temporal.divide(year, "month");
 const year = periods.year({
   now: temporal.now,
   browsing: month.browsing,
-  adapter: temporal.adapter
+  adapter: temporal.adapter,
 });
 
 // AFTER: Bidirectional, intuitive
-const months = year.zoomIn("month");    // Down the hierarchy
-const year = month.zoomOut("year");      // Up the hierarchy
+const months = year.zoomIn("month"); // Down the hierarchy
+const year = month.zoomOut("year"); // Up the hierarchy
 ```
 
 ### Type Safety
 
 With constants from RFC-003:
+
 ```typescript
 import { UNITS } from "@usetemporal/core";
 
 // Type-safe navigation
-year.zoomIn(UNITS.month);     // ✓ Autocomplete works
-month.zoomOut(UNITS.year);    // ✓ No typos possible
-day.zoomTo(UNITS.week);       // ✓ Jump to any level
+year.zoomIn(UNITS.month); // ✓ Autocomplete works
+month.zoomOut(UNITS.year); // ✓ No typos possible
+day.zoomTo(UNITS.week); // ✓ Jump to any level
 
 // TypeScript prevents invalid operations
-hour.zoomIn(UNITS.year);      // ❌ TypeScript error
+hour.zoomIn(UNITS.year); // ❌ TypeScript error
 ```
 
 ## Implementation Strategy
 
 ### Phase 1: Add zoom methods
+
 ```typescript
 // In createPeriod.ts
 const zoomIn = (to: UnitValue): TimeUnit[] => {
@@ -125,7 +128,7 @@ const zoomOut = (to: UnitValue): TimeUnit => {
     now: options.now,
     browsing: raw,
     adapter: options.adapter,
-    weekStartsOn: options.weekStartsOn
+    weekStartsOn: options.weekStartsOn,
   });
 };
 
@@ -133,11 +136,12 @@ const zoomTo = zoomOut; // Alias for clarity
 ```
 
 ### Phase 2: Optimize common patterns
+
 ```typescript
 // Add shortcuts for common operations
-day.week     // Same as day.zoomOut("week")
-month.year   // Same as month.zoomOut("year")
-week.days    // Same as week.zoomIn("day")
+day.week; // Same as day.zoomOut("week")
+month.year; // Same as month.zoomOut("year")
+week.days; // Same as week.zoomIn("day")
 ```
 
 ## Benefits
@@ -151,6 +155,7 @@ week.days    // Same as week.zoomIn("day")
 ## Use Cases
 
 ### Calendar Applications
+
 ```typescript
 // User clicks on a day in year view
 function drillDown(day: TimeUnit) {
@@ -167,6 +172,7 @@ function drillDown(day: TimeUnit) {
 ```
 
 ### Date Range Selection
+
 ```typescript
 // Find all days in the same month as selected day
 const selectedMonth = selectedDay.zoomOut("month");
@@ -179,6 +185,7 @@ const [firstDay, lastDay] = [weekDays[0], weekDays[6]];
 ```
 
 ### Analytics Dashboards
+
 ```typescript
 // Aggregate data by different time periods
 function aggregateData(day: TimeUnit, level: UnitValue) {
@@ -200,8 +207,8 @@ const lastMonth = thisMonth.previous();
 
 ```typescript
 // Both work during transition
-temporal.divide(year, "month");  // Old way
-year.zoomIn("month");           // New way
+temporal.divide(year, "month"); // Old way
+year.zoomIn("month"); // New way
 ```
 
 ## Alternatives Considered

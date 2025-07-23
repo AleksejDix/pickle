@@ -34,12 +34,12 @@ export function reset(temporal: Temporal): void;
 // Usage
 import { goto, select, today } from "@usetemporal/core/utils";
 
-goto(temporal, "2024-01-15");      // Navigate to date
+goto(temporal, "2024-01-15"); // Navigate to date
 goto(temporal, new Date(2024, 0, 15)); // Also accepts Date
 
-select(temporal, selectedDate);      // Update picked date
-today(temporal);                     // Go to today
-reset(temporal);                     // Reset both picked and browsing to now
+select(temporal, selectedDate); // Update picked date
+today(temporal); // Go to today
+reset(temporal); // Reset both picked and browsing to now
 ```
 
 ### Advanced Navigation
@@ -60,12 +60,12 @@ export function goToPreviousYear(temporal: Temporal): void;
 ```typescript
 // In src/utils/navigation.ts
 export function goto(temporal: Temporal, date: Date | string): void {
-  const targetDate = typeof date === 'string' ? new Date(date) : date;
+  const targetDate = typeof date === "string" ? new Date(date) : date;
   temporal.browsing.value = targetDate;
 }
 
 export function select(temporal: Temporal, date: Date | string): void {
-  const targetDate = typeof date === 'string' ? new Date(date) : date;
+  const targetDate = typeof date === "string" ? new Date(date) : date;
   temporal.picked.value = targetDate;
 }
 
@@ -79,7 +79,9 @@ export function reset(temporal: Temporal): void {
 }
 
 export function goToNextMonth(temporal: Temporal): void {
-  temporal.browsing.value = temporal.adapter.add(temporal.browsing.value, { months: 1 });
+  temporal.browsing.value = temporal.adapter.add(temporal.browsing.value, {
+    months: 1,
+  });
 }
 ```
 

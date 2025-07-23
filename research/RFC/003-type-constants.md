@@ -7,6 +7,7 @@ Introduce a zoom-based navigation API with type-safe constants for intuitive tim
 ## Motivation
 
 Current API has limitations:
+
 ```typescript
 // Current - only goes one direction
 temporal.divide(year, "month"); // Get months in year
@@ -21,6 +22,7 @@ temporal.divide(year, "mnth"); // Runtime error!
 ### Core Concepts
 
 **Zoom Navigation** - Move between time hierarchies like zooming a map:
+
 - **zoomIn**: Go from larger to smaller units (year → months)
 - **zoomOut**: Go from smaller to containing unit (month → year)
 - **zoomTo**: Jump to any related unit level (day → year)
@@ -41,20 +43,20 @@ export const UNITS = {
 } as const;
 
 export type UnitKey = keyof typeof UNITS;
-export type UnitValue = typeof UNITS[UnitKey];
+export type UnitValue = (typeof UNITS)[UnitKey];
 
 // Zoom API on temporal
 interface Temporal {
-  zoomIn(from: TimeUnit, to: UnitValue): TimeUnit[]
-  zoomOut(from: TimeUnit, to: UnitValue): TimeUnit
-  zoomTo(from: TimeUnit, to: UnitValue): TimeUnit
+  zoomIn(from: TimeUnit, to: UnitValue): TimeUnit[];
+  zoomOut(from: TimeUnit, to: UnitValue): TimeUnit;
+  zoomTo(from: TimeUnit, to: UnitValue): TimeUnit;
 }
 
 // Also available on TimeUnit
 interface TimeUnit {
-  zoomIn(to: UnitValue): TimeUnit[]
-  zoomOut(to: UnitValue): TimeUnit
-  zoomTo(to: UnitValue): TimeUnit
+  zoomIn(to: UnitValue): TimeUnit[];
+  zoomOut(to: UnitValue): TimeUnit;
+  zoomTo(to: UnitValue): TimeUnit;
 }
 ```
 
@@ -64,18 +66,18 @@ interface TimeUnit {
 import { UNITS } from "@usetemporal/core";
 
 // Zoom in - get smaller units within
-const months = year.zoomIn(UNITS.month);      // 12 months
-const weeks = month.zoomIn(UNITS.week);       // 4-6 weeks
-const days = week.zoomIn(UNITS.day);          // 7 days
+const months = year.zoomIn(UNITS.month); // 12 months
+const weeks = month.zoomIn(UNITS.week); // 4-6 weeks
+const days = week.zoomIn(UNITS.day); // 7 days
 
 // Zoom out - get containing unit
-const year = month.zoomOut(UNITS.year);       // Containing year
-const month = day.zoomOut(UNITS.month);       // Containing month
-const week = day.zoomOut(UNITS.week);         // Containing week
+const year = month.zoomOut(UNITS.year); // Containing year
+const month = day.zoomOut(UNITS.month); // Containing month
+const week = day.zoomOut(UNITS.week); // Containing week
 
 // Zoom to - jump to any level
-const year = day.zoomTo(UNITS.year);          // Which year is this day in?
-const month = hour.zoomTo(UNITS.month);       // Which month is this hour in?
+const year = day.zoomTo(UNITS.year); // Which year is this day in?
+const month = hour.zoomTo(UNITS.month); // Which month is this hour in?
 
 // Still support divide for compatibility
 const months = temporal.divide(year, UNITS.month); // Works too
@@ -117,7 +119,7 @@ interface TimeUnit {
     // Use existing divide logic
     return temporal.divide(this, to);
   }
-  
+
   zoomOut(to: UnitValue): TimeUnit {
     // Create a unit at the target level containing this unit's date
     return periods[to]({
@@ -126,7 +128,7 @@ interface TimeUnit {
       adapter: this.adapter
     });
   }
-  
+
   zoomTo(to: UnitValue): TimeUnit {
     // Alias for zoomOut - jump to any containing level
     return this.zoomOut(to);
@@ -158,6 +160,7 @@ interface TimeUnit {
 ## Migration Path
 
 No breaking changes. Both APIs work:
+
 ```typescript
 // Old way
 temporal.divide(year, "month");
@@ -170,9 +173,10 @@ temporal.zoomIn(year, UNITS.month);
 ## Future Considerations
 
 This API opens doors for more intuitive operations:
+
 ```typescript
 // Potential future additions
 day.zoomIn(UNITS.hour, { range: "business" }); // Only business hours
-month.zoomOut(UNITS.year, { fiscal: true });   // Fiscal year
-week.siblings();                                // Other weeks in month
+month.zoomOut(UNITS.year, { fiscal: true }); // Fiscal year
+week.siblings(); // Other weeks in month
 ```

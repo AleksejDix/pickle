@@ -60,8 +60,8 @@ temporal.createCalendarGrid(month: TimeUnit): CalendarGrid
 const grid = temporal.createCalendarGrid(month);
 
 // Access structured data
-grid.weeks.forEach(week => {
-  week.days.forEach(day => {
+grid.weeks.forEach((week) => {
+  week.days.forEach((day) => {
     if (day.isCurrentMonth && !day.isWeekend) {
       // Business day in current month
     }
@@ -145,6 +145,7 @@ npm install @usetemporal/calendar
 ## Decision
 
 **This feature is too opinionated for the core library.** Calendar grid generation should be:
+
 - A separate package (`@usetemporal/calendar`)
 - Or left to userland implementation
 - Or provided as example code/recipes

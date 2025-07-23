@@ -9,11 +9,10 @@
 
 ## High Priority 🔴
 
-1. **Zoom Navigation API** - [RFC-011](./RFC/011-zoom-navigation.md)
-   - Intuitive bidirectional time navigation
-   - `zoomIn`, `zoomOut`, `zoomTo` methods
-   - Matches mental model of time hierarchies
-   
+1. **Unified Time Navigation** - [RFC-012](./RFC/012-unified-time-navigation.md)
+   - Combines zoom navigation with period operations
+   - Single mental model for all time manipulation
+   - Includes: [RFC-011](./RFC/011-zoom-navigation.md) + [RFC-008](./RFC/008-time-ranges.md)
 2. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
    - Common checks: isWeekend, isToday, isPast, isFuture
    - Reduce repetitive date operations
@@ -43,11 +42,7 @@
 
 ## Low Priority 🟢
 
-1. **Time Range Support** - [RFC-008](./RFC/008-time-ranges.md)
-   - First-class range objects
-   - Range operations (contains, overlaps, merge)
-
-2. **Advanced Comparison Utilities** - [RFC-010](./RFC/010-comparison-utils.md)
+1. **Advanced Comparison Utilities** - [RFC-010](./RFC/010-comparison-utils.md)
    - `isBetween()`, `diff()`, `closest()`
    - Complex date comparisons
 

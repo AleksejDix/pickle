@@ -26,16 +26,16 @@ if (diffDays === -1) return "Yesterday";
 ```typescript
 interface RelativeTime {
   // Simple descriptions
-  simple(): string;        // "Today", "Tomorrow", "Next Monday"
-  
+  simple(): string; // "Today", "Tomorrow", "Next Monday"
+
   // Relative from now
-  fromNow(): string;       // "in 2 days", "3 hours ago"
-  
+  fromNow(): string; // "in 2 days", "3 hours ago"
+
   // Calendar style
-  calendar(): string;      // "Today at 2:30 PM", "Tomorrow", "Monday at 3:00 PM"
-  
+  calendar(): string; // "Today at 2:30 PM", "Tomorrow", "Monday at 3:00 PM"
+
   // Distance
-  distance(): string;      // "2 days", "3 weeks", "1 year"
+  distance(): string; // "2 days", "3 weeks", "1 year"
 }
 
 // Add to TimeUnit
@@ -45,8 +45,8 @@ interface TimeUnit {
 }
 
 // Usage
-day.relative.simple();    // "Tomorrow"
-hour.relative.fromNow();  // "in 3 hours"
+day.relative.simple(); // "Tomorrow"
+hour.relative.fromNow(); // "in 3 hours"
 week.relative.calendar(); // "Next week"
 ```
 
@@ -55,15 +55,15 @@ week.relative.calendar(); // "Next week"
 ```typescript
 // Configure relative time options
 temporal.configureRelative({
-  locale: 'en-US',
+  locale: "en-US",
   formats: {
-    today: 'Today',
-    tomorrow: 'Tomorrow',
-    yesterday: 'Yesterday',
-    thisWeek: 'This {{weekday}}',
-    nextWeek: 'Next {{weekday}}',
-    lastWeek: 'Last {{weekday}}'
-  }
+    today: "Today",
+    tomorrow: "Tomorrow",
+    yesterday: "Yesterday",
+    thisWeek: "This {{weekday}}",
+    nextWeek: "Next {{weekday}}",
+    lastWeek: "Last {{weekday}}",
+  },
 });
 ```
 
@@ -77,20 +77,21 @@ class RelativeTimeImpl implements RelativeTime {
   ) {}
 
   simple(): string {
-    const diff = this.unit.raw.value.getTime() - this.temporal.now.value.getTime();
+    const diff =
+      this.unit.raw.value.getTime() - this.temporal.now.value.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
+
     if (days === 0) return "Today";
     if (days === 1) return "Tomorrow";
     if (days === -1) return "Yesterday";
-    
+
     if (days > 1 && days <= 7) {
-      return `Next ${this.unit.raw.value.toLocaleDateString('en-US', { weekday: 'long' })}`;
+      return `Next ${this.unit.raw.value.toLocaleDateString("en-US", { weekday: "long" })}`;
     }
-    
+
     // ... more logic
   }
-  
+
   fromNow(): string {
     // Implementation using Intl.RelativeTimeFormat
   }
@@ -123,6 +124,7 @@ This would be a separate optional package or left to userland.
 ## Decision
 
 **This feature is too opinionated for the core library.** Relative time formatting:
+
 - Is highly locale-dependent
 - Requires translation strings
 - Has many formatting preferences

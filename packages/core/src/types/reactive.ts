@@ -27,6 +27,11 @@ export interface TimeUnit {
 
   // Contains method - check if a date or time unit is within this time unit
   contains: (target: Date | TimeUnit) => boolean;
+
+  // Zoom navigation methods
+  zoomIn: (unit: DivideUnit) => TimeUnit[];
+  zoomOut: (unit: DivideUnit) => TimeUnit;
+  zoomTo: (unit: DivideUnit) => TimeUnit;
 }
 
 // Framework-agnostic Composable Options
@@ -47,6 +52,18 @@ export interface UseTimeUnitOptions {
 // Extended type for divide function to support special units
 export type DivideUnit = TimeUnitKind | "stableMonth";
 
+// Split operation options
+export interface SplitOptions {
+  by?: DivideUnit; // Split by unit type
+  count?: number; // Split into N equal parts
+  duration?: {
+    // Split by duration
+    days?: number;
+    hours?: number;
+    weeks?: number;
+  };
+}
+
 // Reactive Temporal Core Interface
 export interface TemporalCore {
   browsing: Ref<Date>;
@@ -55,6 +72,11 @@ export interface TemporalCore {
   adapter: DateAdapter;
   weekStartsOn: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   divide: (interval: TimeUnit, unit: DivideUnit) => TimeUnit[];
+
+  // New unified period operations
+  split: (period: TimeUnit, options: SplitOptions) => TimeUnit[];
+  merge: (periods: TimeUnit[]) => TimeUnit | null;
+  createPeriod: (start: Date, end: Date) => TimeUnit;
 }
 
 // Utility Types

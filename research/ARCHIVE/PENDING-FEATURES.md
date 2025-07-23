@@ -9,13 +9,15 @@ This document tracks features that are approved but not yet implemented, based o
 ### NEW: Calendar Grid Generation
 
 **Problem**: Complex calendar grid logic repeated everywhere
+
 ```typescript
 // 10+ lines of code to generate calendar grid
 ```
 
 **Solution**: Built-in utility
+
 ```typescript
-const grid = temporal.createCalendarGrid(month)
+const grid = temporal.createCalendarGrid(month);
 // Returns weeks with days, all metadata included
 ```
 
@@ -115,21 +117,25 @@ const daysInMonth = days(month);
 ## Implementation Plan
 
 ### Phase 1: Calendar Grid Generation (2 days)
+
 - Create createCalendarGrid utility
 - Include all metadata (isWeekend, isToday, isCurrentMonth)
 - Support for stableMonth integration
 
 ### Phase 2: Type Constants (1 day)
+
 - Simple constants object
 - TypeScript const assertion
 - Update all examples
 
 ### Phase 4: Utility Functions (2 days)
+
 - Basic utilities (isWeekend, isToday, etc.)
 - Navigation helpers (goto, select, today)
 - Comprehensive test coverage
 
 ### Phase 5: Standalone Divide (2 days)
+
 - Extract divide logic
 - Create convenience wrappers
 - Update documentation
@@ -137,6 +143,7 @@ const daysInMonth = days(month);
 ## Notes
 
 Based on real usage analysis from examples:
+
 - Calendar grid generation is the highest impact improvement
 - Date formatting remains in userland (users can use raw.value with any formatting library)
 - These features would reduce component code by 30-50%

@@ -25,6 +25,7 @@ research/
 ## RFC Format
 
 Each RFC follows this structure:
+
 - **Summary** - One-line description
 - **Motivation** - Why this feature is needed
 - **Detailed Design** - API and implementation details
@@ -36,6 +37,7 @@ Each RFC follows this structure:
 ## Contributing
 
 When proposing a new feature:
+
 1. Add it to `BACKLOG.md` with appropriate priority
 2. Create a new RFC file: `RFC/XXX-feature-name.md`
 3. Follow the RFC template structure
