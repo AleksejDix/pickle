@@ -378,7 +378,7 @@ describe("TemporalAdapter", () => {
 
       // Mock add method to properly advance months and break the loop
       let monthCallCount = 0;
-      adapter.add = vi.fn().mockImplementation((date, duration) => {
+      adapter.add = vi.fn().mockImplementation((_, duration) => {
         if (duration.months) {
           monthCallCount++;
           if (monthCallCount === 1) return createTestDate(2024, 1, 1); // Feb 1

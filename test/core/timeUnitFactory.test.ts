@@ -36,7 +36,7 @@ describe("timeUnitFactory", () => {
       };
       
       const mockComposable = vi.fn().mockReturnValue(mockTimeUnit);
-      registerComposable("quarter", mockComposable);
+      registerComposable("month", mockComposable);
       
       const options: UseTimeUnitOptions = {
         now: new Date(),
@@ -44,7 +44,7 @@ describe("timeUnitFactory", () => {
         adapter: {} as any
       };
       
-      const result = createTimeUnit("quarter", options);
+      const result = createTimeUnit("month", options);
       
       expect(mockComposable).toHaveBeenCalledWith(options);
       expect(result).toBe(mockTimeUnit);

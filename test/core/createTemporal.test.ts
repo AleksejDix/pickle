@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import { isRef } from "@vue/reactivity";
 import { createTemporal } from "../../lib/core/createTemporal";
 import { same } from "../../lib/utils/same";
