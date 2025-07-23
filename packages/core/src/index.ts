@@ -11,12 +11,18 @@ export { createTemporal } from "./core/createTemporal";
 export type * from "./types/core";
 export type * from "./types/reactive";
 
-// Composables
-export { default as useYear } from "./composables/useYear";
-export { default as useMonth } from "./composables/useMonth";
-export { default as useWeek } from "./composables/useWeek";
-export { default as useDay } from "./composables/useDay";
-export { default as useHour } from "./composables/useHour";
+// Composables - export from the consolidated periods module
+export {
+  periods,
+  useYear,
+  useMonth,
+  useWeek,
+  useDay,
+  useHour,
+  useMinute,
+  useSecond,
+  useQuarter,
+} from "./composables/periods";
 
 // Type exports for adapters
 export type { DateAdapter, AdapterName, DateDuration } from "./types";

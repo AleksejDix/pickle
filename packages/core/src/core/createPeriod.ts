@@ -10,7 +10,7 @@ import type { TimeUnitKind } from "../types/core";
 import { same } from "../utils/same";
 
 // Factory function to create time unit composables
-export function createComposable(
+export function createPeriod(
   unitKind: TimeUnitKind,
   getNumber: (date: Date, adapter?: any) => number
 ): (options: UseTimeUnitOptions) => TimeUnit {
@@ -42,7 +42,7 @@ export function createComposable(
       adapter.endOf(raw.value, unitKind)
     );
 
-    const timespan: ComputedRef<{ start: Date; end: Date }> = computed(() => ({
+    const period: ComputedRef<{ start: Date; end: Date }> = computed(() => ({
       start: start.value,
       end: end.value,
     }));
@@ -72,7 +72,7 @@ export function createComposable(
       raw,
       start,
       end,
-      timespan,
+      period,
       isNow,
       number,
       browsing,

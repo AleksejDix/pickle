@@ -29,7 +29,7 @@ describe("createTemporal", () => {
       expect(unit.raw).toBeDefined();
       expect(unit.start).toBeDefined();
       expect(unit.end).toBeDefined();
-      expect(unit.timespan).toBeDefined();
+      expect(unit.period).toBeDefined();
       expect(unit.isNow).toBeDefined();
       expect(unit.number).toBeDefined();
       expect(unit.browsing).toBeDefined();
@@ -425,8 +425,8 @@ describe("createTemporal", () => {
       const months = temporal.divide(year, "month");
       
       expect(months).toHaveLength(12);
-      expect(months[0].timespan).toBeDefined();
-      expect(months[0].timespan).toBeDefined();
+      expect(months[0].period).toBeDefined();
+      expect(months[0].period).toBeDefined();
       expect(months[0].number.value).toBe(1);
       expect(months[11].number.value).toBe(12);
     });
@@ -452,7 +452,7 @@ describe("createTemporal", () => {
     it("should divide time intervals into smaller units", () => {
       const temporal = createTemporal({ dateAdapter: mockAdapter });
       const mockUnit = {
-        timespan: {
+        period: {
           value: { start: new Date(2024, 0, 1), end: new Date(2024, 0, 31) },
         },
         raw: { value: new Date(2024, 0, 15) },

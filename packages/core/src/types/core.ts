@@ -1,5 +1,5 @@
 // Core Time Interfaces - Framework Agnostic
-export interface TimeSpan {
+export interface Period {
   start: Date;
   end: Date;
 }

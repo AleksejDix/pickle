@@ -32,8 +32,8 @@ export function createTemporal(
   const picked = date;
 
   function divide(interval: TimeUnit, unit: TimeUnitKind): TimeUnit[] {
-    const timespan = interval.timespan.value;
-    const dates = adapter.eachInterval(timespan.start, timespan.end, unit);
+    const period = interval.period.value;
+    const dates = adapter.eachInterval(period.start, period.end, unit);
 
     const results: TimeUnit[] = [];
 

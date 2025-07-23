@@ -1,5 +1,5 @@
 import type { Ref, ComputedRef } from "@vue/reactivity";
-import type { TimeSpan, TimeUnitKind } from "./core";
+import type { Period, TimeUnitKind } from "./core";
 import type { DateAdapter } from "./core";
 
 // Framework-agnostic reactive Time Unit Interface
@@ -9,7 +9,7 @@ export interface TimeUnit {
   raw: ComputedRef<Date>;
   start: ComputedRef<Date>;
   end: ComputedRef<Date>;
-  timespan: ComputedRef<TimeSpan>;
+  period: ComputedRef<Period>;
   isNow: ComputedRef<boolean>;
   number: ComputedRef<number>;
   browsing: Ref<Date>;
