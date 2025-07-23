@@ -1,4 +1,4 @@
-import type { DateAdapter, DateDuration, TimeUnitName } from "../../src/types/core";
+import type { DateAdapter, DateDuration, TimeUnitKind } from "../../src/types/core";
 
 export class MockDateAdapter implements DateAdapter {
   name = "mock";
@@ -33,7 +33,7 @@ export class MockDateAdapter implements DateAdapter {
     return result;
   }
 
-  startOf(date: Date, unit: TimeUnitName): Date {
+  startOf(date: Date, unit: TimeUnitKind): Date {
     const result = new Date(date);
     
     switch (unit) {
@@ -67,7 +67,7 @@ export class MockDateAdapter implements DateAdapter {
     return result;
   }
 
-  endOf(date: Date, unit: TimeUnitName): Date {
+  endOf(date: Date, unit: TimeUnitKind): Date {
     const result = new Date(date);
     
     switch (unit) {
@@ -101,7 +101,7 @@ export class MockDateAdapter implements DateAdapter {
     return result;
   }
 
-  isSame(a: Date, b: Date, unit: TimeUnitName): boolean {
+  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
     switch (unit) {
       case "year":
         return a.getFullYear() === b.getFullYear();
@@ -136,7 +136,7 @@ export class MockDateAdapter implements DateAdapter {
     return a.getTime() > b.getTime();
   }
 
-  eachInterval(start: Date, end: Date, unit: TimeUnitName): Date[] {
+  eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
     const result: Date[] = [];
     let current = new Date(start);
     

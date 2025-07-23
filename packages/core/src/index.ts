@@ -22,7 +22,6 @@ export { default as useHour } from "./composables/useHour";
 export type {
   DateAdapter,
   AdapterName,
-  AdapterConfig,
   DateDuration,
 } from "./types";
 

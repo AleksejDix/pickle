@@ -4,7 +4,7 @@
 import type {
   DateAdapter,
   DateDuration,
-  TimeUnitName,
+  TimeUnitKind,
 } from "@usetemporal/core/types";
 
 // Import date-fns functions - these will be tree-shaken if adapter is not used
@@ -24,7 +24,7 @@ export class DateFnsAdapter implements DateAdapter {
     return sub(date, duration);
   }
 
-  startOf(date: Date, unit: TimeUnitName): Date {
+  startOf(date: Date, unit: TimeUnitKind): Date {
     const {
       startOfYear,
       startOfMonth,
@@ -67,7 +67,7 @@ export class DateFnsAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitName): Date {
+  endOf(date: Date, unit: TimeUnitKind): Date {
     const {
       endOfYear,
       endOfMonth,
@@ -113,7 +113,7 @@ export class DateFnsAdapter implements DateAdapter {
   isSame(
     a: Date,
     b: Date,
-    unit: TimeUnitName
+    unit: TimeUnitKind
   ): boolean {
     const {
       isSameYear,
@@ -155,7 +155,7 @@ export class DateFnsAdapter implements DateAdapter {
     return isAfter(a, b);
   }
 
-  eachInterval(start: Date, end: Date, unit: TimeUnitName): Date[] {
+  eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
     const {
       eachYearOfInterval,
       eachMonthOfInterval,

@@ -1,7 +1,7 @@
 import { ref, unref, isRef, type Ref } from "@vue/reactivity";
-import type { TimeUnitType } from "../types/core";
+import type { TimeUnitKind } from "../types/core";
 import type {
-  ReactiveCreateTemporalOptions,
+  CreateTemporalOptions,
   TemporalCore,
   TimeUnit,
 } from "../types/reactive";
@@ -9,7 +9,7 @@ import type { DateAdapter } from "../types/core";
 import { createTimeUnit } from "./timeUnitFactory";
 
 export function createTemporal(
-  options: ReactiveCreateTemporalOptions = {}
+  options: CreateTemporalOptions = {}
 ): TemporalCore {
   const date: Ref<Date> = isRef(options.date)
     ? options.date
@@ -19,9 +19,6 @@ export function createTemporal(
     ? options.now
     : ref(options.now || new Date());
 
-  const locale: Ref<string> = isRef(options.locale)
-    ? options.locale
-    : ref(options.locale || "en");
 
   // Use provided adapter or throw error
   if (!options.dateAdapter) {
@@ -35,7 +32,7 @@ export function createTemporal(
   const browsing = ref<Date>(unref(date));
   const picked = date;
 
-  function divide(interval: TimeUnit, unit: TimeUnitType): TimeUnit[] {
+  function divide(interval: TimeUnit, unit: TimeUnitKind): TimeUnit[] {
     const timespan = interval.timespan.value;
     const dates = adapter.eachInterval(
       timespan.start,
@@ -60,17 +57,14 @@ export function createTemporal(
     return results;
   }
 
-  function f(date: Date, timeoptions: Intl.DateTimeFormatOptions): string {
-    return new Intl.DateTimeFormat(locale.value, timeoptions).format(date);
-  }
 
-  return { browsing, picked, now, adapter, divide, f };
+  return { browsing, picked, now, adapter, divide };
 }
 
 // Temporarily disabled due to circular dependency
 // TODO: Fix circular dependency between createTemporal and composables
 /*
-function getComposableForUnit(unit: TimeUnitType) {
+function getComposableForUnit(unit: TimeUnitKind) {
   // Implementation removed to avoid circular dependency
   return null;
 }

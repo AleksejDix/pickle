@@ -4,7 +4,7 @@
 import type {
   DateAdapter,
   DateDuration,
-  TimeUnitName,
+  TimeUnitKind,
 } from "@usetemporal/core/types";
 
 export class TemporalAdapter implements DateAdapter {
@@ -62,7 +62,7 @@ export class TemporalAdapter implements DateAdapter {
     return new Date(result.epochMilliseconds);
   }
 
-  startOf(date: Date, unit: TimeUnitName): Date {
+  startOf(date: Date, unit: TimeUnitKind): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -144,7 +144,7 @@ export class TemporalAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitName): Date {
+  endOf(date: Date, unit: TimeUnitKind): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -229,7 +229,7 @@ export class TemporalAdapter implements DateAdapter {
   isSame(
     a: Date,
     b: Date,
-    unit: TimeUnitName
+    unit: TimeUnitKind
   ): boolean {
     const { Instant, Now } = this.temporal;
 
@@ -278,7 +278,7 @@ export class TemporalAdapter implements DateAdapter {
     return temporal.Instant.compare(instantA, instantB) > 0;
   }
 
-  eachInterval(start: Date, end: Date, unit: TimeUnitName): Date[] {
+  eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
     const result: Date[] = [];
     let current = new Date(start);
     let iterations = 0;

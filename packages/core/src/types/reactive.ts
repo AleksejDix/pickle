@@ -1,5 +1,5 @@
 import type { Ref, ComputedRef } from "@vue/reactivity";
-import type { TimeSpan, Event, TimeUnitType } from "./core";
+import type { TimeSpan, TimeUnitKind } from "./core";
 import type { DateAdapter } from "./core";
 
 // Framework-agnostic reactive Time Unit Interface
@@ -20,19 +20,16 @@ export interface TimeUnit {
   isSame: (a: Date | null, b: Date | null) => boolean;
 }
 
-// Framework-agnostic reactive Composable Options
-export interface ReactiveCreateTemporalOptions {
+// Framework-agnostic Composable Options
+export interface CreateTemporalOptions {
   date?: Date | Ref<Date>;
   now?: Date | Ref<Date>;
-  locale?: string | Ref<string>;
   dateAdapter?: DateAdapter;
 }
 
 export interface UseTimeUnitOptions {
   now: Date | Ref<Date>;
   browsing: Date | Ref<Date>;
-  weekStartsOn?: number | Ref<number>;
-  events?: Event[] | Ref<Event[]>;
   adapter?: DateAdapter;
 }
 
@@ -42,18 +39,15 @@ export interface TemporalCore {
   picked: Ref<Date>;
   now: Ref<Date>;
   adapter: DateAdapter;
-  divide: (interval: TimeUnit, unit: TimeUnitType) => TimeUnit[];
-  f: (date: Date, options: Intl.DateTimeFormatOptions) => string;
+  divide: (interval: TimeUnit, unit: TimeUnitKind) => TimeUnit[];
 }
 
 // Utility Types
 export type DateOrRef = Date | Ref<Date>;
-export type StringOrRef = string | Ref<string>;
-export type NumberOrRef = number | Ref<number>;
 
 // Function Type Definitions
 export type TimeUnitComposable = (options: UseTimeUnitOptions) => TimeUnit;
 export type TimeUnitDivider = (
   interval: TimeUnit,
-  unit: TimeUnitType
+  unit: TimeUnitKind
 ) => TimeUnit[];

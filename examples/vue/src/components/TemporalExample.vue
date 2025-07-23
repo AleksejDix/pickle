@@ -96,7 +96,7 @@ function changeAdapter() {
 
 // Format date for display
 function formatDate(date: Date): string {
-  return temporal.value.f(date, {
+  return new Intl.DateTimeFormat('en-US', {
     weekday: 'long',
     year: 'numeric',
     month: 'long',
@@ -104,7 +104,7 @@ function formatDate(date: Date): string {
     hour: '2-digit',
     minute: '2-digit',
     second: '2-digit'
-  });
+  }).format(date);
 }
 
 // Select a month when clicked

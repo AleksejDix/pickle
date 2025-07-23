@@ -58,7 +58,6 @@ describe("createTemporal", () => {
       expect(temporal.browsing).toBeDefined();
       expect(temporal.adapter).toBeDefined();
       expect(typeof temporal.divide).toBe("function");
-      expect(typeof temporal.f).toBe("function");
     });
 
     it("should accept date option", () => {
@@ -82,15 +81,6 @@ describe("createTemporal", () => {
       expect(temporal.now.value).toEqual(nowDate);
     });
 
-    it("should accept locale option", () => {
-      const temporal = createTemporal({ dateAdapter: mockAdapter, locale: "fr-FR" });
-
-      // Test locale formatting
-      const testDate = createTestDate(2024, 0, 15);
-      const formatted = temporal.f(testDate, { month: "long" });
-
-      expect(formatted).toContain("janvier"); // French month name
-    });
   });
 
   describe("Adapter System Integration", () => {
@@ -151,31 +141,6 @@ describe("createTemporal", () => {
     });
   });
 
-  describe("Locale Formatting", () => {
-    it("should format dates using f() method", () => {
-      const temporal = createTemporal({ dateAdapter: mockAdapter, locale: "en-US" });
-      const testDate = createTestDate(2024, 0, 15); // January 15, 2024
-
-      const monthName = temporal.f(testDate, { month: "long" });
-      const year = temporal.f(testDate, { year: "numeric" });
-
-      expect(monthName).toBe("January");
-      expect(year).toBe("2024");
-    });
-
-    it("should respect different locales", () => {
-      const enTemporal = createTemporal({ dateAdapter: mockAdapter, locale: "en-US" });
-      const frTemporal = createTemporal({ dateAdapter: mockAdapter, locale: "fr-FR" });
-
-      const testDate = createTestDate(2024, 0, 15);
-
-      const enMonth = enTemporal.f(testDate, { month: "long" });
-      const frMonth = frTemporal.f(testDate, { month: "long" });
-
-      expect(enMonth).toBe("January");
-      expect(frMonth).toBe("janvier");
-    });
-  });
 
   describe("Framework Agnostic Usage", () => {
     it("should work without Vue framework", () => {
@@ -498,21 +463,6 @@ describe("createTemporal", () => {
       expect(temporal.now.value).toEqual(nowRef.value);
     });
 
-    it("should accept ref for locale option", async () => {
-      const { ref } = await import("@vue/reactivity");
-      const localeRef = ref("fr-FR");
-      
-      const temporal = createTemporal({ dateAdapter: mockAdapter, locale: localeRef });
-      const testDate = createTestDate(2024, 0, 15);
-      
-      const formatted = temporal.f(testDate, { month: "long" });
-      expect(formatted).toBe("janvier");
-      
-      // Change locale and test again
-      localeRef.value = "en-US";
-      const formattedEn = temporal.f(testDate, { month: "long" });
-      expect(formattedEn).toBe("January");
-    });
 
     it("should handle mix of refs and values", async () => {
       const { ref } = await import("@vue/reactivity");
