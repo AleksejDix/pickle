@@ -19,13 +19,6 @@ export default function useMinute(options: UseTimeUnitOptions): TimeUnit {
 
   const number = computed(() => raw.value.getMinutes());
 
-  const name = computed(() => {
-    const hour = raw.value.getHours();
-    const minute = raw.value.getMinutes();
-    const period = hour >= 12 ? "PM" : "AM";
-    const displayHour = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
-    return `${displayHour}:${minute.toString().padStart(2, "0")} ${period}`;
-  });
 
   const start = computed(() => adapter.startOf(raw.value, "minute"));
   const end = computed(() => adapter.endOf(raw.value, "minute"));
@@ -47,7 +40,6 @@ export default function useMinute(options: UseTimeUnitOptions): TimeUnit {
     browsing.value = adapter.subtract(raw.value, { minutes: 1 });
   };
 
-  const format = (date: Date) => date.getMinutes();
 
   const isSame = (a: Date | null, b: Date | null): boolean => {
     return same(a, b, "minute", adapter);
@@ -60,11 +52,9 @@ export default function useMinute(options: UseTimeUnitOptions): TimeUnit {
     isNow,
     timespan,
     number,
-    name,
     browsing,
     future,
     past,
-    format,
     isSame,
   };
 }

@@ -36,27 +36,14 @@ export default function useDay(options: UseTimeUnitOptions): TimeUnit {
     adapter.endOf(browsing.value, "day")
   );
   const number: ComputedRef<number> = computed(() =>
-    formatNumber(browsing.value)
+    browsing.value.getDate()
   );
   const raw: ComputedRef<Date> = computed(() => browsing.value);
   const timespan: ComputedRef<{ start: Date; end: Date }> = computed(() => ({
     start: start.value,
     end: end.value,
   }));
-  const name: ComputedRef<string> = computed(() => formatName(browsing.value));
-  const we: ComputedRef<boolean> = computed(() => adapter.isWeekend(browsing.value));
 
-  const formatNumber = (date: Date): number => {
-    return date.getDate();
-  };
-
-  const formatName = (date: Date): string => {
-    // Return a descriptive name like "Monday, Jan 15"
-    const weekday = date.toLocaleDateString('en-US', { weekday: 'long' });
-    const month = date.toLocaleDateString('en-US', { month: 'short' });
-    const day = date.getDate();
-    return `${weekday}, ${month} ${day}`;
-  };
 
   const future = (): void => {
     browsing.value = adapter.add(browsing.value, { days: 1 });
@@ -66,24 +53,15 @@ export default function useDay(options: UseTimeUnitOptions): TimeUnit {
     browsing.value = adapter.subtract(browsing.value, { days: 1 });
   };
 
-  const weekDay: ComputedRef<number> = computed(() => {
-    const day = adapter.getWeekday(browsing.value);
-    return day === 0 ? 7 : day;
-  });
-
   return {
     future,
     past,
     timespan,
     isNow,
     number,
-    name,
-    format: formatNumber,
     raw,
     isSame,
     browsing,
-    we,
-    weekDay,
     start,
     end,
   };

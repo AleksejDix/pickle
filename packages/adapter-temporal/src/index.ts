@@ -5,8 +5,6 @@ import type {
   DateAdapter,
   DateDuration,
   TimeUnitName,
-  WeekOptions,
-  DateAdapterOptions,
 } from "@usetemporal/core/types";
 
 export class TemporalAdapter implements DateAdapter {
@@ -64,7 +62,7 @@ export class TemporalAdapter implements DateAdapter {
     return new Date(result.epochMilliseconds);
   }
 
-  startOf(date: Date, unit: TimeUnitName, _options?: DateAdapterOptions): Date {
+  startOf(date: Date, unit: TimeUnitName): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -146,7 +144,7 @@ export class TemporalAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitName, _options?: DateAdapterOptions): Date {
+  endOf(date: Date, unit: TimeUnitName): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -231,8 +229,7 @@ export class TemporalAdapter implements DateAdapter {
   isSame(
     a: Date,
     b: Date,
-    unit: TimeUnitName,
-    _options?: DateAdapterOptions
+    unit: TimeUnitName
   ): boolean {
     const { Instant, Now } = this.temporal;
 
@@ -336,41 +333,6 @@ export class TemporalAdapter implements DateAdapter {
     return result;
   }
 
-  getWeekday(date: Date, options?: WeekOptions): number {
-    const temporal = this.temporal;
-    const instant = temporal.Instant.fromEpochMilliseconds(date.getTime());
-    const zonedDateTime = instant.toZonedDateTimeISO(temporal.Now.timeZone());
-    const plainDate = zonedDateTime.toPlainDate();
-
-    // Temporal API: 1 = Monday, 7 = Sunday
-    // Convert to JavaScript: 0 = Sunday, 1 = Monday, etc.
-    const temporalDayOfWeek = plainDate.dayOfWeek;
-    const jsDayOfWeek = temporalDayOfWeek === 7 ? 0 : temporalDayOfWeek;
-
-    const weekStartsOn = options?.weekStartsOn ?? 0;
-    return (jsDayOfWeek - weekStartsOn + 7) % 7;
-  }
-
-  getWeekOfYear(date: Date, _options?: WeekOptions): number {
-    const temporal = this.temporal;
-    const instant = temporal.Instant.fromEpochMilliseconds(date.getTime());
-    const zonedDateTime = instant.toZonedDateTimeISO(temporal.Now.timeZone());
-    const plainDate = zonedDateTime.toPlainDate();
-    
-    // Temporal API provides weekOfYear property
-    return plainDate.weekOfYear;
-  }
-
-  isWeekend(date: Date): boolean {
-    const temporal = this.temporal;
-    const instant = temporal.Instant.fromEpochMilliseconds(date.getTime());
-    const zonedDateTime = instant.toZonedDateTimeISO(temporal.Now.timeZone());
-    const plainDate = zonedDateTime.toPlainDate();
-
-    // Temporal API: 6 = Saturday, 7 = Sunday
-    const dayOfWeek = plainDate.dayOfWeek;
-    return dayOfWeek === 6 || dayOfWeek === 7;
-  }
 
 }
 

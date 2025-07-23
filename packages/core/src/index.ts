@@ -24,8 +24,6 @@ export type {
   AdapterName,
   AdapterConfig,
   DateDuration,
-  WeekOptions,
-  DateAdapterOptions,
 } from "./types";
 
 // Default export for convenience

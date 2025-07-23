@@ -169,43 +169,6 @@ describe("NativeDateAdapter", () => {
     });
   });
 
-  describe("Weekday and Weekend", () => {
-    it("should get correct weekday", () => {
-      const sunday = new Date(2024, 0, 7);
-      const monday = new Date(2024, 0, 8);
-      const saturday = new Date(2024, 0, 6);
-
-      expect(adapter.getWeekday(sunday)).toBe(0);
-      expect(adapter.getWeekday(monday)).toBe(1);
-      expect(adapter.getWeekday(saturday)).toBe(6);
-    });
-
-    it("should get weekday with custom week start", () => {
-      const sunday = new Date(2024, 0, 7);
-      const monday = new Date(2024, 0, 8);
-      
-      // Week starts on Monday
-      expect(adapter.getWeekday(sunday, { weekStartsOn: 1 })).toBe(6);
-      expect(adapter.getWeekday(monday, { weekStartsOn: 1 })).toBe(0);
-      
-      // Week starts on Saturday
-      const saturday = new Date(2024, 0, 6);
-      expect(adapter.getWeekday(saturday, { weekStartsOn: 6 })).toBe(0);
-      expect(adapter.getWeekday(sunday, { weekStartsOn: 6 })).toBe(1);
-    });
-
-    it("should identify weekends", () => {
-      const friday = new Date(2024, 0, 5);
-      const saturday = new Date(2024, 0, 6);
-      const sunday = new Date(2024, 0, 7);
-      const monday = new Date(2024, 0, 8);
-
-      expect(adapter.isWeekend(friday)).toBe(false);
-      expect(adapter.isWeekend(saturday)).toBe(true);
-      expect(adapter.isWeekend(sunday)).toBe(true);
-      expect(adapter.isWeekend(monday)).toBe(false);
-    });
-  });
 
   describe("Additional Coverage", () => {
     it("should add all duration types", () => {
@@ -437,39 +400,4 @@ describe("NativeDateAdapter", () => {
     });
   });
 
-  describe("Week of Year", () => {
-    it("should calculate week of year correctly", () => {
-      // Test first week of 2024
-      const jan1 = new Date(2024, 0, 1); // Monday
-      expect(adapter.getWeekOfYear(jan1)).toBe(1);
-
-      // Test mid-year
-      const june15 = new Date(2024, 5, 15); // Saturday
-      expect(adapter.getWeekOfYear(june15)).toBe(24);
-
-      // Test last week of year
-      const dec31 = new Date(2024, 11, 31); // Tuesday
-      expect(adapter.getWeekOfYear(dec31)).toBe(1); // Belongs to week 1 of 2025
-    });
-
-    it("should handle edge cases for week of year", () => {
-      // 2023 starts on Sunday
-      const jan1_2023 = new Date(2023, 0, 1);
-      expect(adapter.getWeekOfYear(jan1_2023)).toBe(52); // Belongs to week 52 of 2022
-
-      // First Thursday of 2023
-      const jan5_2023 = new Date(2023, 0, 5);
-      expect(adapter.getWeekOfYear(jan5_2023)).toBe(1);
-    });
-
-    it("should respect weekStartsOn option", () => {
-      const date = new Date(2024, 0, 7); // Sunday Jan 7
-      
-      // Default (ISO 8601 - Monday start)
-      expect(adapter.getWeekOfYear(date)).toBe(1);
-      
-      // With Sunday start (US convention) - need to adjust implementation
-      // expect(adapter.getWeekOfYear(date, { weekStartsOn: 0 })).toBe(2);
-    });
-  });
 });

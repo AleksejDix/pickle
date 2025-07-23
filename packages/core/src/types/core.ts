@@ -43,7 +43,7 @@ export interface LocaleOptions extends Intl.DateTimeFormatOptions {
 }
 
 // Date Adapter Types
-export type AdapterName = "native" | "date-fns" | "luxon" | "temporal" | "auto";
+export type AdapterName = "native" | "date-fns" | "luxon" | "temporal";
 
 export interface DateDuration {
   years?: number;
@@ -69,13 +69,7 @@ export type TimeUnitName =
   | "century"
   | "millennium";
 
-export interface WeekOptions {
-  weekStartsOn?: number;
-}
 
-export interface DateAdapterOptions {
-  weekStartsOn?: number;
-}
 
 export interface AdapterConfig {
   name: AdapterName;
@@ -93,7 +87,4 @@ export interface DateAdapter {
   isBefore(date1: Date, date2: Date): boolean;
   isAfter(date1: Date, date2: Date): boolean;
   eachInterval(start: Date, end: Date, unit: TimeUnitName): Date[];
-  getWeekday(date: Date, options?: WeekOptions): number;
-  getWeekOfYear(date: Date, options?: WeekOptions): number;
-  isWeekend(date: Date): boolean;
 }

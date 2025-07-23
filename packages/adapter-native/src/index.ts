@@ -5,8 +5,6 @@ import type {
   DateAdapter,
   DateDuration,
   TimeUnitName,
-  WeekOptions,
-  DateAdapterOptions,
 } from "@usetemporal/core/types";
 
 export class NativeDateAdapter implements DateAdapter {
@@ -57,7 +55,7 @@ export class NativeDateAdapter implements DateAdapter {
     return this.add(date, inverseDuration);
   }
 
-  startOf(date: Date, unit: TimeUnitName, _options?: DateAdapterOptions): Date {
+  startOf(date: Date, unit: TimeUnitName): Date {
     const result = new Date(date);
 
     switch (unit) {
@@ -112,7 +110,7 @@ export class NativeDateAdapter implements DateAdapter {
     return result;
   }
 
-  endOf(date: Date, unit: TimeUnitName, _options?: DateAdapterOptions): Date {
+  endOf(date: Date, unit: TimeUnitName): Date {
     const result = new Date(date);
 
     switch (unit) {
@@ -170,8 +168,7 @@ export class NativeDateAdapter implements DateAdapter {
   isSame(
     a: Date,
     b: Date,
-    unit: TimeUnitName,
-    _options?: DateAdapterOptions
+    unit: TimeUnitName
   ): boolean {
     switch (unit) {
       case "year":
@@ -256,39 +253,6 @@ export class NativeDateAdapter implements DateAdapter {
     return result;
   }
 
-  getWeekday(date: Date, options?: WeekOptions): number {
-    const dayOfWeek = date.getDay();
-    const weekStartsOn = options?.weekStartsOn ?? 0;
-
-    // Adjust for different week start days
-    return (dayOfWeek - weekStartsOn + 7) % 7;
-  }
-
-  getWeekOfYear(date: Date, _options?: WeekOptions): number {
-    // ISO 8601 week number calculation
-    // Note: Currently not using options, but keeping for interface compatibility
-    
-    // Create a copy of the date
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    
-    // Set to nearest Thursday: current date + 4 - current day number
-    // Make Sunday's day number 7
-    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-    
-    // Get first day of year
-    const yearStart = new Date(d.getFullYear(), 0, 1);
-    
-    // Calculate full weeks to nearest Thursday
-    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
-    
-    return weekNo;
-  }
-
-  isWeekend(date: Date): boolean {
-    const dayOfWeek = date.getDay();
-    return dayOfWeek === 0 || dayOfWeek === 6; // Sunday or Saturday
-  }
 
 }
 

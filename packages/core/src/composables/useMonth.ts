@@ -39,22 +39,13 @@ export default function useMonth(
     adapter.endOf(browsing.value, "month")
   );
 
-  const number: ComputedRef<number> = computed(() => format(browsing.value));
+  const number: ComputedRef<number> = computed(() => browsing.value.getMonth() + 1);
   const raw: ComputedRef<Date> = computed(() => browsing.value);
 
   const timespan: ComputedRef<{ start: Date; end: Date }> = computed(() => ({
     start: start.value,
     end: end.value,
   }));
-  const name: ComputedRef<string> = computed(() => {
-    const month = browsing.value.toLocaleDateString('en-US', { month: 'long' });
-    const year = browsing.value.getFullYear();
-    return `${month} ${year}`;
-  });
-
-  const format = (date: Date): number => {
-    return date.getMonth() + 1;
-  };
 
   const future = (): void => {
     browsing.value = adapter.add(browsing.value, { months: 1 });
@@ -63,23 +54,15 @@ export default function useMonth(
     browsing.value = adapter.subtract(browsing.value, { months: 1 });
   };
 
-  const weekDay: ComputedRef<number> = computed(() => {
-    const day = adapter.getWeekday(start.value);
-    return day === 0 ? 7 : day;
-  });
-
   return {
     future,
     past,
     timespan,
     isNow,
     number,
-    name,
-    format,
     raw,
     isSame,
     browsing,
-    weekDay,
     start,
     end,
   };

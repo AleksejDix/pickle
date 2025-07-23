@@ -477,42 +477,6 @@ describe("TemporalAdapter", () => {
     });
   });
 
-  describe("getWeekday", () => {
-    it("should get weekday with default Sunday start", () => {
-      const sunday = new Date("2024-06-09");
-      const monday = new Date("2024-06-10");
-      const saturday = new Date("2024-06-15");
-
-      expect(adapter.getWeekday(sunday)).toBe(0);
-      expect(adapter.getWeekday(monday)).toBe(1);
-      expect(adapter.getWeekday(saturday)).toBe(6);
-    });
-
-    it("should get weekday with Monday start", () => {
-      const options = { weekStartsOn: 1 };
-      const sunday = new Date("2024-06-09");
-      const monday = new Date("2024-06-10");
-      const saturday = new Date("2024-06-15");
-
-      expect(adapter.getWeekday(sunday, options)).toBe(6);
-      expect(adapter.getWeekday(monday, options)).toBe(0);
-      expect(adapter.getWeekday(saturday, options)).toBe(5);
-    });
-  });
-
-  describe("isWeekend", () => {
-    it("should identify weekend days", () => {
-      const friday = new Date("2024-06-14");
-      const saturday = new Date("2024-06-15");
-      const sunday = new Date("2024-06-16");
-      const monday = new Date("2024-06-17");
-
-      expect(adapter.isWeekend(friday)).toBe(false);
-      expect(adapter.isWeekend(saturday)).toBe(true);
-      expect(adapter.isWeekend(sunday)).toBe(true);
-      expect(adapter.isWeekend(monday)).toBe(false);
-    });
-  });
 
   describe("Error handling", () => {
     it("should throw error when accessing temporal getter without API", () => {

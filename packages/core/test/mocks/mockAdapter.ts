@@ -1,4 +1,4 @@
-import type { DateAdapter, DateDuration, TimeUnitName, WeekOptions } from "../../src/types/core";
+import type { DateAdapter, DateDuration, TimeUnitName } from "../../src/types/core";
 
 export class MockDateAdapter implements DateAdapter {
   name = "mock";
@@ -162,24 +162,4 @@ export class MockDateAdapter implements DateAdapter {
     return result;
   }
 
-  getWeekday(date: Date, options?: WeekOptions): number {
-    const dayOfWeek = date.getDay();
-    const weekStartsOn = options?.weekStartsOn ?? 0;
-    return (dayOfWeek - weekStartsOn + 7) % 7;
-  }
-
-  getWeekOfYear(date: Date, options?: WeekOptions): number {
-    // Simple ISO 8601 week calculation for mock
-    const d = new Date(date);
-    d.setHours(0, 0, 0, 0);
-    d.setDate(d.getDate() + 4 - (d.getDay() || 7));
-    const yearStart = new Date(d.getFullYear(), 0, 1);
-    const weekNo = Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7);
-    return weekNo;
-  }
-
-  isWeekend(date: Date): boolean {
-    const dayOfWeek = date.getDay();
-    return dayOfWeek === 0 || dayOfWeek === 6;
-  }
 }

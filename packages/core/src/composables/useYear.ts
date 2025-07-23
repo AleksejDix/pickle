@@ -37,18 +37,13 @@ export default function useYear(options: UseTimeUnitOptions): TimeUnit {
     adapter.endOf(browsing.value, "year")
   );
 
-  const number: ComputedRef<number> = computed(() => format(browsing.value));
+  const number: ComputedRef<number> = computed(() => browsing.value.getFullYear());
   const raw: ComputedRef<Date> = computed(() => browsing.value);
 
   const timespan: ComputedRef<{ start: Date; end: Date }> = computed(() => ({
     start: start.value,
     end: end.value,
   }));
-  const name: ComputedRef<string> = computed(() => number.value.toString());
-
-  const format = (date: Date): number => {
-    return date.getFullYear();
-  };
 
   const future = (): void => {
     browsing.value = adapter.add(browsing.value, { years: 1 });
@@ -57,23 +52,15 @@ export default function useYear(options: UseTimeUnitOptions): TimeUnit {
     browsing.value = adapter.subtract(browsing.value, { years: 1 });
   };
 
-  const weekDay: ComputedRef<number> = computed(() => {
-    const day = adapter.getWeekday(start.value);
-    return day === 0 ? 7 : day;
-  });
-
   return {
     future,
     past,
     timespan,
     isNow,
     number,
-    name,
-    format,
     raw,
     isSame,
     browsing,
-    weekDay,
     start,
     end,
   };

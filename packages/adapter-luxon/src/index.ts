@@ -5,8 +5,6 @@ import type {
   DateAdapter,
   DateDuration,
   TimeUnitName,
-  WeekOptions,
-  DateAdapterOptions,
 } from "@usetemporal/core/types";
 
 // Import Luxon - this will be tree-shaken if adapter is not used
@@ -52,7 +50,7 @@ export class LuxonAdapter implements DateAdapter {
     return result.toJSDate();
   }
 
-  startOf(date: Date, unit: TimeUnitName, _options?: DateAdapterOptions): Date {
+  startOf(date: Date, unit: TimeUnitName): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
@@ -97,7 +95,7 @@ export class LuxonAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitName, _options?: DateAdapterOptions): Date {
+  endOf(date: Date, unit: TimeUnitName): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
@@ -145,8 +143,7 @@ export class LuxonAdapter implements DateAdapter {
   isSame(
     a: Date,
     b: Date,
-    unit: TimeUnitName,
-    _options?: DateAdapterOptions
+    unit: TimeUnitName
   ): boolean {
     const { DateTime } = this.luxon;
     const dtA = DateTime.fromJSDate(a);
@@ -245,33 +242,6 @@ export class LuxonAdapter implements DateAdapter {
     }
   }
 
-  getWeekday(date: Date, options?: WeekOptions): number {
-    const { DateTime } = this.luxon;
-    const dt = DateTime.fromJSDate(date);
-
-    // Luxon weekday: 1 = Monday, 7 = Sunday
-    // Convert to JavaScript: 0 = Sunday, 1 = Monday, etc.
-    const luxonWeekday = dt.weekday;
-    const jsWeekday = luxonWeekday === 7 ? 0 : luxonWeekday;
-
-    const weekStartsOn = options?.weekStartsOn ?? 0;
-    return (jsWeekday - weekStartsOn + 7) % 7;
-  }
-
-  getWeekOfYear(date: Date, _options?: WeekOptions): number {
-    const { DateTime } = this.luxon;
-    const dt = DateTime.fromJSDate(date);
-    // Luxon's weekNumber follows ISO 8601 by default
-    return dt.weekNumber;
-  }
-
-  isWeekend(date: Date): boolean {
-    const { DateTime } = this.luxon;
-    const dt = DateTime.fromJSDate(date);
-
-    // Luxon weekday: 6 = Saturday, 7 = Sunday
-    return dt.weekday === 6 || dt.weekday === 7;
-  }
 
 }
 

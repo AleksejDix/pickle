@@ -12,18 +12,12 @@ export interface TimeUnit {
   timespan: ComputedRef<TimeSpan>;
   isNow: ComputedRef<boolean>;
   number: ComputedRef<number>;
-  name: ComputedRef<string>;
   browsing: Ref<Date>;
   
   // Methods - available in all time units
   future: () => void;
   past: () => void;
-  format: (date: Date) => number | string;
   isSame: (a: Date | null, b: Date | null) => boolean;
-  
-  // Optional properties - only in specific time units
-  weekDay?: ComputedRef<number>;     // Available in: year, month, week, day, hour
-  we?: ComputedRef<boolean>;          // Available in: day only (weekend indicator)
 }
 
 // Framework-agnostic reactive Composable Options

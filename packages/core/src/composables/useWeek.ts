@@ -35,26 +35,19 @@ export default function useWeek(options: UseTimeUnitOptions): TimeUnit {
   const end: ComputedRef<Date> = computed(() =>
     adapter.endOf(browsing.value, "week")
   );
-  const number: ComputedRef<number> = computed(() => format(browsing.value));
+  const number: ComputedRef<number> = computed(() => {
+    // TODO: Add getWeekOfYear to adapter interface
+    // For now, calculate week number manually
+    const startOfYear = adapter.startOf(browsing.value, "year");
+    const startOfWeekForDate = adapter.startOf(browsing.value, "week");
+    const daysDiff = Math.floor((startOfWeekForDate.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
+    return Math.floor(daysDiff / 7) + 1;
+  });
   const raw: ComputedRef<Date> = computed(() => browsing.value);
   const timespan: ComputedRef<{ start: Date; end: Date }> = computed(() => ({
     start: start.value,
     end: end.value,
   }));
-  const name: ComputedRef<string> = computed(() => {
-    const year = browsing.value.getFullYear();
-    const weekNum = format(browsing.value);
-    return `${year}-W${weekNum}`;
-  });
-
-  const format = (date: Date): number => {
-    // TODO: Add getWeekOfYear to adapter interface
-    // For now, calculate week number manually
-    const startOfYear = adapter.startOf(date, "year");
-    const startOfWeekForDate = adapter.startOf(date, "week");
-    const daysDiff = Math.floor((startOfWeekForDate.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24));
-    return Math.floor(daysDiff / 7) + 1;
-  };
 
   const future = (): void => {
     browsing.value = adapter.add(browsing.value, { weeks: 1 });
@@ -64,23 +57,15 @@ export default function useWeek(options: UseTimeUnitOptions): TimeUnit {
     browsing.value = adapter.subtract(browsing.value, { weeks: 1 });
   };
 
-  const weekDay: ComputedRef<number> = computed(() => {
-    const day = adapter.getWeekday(start.value);
-    return day === 0 ? 7 : day;
-  });
-
   return {
     future,
     past,
     timespan,
     isNow,
     number,
-    name,
     raw,
     isSame,
     browsing,
-    format,
-    weekDay,
     start,
     end,
   };

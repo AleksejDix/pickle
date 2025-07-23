@@ -19,14 +19,6 @@ export default function useSecond(options: UseTimeUnitOptions): TimeUnit {
 
   const number = computed(() => raw.value.getSeconds());
 
-  const name = computed(() => {
-    const hours = raw.value.getHours();
-    const minutes = raw.value.getMinutes();
-    const seconds = raw.value.getSeconds();
-    const period = hours >= 12 ? "PM" : "AM";
-    const displayHour = hours === 0 ? 12 : hours > 12 ? hours - 12 : hours;
-    return `${displayHour}:${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")} ${period}`;
-  });
 
   const start = computed(() => adapter.startOf(raw.value, "second"));
 
@@ -51,7 +43,6 @@ export default function useSecond(options: UseTimeUnitOptions): TimeUnit {
     browsing.value = prevSecond;
   };
 
-  const format = (date: Date) => date.getSeconds();
 
   const isSame = (a: Date | null, b: Date | null): boolean => {
     return same(a, b, "second", adapter);
@@ -64,11 +55,9 @@ export default function useSecond(options: UseTimeUnitOptions): TimeUnit {
     isNow,
     timespan,
     number,
-    name,
     browsing,
     future,
     past,
-    format,
     isSame,
   };
 }

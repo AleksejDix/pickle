@@ -23,11 +23,6 @@ export default function useQuarter(options: UseTimeUnitOptions): TimeUnit {
     return Math.floor(month / 3) + 1;
   });
 
-  const name = computed(() => {
-    const year = raw.value.getFullYear();
-    const q = number.value;
-    return `Q${q} ${year}`;
-  });
 
   const start = computed(() => {
     const year = raw.value.getFullYear();
@@ -62,10 +57,6 @@ export default function useQuarter(options: UseTimeUnitOptions): TimeUnit {
     browsing.value = prevQuarter;
   };
 
-  const format = (date: Date) => {
-    const month = date.getMonth();
-    return Math.floor(month / 3) + 1;
-  };
 
   const isSame = (a: Date | null, b: Date | null): boolean => {
     return same(a, b, "quarter", adapter);
@@ -78,11 +69,9 @@ export default function useQuarter(options: UseTimeUnitOptions): TimeUnit {
     isNow,
     timespan,
     number,
-    name,
     browsing,
     future,
     past,
-    format,
     isSame,
   };
 }

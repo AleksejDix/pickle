@@ -38,24 +38,10 @@ export default function useHour(options: UseTimeUnitOptions): TimeUnit {
   );
 
   const number: ComputedRef<number> = computed(() =>
-    formatNumber(browsing.value)
+    browsing.value.getHours()
   );
   const raw: ComputedRef<Date> = computed(() => browsing.value);
   const timespan = computed(() => ({ start: start.value, end: end.value }));
-  const name: ComputedRef<string> = computed(() => formatName(browsing.value));
-
-  const formatNumber = (date: Date): number => {
-    return date.getHours();
-  };
-
-  const formatName = (date: Date): string => {
-    // Return a user-friendly time like "2:00 PM"
-    return date.toLocaleTimeString('en-US', { 
-      hour: 'numeric', 
-      minute: '2-digit',
-      hour12: true 
-    });
-  };
 
   const future = (): void => {
     browsing.value = adapter.add(browsing.value, { hours: 1 });
@@ -65,23 +51,15 @@ export default function useHour(options: UseTimeUnitOptions): TimeUnit {
     browsing.value = adapter.subtract(browsing.value, { hours: 1 });
   };
 
-  const weekDay: ComputedRef<number> = computed(() => {
-    const day = adapter.getWeekday(browsing.value);
-    return day === 0 ? 7 : day;
-  });
-
   return {
     future,
     past,
     timespan,
     isNow,
     number,
-    name,
     raw,
     isSame,
     browsing,
-    format: formatNumber,
-    weekDay,
     start,
     end,
   };

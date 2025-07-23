@@ -5,8 +5,6 @@ import type {
   DateAdapter,
   DateDuration,
   TimeUnitName,
-  WeekOptions,
-  DateAdapterOptions,
 } from "@usetemporal/core/types";
 
 // Import date-fns functions - these will be tree-shaken if adapter is not used
@@ -26,7 +24,7 @@ export class DateFnsAdapter implements DateAdapter {
     return sub(date, duration);
   }
 
-  startOf(date: Date, unit: TimeUnitName, _options?: DateAdapterOptions): Date {
+  startOf(date: Date, unit: TimeUnitName): Date {
     const {
       startOfYear,
       startOfMonth,
@@ -69,7 +67,7 @@ export class DateFnsAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitName, _options?: DateAdapterOptions): Date {
+  endOf(date: Date, unit: TimeUnitName): Date {
     const {
       endOfYear,
       endOfMonth,
@@ -115,8 +113,7 @@ export class DateFnsAdapter implements DateAdapter {
   isSame(
     a: Date,
     b: Date,
-    unit: TimeUnitName,
-    _options?: DateAdapterOptions
+    unit: TimeUnitName
   ): boolean {
     const {
       isSameYear,
@@ -191,25 +188,6 @@ export class DateFnsAdapter implements DateAdapter {
     }
   }
 
-  getWeekday(date: Date, options?: WeekOptions): number {
-    const { getDay } = this.dateFns;
-    const dayOfWeek = getDay(date);
-    const weekStartsOn = options?.weekStartsOn ?? 0;
-
-    return (dayOfWeek - weekStartsOn + 7) % 7;
-  }
-
-  getWeekOfYear(date: Date, options?: WeekOptions): number {
-    const { getWeek } = this.dateFns;
-    return getWeek(date, {
-      weekStartsOn: options?.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6 | undefined
-    });
-  }
-
-  isWeekend(date: Date): boolean {
-    const { isWeekend } = this.dateFns;
-    return isWeekend(date);
-  }
 
 }
 

@@ -29,7 +29,6 @@ describe("createTemporal", () => {
       expect(unit.timespan).toBeDefined();
       expect(unit.isNow).toBeDefined();
       expect(unit.number).toBeDefined();
-      expect(unit.name).toBeDefined();
       expect(unit.browsing).toBeDefined();
       expect(typeof unit.future).toBe("function");
       expect(typeof unit.past).toBe("function");
@@ -305,7 +304,6 @@ describe("createTemporal", () => {
       });
       
       expect(year.number.value).toBe(2024);
-      expect(year.name.value).toBe("2024");
       // Just test the year part, avoid timezone issues
       expect(year.start.value.getFullYear()).toBe(2024);
       expect(year.start.value.getMonth()).toBe(0);
@@ -331,18 +329,15 @@ describe("createTemporal", () => {
       });
       
       expect(month.number.value).toBe(6);
-      expect(month.name.value).toBe("June 2024");
       // Note: days property doesn't exist on month composable
       
       // Test navigation
       month.future();
       expect(month.number.value).toBe(7);
-      expect(month.name.value).toBe("July 2024");
       
       month.past();
       month.past();
       expect(month.number.value).toBe(5);
-      expect(month.name.value).toBe("May 2024");
     });
 
     it("should test useWeek composable", async () => {
@@ -379,9 +374,6 @@ describe("createTemporal", () => {
       });
       
       expect(day.number.value).toBe(15);
-      // Name format might include month, so just check it includes the day
-      expect(day.name.value).toContain("15");
-      expect(day.weekDay.value).toBe(6);
       
       // Test navigation
       day.future();
@@ -403,7 +395,6 @@ describe("createTemporal", () => {
       });
       
       expect(hour.number.value).toBe(14);
-      expect(hour.name.value).toBe("2:30 PM");
       
       // Test navigation
       hour.future();
@@ -437,7 +428,7 @@ describe("createTemporal", () => {
       
       expect(months).toHaveLength(12);
       expect(months[0].timespan).toBeDefined();
-      expect(months[0].name).toBeDefined();
+      expect(months[0].timespan).toBeDefined();
       expect(months[0].number.value).toBe(1);
       expect(months[11].number.value).toBe(12);
     });
@@ -467,7 +458,6 @@ describe("createTemporal", () => {
         raw: { value: new Date(2024, 0, 15) },
         isNow: { value: false },
         number: { value: 1 },
-        name: { value: "January 2024" },
         browsing: { value: new Date(2024, 0, 15) },
         future: () => {},
         past: () => {},
