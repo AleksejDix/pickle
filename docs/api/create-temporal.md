@@ -1,241 +1,418 @@
 # createTemporal
 
-The main factory function that creates a temporal instance with reactive date management capabilities.
+The `createTemporal` function is the main entry point for creating a temporal instance. It initializes the core temporal system with your chosen date adapter and configuration options.
 
 ## Syntax
 
 ```typescript
-function createTemporal(options?: CreateTemporalOptions): Temporal;
+createTemporal(options?: CreateTemporalOptions): TemporalCore
 ```
 
 ## Parameters
 
-### options
+### `options` (optional)
 
-Type: `CreateTemporalOptions`
+An object containing configuration options for the temporal instance.
 
-Configuration object with the following properties:
+#### `options.dateAdapter` (required)
 
-#### dateAdapter (required)
+- **Type**: `DateAdapter`
+- **Description**: The date adapter to use for date operations. Must be one of the available adapters from `@usetemporal/adapter-*` packages.
 
-- Type: `DateAdapter`
-- Description: The date adapter instance to use for date operations
-
-```typescript
+```javascript
 import { nativeAdapter } from "@usetemporal/adapter-native";
+import { luxonAdapter } from "@usetemporal/adapter-luxon";
+import { dateFnsAdapter } from "@usetemporal/adapter-date-fns";
+import { temporalAdapter } from "@usetemporal/adapter-temporal";
 
+// Choose one adapter
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
 });
 ```
 
-#### date
+#### `options.date` (optional)
 
-- Type: `Date | Ref<Date>`
-- Default: `new Date()`
-- Description: Initial date for `picked` and `browsing` values
+- **Type**: `Date | Ref<Date>`
+- **Default**: `new Date()`
+- **Description**: The initial date for browsing/picking. Can be a Date object or a Vue ref containing a Date.
 
-```typescript
+```javascript
+// Static date
 const temporal = createTemporal({
-  dateAdapter,
-  date: new Date(2024, 0, 15),
+  dateAdapter: nativeAdapter,
+  date: new Date(2024, 2, 14), // March 14, 2024
+});
+
+// Reactive date
+import { ref } from "@vue/reactivity";
+const currentDate = ref(new Date());
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+  date: currentDate,
 });
 ```
 
-#### now
+#### `options.now` (optional)
 
-- Type: `Date | Ref<Date>`
-- Default: `new Date()`
-- Description: Reference time for "current" calculations
+- **Type**: `Date | Ref<Date>`
+- **Default**: `new Date()`
+- **Description**: The reference point for "current time". Useful for testing or creating static demos.
 
-```typescript
+```javascript
+// Fixed "now" for testing
 const temporal = createTemporal({
-  dateAdapter,
-  now: ref(new Date()), // Updates reactively
+  dateAdapter: nativeAdapter,
+  now: new Date(2024, 2, 14, 12, 0, 0), // Fixed time
+});
+
+// Dynamic "now" that updates
+const nowRef = ref(new Date());
+setInterval(() => {
+  nowRef.value = new Date();
+}, 1000);
+
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+  now: nowRef,
 });
 ```
 
-#### locale
+#### `options.weekStartsOn` (optional)
 
-- Type: `string | Ref<string>`
-- Default: `'en-US'`
-- Description: Locale for date formatting
+- **Type**: `number`
+- **Default**: `1` (Monday)
+- **Range**: `0-6` where 0 = Sunday, 1 = Monday, ..., 6 = Saturday
+- **Description**: Configures which day of the week is considered the first day.
 
-```typescript
+```javascript
+// US convention: week starts on Sunday
 const temporal = createTemporal({
-  dateAdapter,
-  locale: "fr-FR",
+  dateAdapter: nativeAdapter,
+  weekStartsOn: 0,
+});
+
+// ISO standard: week starts on Monday (default)
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+  weekStartsOn: 1,
+});
+
+// Middle East: week starts on Saturday
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+  weekStartsOn: 6,
 });
 ```
 
 ## Return Value
 
-Returns a `Temporal` object with the following properties:
+Returns a `TemporalCore` object with the following properties and methods:
 
-### Properties
+### `browsing`
 
-#### picked
+- **Type**: `Ref<Date>`
+- **Description**: Reactive reference to the current browsing date. This is the date used for navigation and display.
 
-- Type: `Ref<Date>`
-- Description: The currently selected date
+```javascript
+const temporal = createTemporal({ dateAdapter: nativeAdapter });
+console.log(temporal.browsing.value); // Current date
 
-```typescript
-temporal.picked.value = new Date(2024, 5, 15);
+// Navigate to a different date
+temporal.browsing.value = new Date(2024, 11, 25); // Christmas 2024
 ```
 
-#### now
+### `picked`
 
-- Type: `Ref<Date>`
-- Description: The current system time reference
+- **Type**: `Ref<Date>`
+- **Description**: Reactive reference to the selected/picked date. This represents the user's selection.
 
-```typescript
-console.log(temporal.now.value); // Current date/time
+```javascript
+const temporal = createTemporal({ dateAdapter: nativeAdapter });
+
+// Set picked date
+temporal.picked.value = new Date(2024, 2, 14);
+
+// Watch for changes
+watch(
+  () => temporal.picked.value,
+  (newDate) => {
+    console.log("User selected:", newDate);
+  }
+);
 ```
 
-#### browsing
+### `now`
 
-- Type: `Ref<Date>`
-- Description: The date currently being browsed/viewed
+- **Type**: `Ref<Date>`
+- **Description**: Reactive reference to the current time. Updates automatically if a reactive ref was provided.
 
-```typescript
-// Separate browsing from selection
-temporal.browsing.value = new Date(2024, 11, 25);
+```javascript
+const temporal = createTemporal({ dateAdapter: nativeAdapter });
+
+// Check current time
+console.log(temporal.now.value);
+
+// Use in reactive computations
+const isToday = computed(() => {
+  const now = temporal.now.value;
+  const browsing = temporal.browsing.value;
+  return adapter.isSame(now, browsing, "day");
+});
 ```
 
-#### adapter
+### `adapter`
 
-- Type: `DateAdapter`
-- Description: The date adapter instance being used
+- **Type**: `DateAdapter`
+- **Description**: The date adapter instance being used. Provides access to adapter-specific functionality.
 
-```typescript
-const startOfMonth = temporal.adapter.startOf(date, "month");
+```javascript
+const temporal = createTemporal({ dateAdapter: nativeAdapter });
+
+// Use adapter methods directly
+const formatted = temporal.adapter.format(temporal.now.value, "YYYY-MM-DD");
+const nextMonth = temporal.adapter.add(temporal.browsing.value, { months: 1 });
 ```
 
-### Methods
+### `weekStartsOn`
 
-#### divide()
+- **Type**: `number`
+- **Description**: The configured first day of the week (0-6).
 
-Subdivides a time unit into smaller units.
+```javascript
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+  weekStartsOn: 0, // Sunday
+});
 
-```typescript
-function divide(unit: TimeUnit, into: TimeUnitType): TimeUnit[];
+console.log(temporal.weekStartsOn); // 0
 ```
 
-See [divide() API](/api/divide) for detailed documentation.
+### `divide(interval, unit)`
 
-#### f()
+- **Type**: `(interval: TimeUnit, unit: DivideUnit) => TimeUnit[]`
+- **Description**: Divides a time unit into smaller units. See [divide() documentation](/api/divide) for details.
 
-Formats a date using Intl.DateTimeFormat.
-
-```typescript
-function f(date: Date, options?: Intl.DateTimeFormatOptions): string;
+```javascript
+const month = temporal.periods.month(temporal);
+const days = temporal.divide(month, "day"); // Array of day units
 ```
 
-Example:
+### `periods`
 
-```typescript
-temporal.f(new Date(), { month: "long" }); // "January"
-temporal.f(new Date(), { weekday: "short" }); // "Mon"
+- **Type**: `Periods`
+- **Description**: Object containing factory functions for creating time units. See [periods documentation](/api/periods) for details.
+
+```javascript
+const year = temporal.periods.year(temporal);
+const month = temporal.periods.month(temporal);
+const week = temporal.periods.week(temporal);
+const day = temporal.periods.day(temporal);
 ```
 
 ## Examples
 
-### Basic Setup
+### Basic Usage
+
+```javascript
+import { createTemporal } from "@usetemporal/core";
+import { nativeAdapter } from "@usetemporal/adapter-native";
+
+// Create a simple temporal instance
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+});
+
+// Access current time
+console.log(temporal.now.value);
+
+// Get current month
+const month = temporal.periods.month(temporal);
+console.log(month.name); // "March"
+```
+
+### With Vue 3
+
+```vue
+<script setup>
+import { createTemporal } from "@usetemporal/core";
+import { nativeAdapter } from "@usetemporal/adapter-native";
+import { provide } from "vue";
+
+// Create and provide temporal instance
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+  weekStartsOn: 1, // Monday
+});
+
+provide("temporal", temporal);
+
+// Use in template
+const currentMonth = temporal.periods.month(temporal);
+</script>
+
+<template>
+  <div>
+    <h1>{{ currentMonth.name }} {{ currentMonth.year }}</h1>
+  </div>
+</template>
+```
+
+### With React
+
+```jsx
+import { createTemporal } from "@usetemporal/core";
+import { nativeAdapter } from "@usetemporal/adapter-native";
+import { createContext, useContext } from "react";
+
+// Create context
+const TemporalContext = createContext();
+
+// Provider component
+export function TemporalProvider({ children }) {
+  const temporal = createTemporal({
+    dateAdapter: nativeAdapter,
+    weekStartsOn: 0, // Sunday for US
+  });
+
+  return (
+    <TemporalContext.Provider value={temporal}>
+      {children}
+    </TemporalContext.Provider>
+  );
+}
+
+// Hook to use temporal
+export function useTemporal() {
+  return useContext(TemporalContext);
+}
+```
+
+### Advanced Configuration
+
+```javascript
+import { createTemporal } from "@usetemporal/core";
+import { luxonAdapter } from "@usetemporal/adapter-luxon";
+import { ref } from "@vue/reactivity";
+
+// Create a controlled temporal instance
+const selectedDate = ref(new Date(2024, 2, 14));
+const currentTime = ref(new Date());
+
+// Update current time every second
+setInterval(() => {
+  currentTime.value = new Date();
+}, 1000);
+
+const temporal = createTemporal({
+  dateAdapter: luxonAdapter,
+  date: selectedDate, // Controlled selected date
+  now: currentTime, // Live updating current time
+  weekStartsOn: 1, // ISO week (Monday)
+});
+
+// Watch for date changes
+watch(
+  () => selectedDate.value,
+  (newDate) => {
+    console.log("Date changed to:", newDate);
+  }
+);
+```
+
+### Testing with Fixed Time
+
+```javascript
+import { createTemporal } from "@usetemporal/core";
+import { nativeAdapter } from "@usetemporal/adapter-native";
+
+// Create temporal with fixed time for testing
+const fixedDate = new Date(2024, 2, 14, 12, 0, 0);
+
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+  date: fixedDate,
+  now: fixedDate, // Both browsing and "now" are fixed
+});
+
+// All time-based calculations will use the fixed date
+const today = temporal.periods.day(temporal);
+console.log(today.isNow); // Always true for March 14, 2024
+```
+
+## Error Handling
+
+The function will throw an error if no date adapter is provided:
+
+```javascript
+try {
+  const temporal = createTemporal(); // Error!
+} catch (error) {
+  console.error(error.message);
+  // "A date adapter is required. Please install and provide an adapter from @usetemporal/adapter-* packages."
+}
+
+// Correct usage
+const temporal = createTemporal({
+  dateAdapter: nativeAdapter,
+});
+```
+
+## TypeScript
+
+Full TypeScript support with type inference:
 
 ```typescript
 import { createTemporal } from "@usetemporal/core";
 import { nativeAdapter } from "@usetemporal/adapter-native";
+import type { TemporalCore } from "@usetemporal/core";
 
+// Type is inferred
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
-  locale: "en-US",
+  weekStartsOn: 1,
 });
-```
 
-### With Reactive Refs
+// Explicit typing
+const typedTemporal: TemporalCore = createTemporal({
+  dateAdapter: nativeAdapter,
+});
 
-```typescript
-import { ref } from "vue";
+// With refs
+import { ref, type Ref } from "@vue/reactivity";
 
-const selectedDate = ref(new Date());
-const currentLocale = ref("en-US");
-
+const dateRef: Ref<Date> = ref(new Date());
 const temporal = createTemporal({
   dateAdapter: nativeAdapter,
-  date: selectedDate, // Will stay in sync
-  locale: currentLocale, // Formatting updates on change
+  date: dateRef, // Accepts Ref<Date>
 });
 ```
 
-### With Different Adapters
-
-```typescript
-// date-fns adapter
-import { dateFnsAdapter } from "@usetemporal/adapter-date-fns";
-
-const temporal = createTemporal({
-  dateAdapter: dateFnsAdapter,
-});
-
-// Luxon adapter
-import { luxonAdapter } from "@usetemporal/adapter-luxon";
-
-const temporal = createTemporal({
-  dateAdapter: luxonAdapter,
-});
-```
-
-### Framework Integration
-
-```typescript
-// Vue 3 Composition API
-export function useCalendar() {
-  const temporal = createTemporal({
-    dateAdapter: nativeAdapter,
-  });
-
-  const month = useMonth(temporal);
-  const days = temporal.divide(month, "day");
-
-  return {
-    temporal,
-    month,
-    days,
-  };
-}
-
-// React Hook
-export function useCalendar() {
-  const [temporal] = useState(() =>
-    createTemporal({ dateAdapter: nativeAdapter })
-  );
-
-  return temporal;
-}
-```
-
-## Type Definitions
+### Type Definitions
 
 ```typescript
 interface CreateTemporalOptions {
   dateAdapter: DateAdapter;
   date?: Date | Ref<Date>;
   now?: Date | Ref<Date>;
-  locale?: string | Ref<string>;
+  weekStartsOn?: number; // 0-6
 }
 
-interface Temporal {
+interface TemporalCore {
+  browsing: Ref<Date>;
   picked: Ref<Date>;
   now: Ref<Date>;
-  browsing: Ref<Date>;
   adapter: DateAdapter;
-  divide: (unit: TimeUnit, into: TimeUnitType) => TimeUnit[];
-  f: (date: Date, options?: Intl.DateTimeFormatOptions) => string;
+  weekStartsOn: number;
+  divide: (interval: TimeUnit, unit: DivideUnit) => TimeUnit[];
+  periods: Periods;
 }
 ```
 
 ## See Also
 
-- [divide()](/api/divide) - The revolutionary subdivision method
-- [Date Adapters](/guide/date-adapters) - Available adapter options
-- [Composables](/api/use-year) - Time unit composables
+- [divide() Method](/api/divide) - Learn about dividing time units
+- [periods Object](/api/periods) - Create time unit instances
+- [Date Adapters](/api/adapters) - Available date adapter options
+- [Time Unit Reference](/api/time-unit-reference) - Properties and methods of time units
+- [Getting Started Guide](/guide/getting-started) - Step-by-step tutorial

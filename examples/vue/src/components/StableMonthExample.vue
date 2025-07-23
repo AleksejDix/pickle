@@ -100,7 +100,7 @@ const weeks = computed(() => {
       return {
         date: day.raw.value.toISOString(),
         number: day.number.value,
-        isCurrentMonth: stableMonth.contains!(day.raw.value),
+        isCurrentMonth: stableMonth.contains(day.raw.value),
         isToday: day.isNow.value,
         isWeekend,
       }

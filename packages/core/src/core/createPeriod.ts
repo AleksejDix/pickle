@@ -107,13 +107,22 @@ export function createPeriod(
       }
     };
 
-    // Add contains method for stableMonth
-    const contains =
-      unitKind === "stableMonth"
-        ? (date: Date): boolean => {
-            return same(date, raw.value, "month", adapter);
-          }
-        : undefined;
+    // Universal contains method for all time units
+    const contains = (target: Date | TimeUnit): boolean => {
+      const targetDate = target instanceof Date ? target : target.raw.value;
+
+      if (unitKind === "stableMonth") {
+        // StableMonth has special behavior - only contains actual month days
+        return same(targetDate, raw.value, "month", adapter);
+      }
+
+      // For all other time units, check if target is within period boundaries
+      const startTime = start.value.getTime();
+      const endTime = end.value.getTime();
+      const targetTime = targetDate.getTime();
+
+      return targetTime >= startTime && targetTime <= endTime;
+    };
 
     const result: TimeUnit = {
       raw,
@@ -128,12 +137,13 @@ export function createPeriod(
       previous,
       go,
       isSame,
+      // Universal contains method
+      contains,
     };
 
-    // Add type identifier and contains method if it's a stableMonth
+    // Add type identifier for stableMonth
     if (unitKind === "stableMonth") {
       result._type = "stableMonth";
-      (result as any).contains = contains;
     }
 
     return result;

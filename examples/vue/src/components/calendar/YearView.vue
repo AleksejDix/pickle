@@ -91,7 +91,7 @@ function getMonthWeeks(month: TimeUnit) {
     const days = props.temporal.divide(week, 'day')
     return days.map((day) => ({
       day,
-      isCurrentMonth: stableMonth.contains!(day.raw.value),
+      isCurrentMonth: stableMonth.contains(day.raw.value),
       isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
     }))
   })

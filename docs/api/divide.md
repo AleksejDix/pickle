@@ -1,280 +1,372 @@
 # divide()
 
-The `divide()` method is the revolutionary pattern that sets useTemporal apart. It allows you to split any time unit into smaller units, creating perfectly synchronized, reactive sub-units.
+The revolutionary `divide()` method is the heart of useTemporal's unique time management pattern. It allows you to split any time unit into smaller units with perfect synchronization and consistency.
 
 ## Syntax
 
 ```typescript
-temporal.divide(unit: TimeUnit, division: TimeUnitType): TimeUnit[]
+temporal.divide(interval: TimeUnit, unit: DivideUnit): TimeUnit[]
 ```
 
 ## Parameters
 
-- **unit** `TimeUnit` - The time unit to divide (year, month, week, day, hour, minute, quarter)
-- **division** `TimeUnitType` - The type of units to divide into ('year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second' | 'quarter')
+### `interval`
 
-## Returns
+- **Type**: `TimeUnit`
+- **Description**: The time unit to divide. Can be any time unit created by the periods object (year, month, week, day, hour, minute, second, quarter, or stableMonth).
 
-`TimeUnit[]` - An array of reactive time units representing the divisions
+```javascript
+const month = temporal.periods.month(temporal);
+const year = temporal.periods.year(temporal);
+const week = temporal.periods.week(temporal);
+```
 
-## Description
+### `unit`
 
-The `divide()` method creates an array of smaller time units from a larger one. Each returned unit is fully reactive and synchronized with the parent unit. When the parent unit changes (through navigation), all divided units update automatically.
+- **Type**: `DivideUnit`
+- **Values**: `"year" | "quarter" | "month" | "week" | "day" | "hour" | "minute" | "second"`
+- **Description**: The type of units to divide into. Must be smaller than the interval unit.
+
+## Return Value
+
+Returns an array of `TimeUnit` objects representing the divisions of the interval. Each unit in the array:
+
+- Has all standard time unit properties (start, end, isNow, etc.)
+- Is reactive and updates automatically
+- Can be further divided into smaller units
+
+## Division Rules
+
+### Valid Divisions
+
+The following divisions are supported:
+
+| From | To | Example Result |
+|------|----|----||
+| year | quarter | 4 quarters |
+| year | month | 12 months |
+| year | week | 52-53 weeks |
+| year | day | 365-366 days |
+| quarter | month | 3 months |
+| quarter | week | ~13 weeks |
+| quarter | day | ~90 days |
+| month | week | 4-6 weeks |
+| month | day | 28-31 days |
+| week | day | 7 days |
+| day | hour | 24 hours |
+| hour | minute | 60 minutes |
+| minute | second | 60 seconds |
+
+### Special Case: StableMonth
+
+The `stableMonth` unit has special division behavior:
+
+```javascript
+const stableMonth = temporal.periods.stableMonth(temporal);
+
+// Always returns exactly 42 days (6 weeks)
+const days = temporal.divide(stableMonth, "day");
+console.log(days.length); // 42
+
+// Always returns exactly 6 weeks
+const weeks = temporal.divide(stableMonth, "week");
+console.log(weeks.length); // 6
+```
 
 ## Examples
 
 ### Basic Division
 
-```typescript
-const temporal = createTemporal();
-const year = useYear(temporal);
+```javascript
+// Divide a month into days
+const month = temporal.periods.month(temporal);
+const days = temporal.divide(month, "day");
 
-// Divide year into months
-const months = temporal.divide(year, "month");
-console.log(months.length); // 12
-
-// Each month is a full TimeUnit
-months.forEach((month) => {
-  console.log(month.name.value); // "January", "February", etc.
-  console.log(month.number.value); // 1, 2, 3, ... 12
+days.forEach((day) => {
+  console.log(`${day.number} - ${day.name}`);
 });
+// Output: "1 - Thursday", "2 - Friday", etc.
 ```
 
 ### Nested Division
 
-```typescript
-const temporal = createTemporal();
-const year = useYear(temporal);
+```javascript
+// Get all hours in a week
+const week = temporal.periods.week(temporal);
+const days = temporal.divide(week, "day");
 
-// Divide year into months
-const months = temporal.divide(year, "month");
+const allHours = days.flatMap((day) => temporal.divide(day, "hour"));
 
-// Divide first month into days
-const januaryDays = temporal.divide(months[0], "day");
-console.log(januaryDays.length); // 31 (for January)
-
-// Divide a day into hours
-const firstDayHours = temporal.divide(januaryDays[0], "hour");
-console.log(firstDayHours.length); // 24
+console.log(allHours.length); // 168 (7 * 24)
 ```
 
-### Dynamic Updates
+### Calendar Grid Creation
 
-```typescript
-const temporal = createTemporal();
-const month = useMonth(temporal);
+```javascript
+// Create a perfect 6-week calendar grid
+const stableMonth = temporal.periods.stableMonth(temporal);
+const calendarDays = temporal.divide(stableMonth, "day");
 
-// Divide current month into days
+// Group into weeks for display
+const weeks = [];
+for (let i = 0; i < calendarDays.length; i += 7) {
+  weeks.push(calendarDays.slice(i, i + 7));
+}
+
+// weeks is now a 6x7 grid perfect for calendar UI
+```
+
+### Business Days Calculation
+
+```javascript
+const month = temporal.periods.month(temporal);
 const days = temporal.divide(month, "day");
-console.log(days.length); // 31 (if current month has 31 days)
 
-// Navigate to February
-month.past(); // or month.future() depending on current month
+const businessDays = days.filter((day) => day.isWeekday);
+const weekends = days.filter((day) => day.isWeekend);
 
-// Days array automatically updates!
-console.log(days.length); // 28 or 29 (February)
+console.log(`Business days: ${businessDays.length}`);
+console.log(`Weekend days: ${weekends.length}`);
 ```
 
-### Week Division
+### Time Slots Generation
 
-```typescript
-const temporal = createTemporal();
-const month = useMonth(temporal);
-
-// Divide month into weeks
-const weeks = temporal.divide(month, "week");
-
-// Note: Weeks may span month boundaries
-weeks.forEach((week, index) => {
-  console.log(`Week ${index + 1}: ${week.name.value}`);
-
-  // Get days in this week
-  const days = temporal.divide(week, "day");
-  console.log(`  Days: ${days.length}`); // Always 7
-});
-```
-
-### Time Slots
-
-```typescript
-const temporal = createTemporal();
-const day = useDay(temporal);
-
-// Create hourly time slots
+```javascript
+// Generate hourly appointment slots for a day
+const day = temporal.periods.day(temporal);
 const hours = temporal.divide(day, "hour");
 
-// Create 30-minute slots
-const timeSlots = [];
-hours.forEach((hour) => {
-  const minutes = temporal.divide(hour, "minute");
-  timeSlots.push(minutes[0]); // :00
-  timeSlots.push(minutes[30]); // :30
-});
+const appointmentSlots = hours
+  .filter((hour) => hour.number >= 9 && hour.number < 17) // 9 AM to 5 PM
+  .map((hour) => ({
+    time: hour.start,
+    label: `${hour.hour12}:00 ${hour.isPM ? "PM" : "AM"}`,
+    available: !isBooked(hour.start),
+  }));
 ```
 
-## Valid Divisions
+### Year Overview
 
-Not all divisions make logical sense. Here are the valid combinations:
-
-| Parent Unit | Can Divide Into                                 |
-| ----------- | ----------------------------------------------- |
-| year        | quarter, month, week, day, hour, minute, second |
-| quarter     | month, week, day, hour, minute, second          |
-| month       | week, day, hour, minute, second                 |
-| week        | day, hour, minute, second                       |
-| day         | hour, minute, second                            |
-| hour        | minute, second                                  |
-| minute      | second                                          |
-
-## Reactive Behavior
-
-All divided units are reactive and stay synchronized:
-
-```typescript
-const temporal = createTemporal();
-const year = useYear(temporal);
+```javascript
+// Get all months in a year with their day counts
+const year = temporal.periods.year(temporal);
 const months = temporal.divide(year, "month");
 
-// Set up reactive tracking
-watchEffect(() => {
-  console.log(`Current year: ${year.number.value}`);
-  console.log(`First month: ${months[0].name.value}`);
-});
+const monthOverview = months.map((month) => ({
+  name: month.name,
+  days: month.days,
+  weeks: temporal.divide(month, "week").length,
+  firstDay: temporal.divide(month, "day")[0].name,
+}));
+```
 
-// Navigate to next year
-year.future();
-// Output:
-// Current year: 2025
-// First month: January
-// (Both values update automatically)
+## Reactive Updates
+
+All divided units maintain reactivity:
+
+```javascript
+import { watch } from "@vue/reactivity";
+
+const month = temporal.periods.month(temporal);
+const days = temporal.divide(month, "day");
+
+// Watch for the current day
+watch(
+  () => days.map((d) => d.isNow),
+  (nowStates) => {
+    const todayIndex = nowStates.findIndex((isNow) => isNow);
+    if (todayIndex !== -1) {
+      console.log(`Today is day ${todayIndex + 1} of the month`);
+    }
+  }
+);
 ```
 
 ## Performance Considerations
 
-### Lazy Evaluation
+### Efficient Division
 
-Divided units are created lazily and cached:
+```javascript
+// ❌ Inefficient: Creating many small units at once
+const year = temporal.periods.year(temporal);
+const allMinutes = temporal.divide(year, "minute"); // 525,600 objects!
 
-```typescript
-const temporal = createTemporal();
-const year = useYear(temporal);
+// ✅ Better: Divide progressively as needed
+const month = temporal.periods.month(temporal);
+const days = temporal.divide(month, "day");
 
-// Division happens here
-const months = temporal.divide(year, "month");
-
-// Subsequent calls return cached result
-const monthsAgain = temporal.divide(year, "month");
-console.log(months === monthsAgain); // true
+// Then divide specific days only when needed
+const todayHours = temporal.divide(days[14], "hour");
 ```
 
-### Memory Management
+### Caching Results
 
-Be mindful when creating many divisions:
+```javascript
+// Cache expensive divisions
+const monthDaysCache = new Map();
 
-```typescript
-// Good - divide only what you need
-const day = useDay(temporal);
-const workingHours = temporal.divide(day, "hour").slice(9, 17);
-
-// Avoid - creating unnecessary divisions
-const year = useYear(temporal);
-const allHours = temporal.divide(year, "hour"); // 8,760 hours!
-```
-
-## Use Cases
-
-### Calendar Grid
-
-```typescript
-function createCalendarGrid(temporal) {
-  const month = useMonth(temporal);
-  const weeks = temporal.divide(month, "week");
-
-  return weeks.map((week) => {
-    const days = temporal.divide(week, "day");
-    return days.map((day) => ({
-      number: day.number.value,
-      inCurrentMonth: day.start.value.getMonth() === month.number.value - 1,
-    }));
-  });
+function getMonthDays(monthKey) {
+  if (!monthDaysCache.has(monthKey)) {
+    const month = temporal.periods.month(temporal);
+    monthDaysCache.set(monthKey, temporal.divide(month, "day"));
+  }
+  return monthDaysCache.get(monthKey);
 }
 ```
 
-### Schedule Builder
+### Using Generators for Large Sets
 
-```typescript
-function createDailySchedule(temporal) {
-  const day = useDay(temporal);
-  const hours = temporal.divide(day, "hour");
+```javascript
+// Generator for memory-efficient iteration
+function* generateYearMinutes(year) {
+  const months = temporal.divide(year, "month");
 
-  // Business hours only (9 AM - 5 PM)
-  return hours.slice(9, 17).map((hour) => ({
-    time: hour.name.value,
-    slots: temporal
-      .divide(hour, "minute")
-      .filter((_, index) => index % 15 === 0), // 15-minute slots
-  }));
+  for (const month of months) {
+    const days = temporal.divide(month, "day");
+
+    for (const day of days) {
+      const hours = temporal.divide(day, "hour");
+
+      for (const hour of hours) {
+        const minutes = temporal.divide(hour, "minute");
+        yield* minutes;
+      }
+    }
+  }
+}
+
+// Use generator instead of creating all at once
+const year = temporal.periods.year(temporal);
+for (const minute of generateYearMinutes(year)) {
+  if (shouldProcess(minute)) {
+    processMinute(minute);
+  }
 }
 ```
 
-### Time Range Selector
+## Error Handling
 
-```typescript
-function createTimeRanges(temporal, startHour, endHour) {
-  const day = useDay(temporal);
-  const hours = temporal.divide(day, "hour");
+The divide method will throw errors for invalid operations:
 
-  return hours.slice(startHour, endHour).map((hour) => ({
-    value: hour.number.value,
-    label: hour.name.value,
-    minutes: temporal
-      .divide(hour, "minute")
-      .filter((_, i) => i === 0 || i === 30), // :00 and :30 only
-  }));
+```javascript
+try {
+  // Cannot divide by a larger unit
+  const day = temporal.periods.day(temporal);
+  const months = temporal.divide(day, "month"); // Error!
+} catch (error) {
+  console.error("Invalid division");
+}
+
+try {
+  // Cannot divide by stableMonth
+  const year = temporal.periods.year(temporal);
+  const stableMonths = temporal.divide(year, "stableMonth"); // Error!
+} catch (error) {
+  console.error("Cannot divide by stableMonth");
+}
+
+try {
+  // StableMonth can only be divided by day or week
+  const stableMonth = temporal.periods.stableMonth(temporal);
+  const hours = temporal.divide(stableMonth, "hour"); // Error!
+} catch (error) {
+  console.error("Invalid stableMonth division");
 }
 ```
 
 ## TypeScript
 
-The divide method is fully typed:
+Full type safety with TypeScript:
 
 ```typescript
-import type { Temporal, TimeUnit } from "usetemporal";
+import type { TimeUnit, DivideUnit } from "@usetemporal/core";
 
-const temporal: Temporal = createTemporal();
-const year: TimeUnit = useYear(temporal);
+// Type-safe division
+const month: TimeUnit = temporal.periods.month(temporal);
+const days: TimeUnit[] = temporal.divide(month, "day");
 
-// TypeScript knows this returns TimeUnit[]
-const months: TimeUnit[] = temporal.divide(year, "month");
+// Type error: invalid unit
+// const invalid = temporal.divide(month, "invalid"); // Type error
 
-// Type-safe division types
-temporal.divide(year, "month"); // ✅ Valid
-temporal.divide(year, "invalid"); // ❌ Type error
-temporal.divide(minute, "hour"); // ❌ Logic error (caught at runtime)
-```
+// Helper function with types
+function getDaysInPeriod(period: TimeUnit): TimeUnit[] {
+  return temporal.divide(period, "day");
+}
 
-## Error Handling
-
-Invalid divisions throw errors:
-
-```typescript
-try {
-  const minute = useMinute(temporal);
-  temporal.divide(minute, "hour"); // Can't divide minute into hours
-} catch (error) {
-  console.error("Invalid division:", error.message);
+// Generic division function
+function divideAndFilter<T extends TimeUnit>(
+  interval: T,
+  unit: DivideUnit,
+  predicate: (unit: TimeUnit) => boolean
+): TimeUnit[] {
+  return temporal.divide(interval, unit).filter(predicate);
 }
 ```
 
-## Best Practices
+## Common Patterns
 
-1. **Cache Divisions**: Store divided units if used multiple times
-2. **Limit Scope**: Only divide the time range you need
-3. **Watch Parent Changes**: Divided units update when parent changes
-4. **Clean Up**: Unsubscribe from reactive watchers when done
+### Calendar Display
 
-## Related
+```javascript
+// Standard month calendar
+const month = temporal.periods.month(temporal);
+const monthDays = temporal.divide(month, "day");
 
-- [Reactive Time Units](/guide/reactive-time-units) - Understanding reactive behavior
-- [useYear()](/api/use-year), [useMonth()](/api/use-month), etc. - Time unit composables
-- [Examples](/examples/basic-usage) - Real-world usage patterns
+// Full 6-week calendar grid
+const stableMonth = temporal.periods.stableMonth(temporal);
+const gridDays = temporal.divide(stableMonth, "day");
+
+// Mark days from current month
+const markedDays = gridDays.map((day) => ({
+  ...day,
+  isCurrentMonth: day.month === month.number,
+}));
+```
+
+### Time Range Selection
+
+```javascript
+// Get time slots between two dates
+function getTimeSlots(startDate, endDate, slotDuration = "hour") {
+  const slots = [];
+  let current = startDate;
+
+  while (current < endDate) {
+    const period = temporal.periods[slotDuration](temporal, { date: current });
+    slots.push(period);
+    current = period.end;
+  }
+
+  return slots;
+}
+```
+
+### Statistical Analysis
+
+```javascript
+// Analyze time distribution
+const year = temporal.periods.year(temporal);
+const months = temporal.divide(year, "month");
+
+const stats = months.map((month) => {
+  const days = temporal.divide(month, "day");
+  const weekdays = days.filter((d) => d.isWeekday);
+  const weekends = days.filter((d) => d.isWeekend);
+
+  return {
+    month: month.name,
+    totalDays: days.length,
+    weekdays: weekdays.length,
+    weekends: weekends.length,
+    ratio: weekdays.length / weekends.length,
+  };
+});
+```
+
+## See Also
+
+- [createTemporal](/api/create-temporal) - Create a temporal instance
+- [periods Object](/api/periods) - Create time units to divide
+- [Time Unit Reference](/api/time-unit-reference) - Properties of divided units
+- [Performance Guide](/guide/performance) - Optimization strategies
+- [Advanced Patterns](/guide/advanced-patterns) - Complex division examples

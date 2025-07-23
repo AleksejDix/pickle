@@ -83,6 +83,40 @@ const isCurrentMonth = stableMonth.contains(day.raw.value);
 - Creates professional calendar UIs with minimal code
 - Perfect for Apple Calendar-style interfaces
 
+### 4. Universal Contains Method
+
+**Completed**: 2025-01-23
+
+Added `contains` method to all time units for checking if a date or time unit falls within boundaries:
+
+```typescript
+// Check if units contain other units
+year.contains(month); // true if month is in this year
+month.contains(day); // true if day is in this month
+week.contains(hour); // true if hour is in this week
+
+// Check with Date objects
+month.contains(new Date(2024, 5, 15)); // true/false
+
+// Perfect for filtering
+const monthEvents = events.filter((event) => month.contains(event.date));
+const weekTasks = tasks.filter((task) => week.contains(task.dueDate));
+```
+
+**Special Features**:
+
+- Works with both Date objects and TimeUnit instances
+- StableMonth has special behavior (only returns true for actual month days)
+- Respects timezone handling through adapters
+- Optimized for performance with simple timestamp comparisons
+
+**Impact**:
+
+- Eliminates manual date comparison logic
+- Makes filtering and boundary checking intuitive
+- Enables clean calendar highlighting
+- Simplifies event/task filtering by time period
+
 ## Implementation Quality
 
 ### Test Coverage
@@ -102,7 +136,8 @@ const isCurrentMonth = stableMonth.contains(day.raw.value);
 - Navigation methods: ~200 bytes
 - weekStartsOn: ~100 bytes
 - stableMonth: ~500 bytes
-- Total impact: < 1KB gzipped
+- contains method: ~150 bytes
+- Total impact: ~1KB gzipped
 
 ### Backward Compatibility
 

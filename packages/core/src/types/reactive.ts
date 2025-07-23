@@ -25,8 +25,8 @@ export interface TimeUnit {
   // Optional type identifier for special units
   _type?: string;
 
-  // Optional contains method for stableMonth
-  contains?: (date: Date) => boolean;
+  // Contains method - check if a date or time unit is within this time unit
+  contains: (target: Date | TimeUnit) => boolean;
 }
 
 // Framework-agnostic Composable Options
