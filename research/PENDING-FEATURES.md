@@ -2,9 +2,37 @@
 
 ## Overview
 
-This document tracks features that are approved but not yet implemented, based on the API Decision Matrix scoring.
+This document tracks features that are approved but not yet implemented, based on the API Decision Matrix scoring and usage analysis.
 
-## 📋 High Priority Features (Score > 60/70)
+## 📋 High Priority Features (Based on Usage Analysis)
+
+### NEW: Formatted Output Properties
+
+**Problem**: Developers repeatedly format dates manually
+```typescript
+month.raw.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+```
+
+**Solution**: Add formatted properties
+```typescript
+month.formatted.long  // "January 2024"
+day.formatted.short   // "Mon, Jan 15"
+```
+
+### NEW: Calendar Grid Generation
+
+**Problem**: Complex calendar grid logic repeated everywhere
+```typescript
+// 10+ lines of code to generate calendar grid
+```
+
+**Solution**: Built-in utility
+```typescript
+const grid = temporal.createCalendarGrid(month)
+// Returns weeks with days, all metadata included
+```
+
+## 📋 Previously Approved Features (Score > 60/70)
 
 ### 1. Type-Safe Unit Constants (Score: 65/70)
 
@@ -99,29 +127,35 @@ const daysInMonth = days(month);
 
 ## Implementation Plan
 
-### Phase 1: Type Constants (1 day)
+### Phase 1: Formatted Output Properties (2 days)
+- Add formatted computed property to all time units
+- Support multiple format options (long, short, numeric, etc.)
+- Locale support through options
 
+### Phase 2: Calendar Grid Generation (2 days)
+- Create createCalendarGrid utility
+- Include all metadata (isWeekend, isToday, isCurrentMonth)
+- Support for stableMonth integration
+
+### Phase 3: Type Constants (1 day)
 - Simple constants object
 - TypeScript const assertion
 - Update all examples
 
-### Phase 2: Utility Functions (2 days)
-
-- Implement goto, select, today
-- Consider additional utilities based on usage
+### Phase 4: Utility Functions (2 days)
+- Basic utilities (isWeekend, isToday, etc.)
+- Navigation helpers (goto, select, today)
 - Comprehensive test coverage
 
-### Phase 3: Standalone Divide (2 days)
-
+### Phase 5: Standalone Divide (2 days)
 - Extract divide logic
 - Create convenience wrappers
 - Update documentation
 
 ## Notes
 
-All pending features:
-
-- Follow Vue.js philosophy (small, focused functions)
-- Are tree-shakable
-- Are non-breaking additions
-- Have high scores (>60/70) in the decision matrix
+Based on real usage analysis from examples:
+- Formatted properties and calendar grid are the highest impact improvements
+- These features would reduce component code by 50-70%
+- All features are non-breaking additions
+- Focus on developer experience and reducing boilerplate

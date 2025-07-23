@@ -1,10 +1,11 @@
 # Current Status
 
-## ✅ Completed Features (3)
+## ✅ Completed Features (4)
 
 1. **Navigation API** - `next()`, `previous()`, `go(n)`
 2. **International Week Support** - `weekStartsOn` configuration (default: Monday)
 3. **StableMonth Unit** - 6-week calendar grid for consistent UIs
+4. **Universal Contains Method** - Check if dates/units fall within boundaries
 
 ## 📋 Pending Features (3)
 
