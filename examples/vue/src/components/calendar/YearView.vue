@@ -47,7 +47,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { TemporalCore, TimeUnit } from 'usetemporal'
-import { useYear } from 'usetemporal'
+import { periods } from 'usetemporal'
 
 const props = defineProps<{
   temporal: TemporalCore
@@ -58,7 +58,7 @@ const emit = defineEmits<{
   selectMonth: [month: TimeUnit]
 }>()
 
-const year = useYear(props.temporal)
+const year = periods.year(props.temporal)
 const months = computed(() => props.temporal.divide(year, 'month'))
 
 const weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S']

@@ -53,14 +53,14 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import type { TemporalCore, TimeUnit } from 'usetemporal'
-import { useWeek } from 'usetemporal'
+import { periods } from 'usetemporal'
 
 const props = defineProps<{
   temporal: TemporalCore
   initialWeek?: TimeUnit
 }>()
 
-const week = props.initialWeek ? props.initialWeek : useWeek(props.temporal)
+const week = props.initialWeek ? props.initialWeek : periods.week(props.temporal)
 const days = computed(() => props.temporal.divide(week, 'day'))
 
 const currentTime = ref(new Date())

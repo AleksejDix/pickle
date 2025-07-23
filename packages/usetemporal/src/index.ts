@@ -6,14 +6,14 @@ export { NativeDateAdapter as DateAdapter } from "@usetemporal/adapter-native";
 import { NativeDateAdapter } from "@usetemporal/adapter-native";
 import { createTemporal as createTemporalCore } from "@usetemporal/core";
 import type {
-  ReactiveCreateTemporalOptions,
+  CreateTemporalOptions,
   TemporalCore,
 } from "@usetemporal/core";
 
 // Convenience function that uses native adapter by default
 export function createTemporal(
-  options: Omit<ReactiveCreateTemporalOptions, "dateAdapter"> & {
-    dateAdapter?: ReactiveCreateTemporalOptions["dateAdapter"];
+  options: Omit<CreateTemporalOptions, "dateAdapter"> & {
+    dateAdapter?: CreateTemporalOptions["dateAdapter"];
   } = {}
 ): TemporalCore {
   return createTemporalCore({

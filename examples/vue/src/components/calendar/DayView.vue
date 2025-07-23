@@ -39,14 +39,14 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref } from 'vue'
 import type { TemporalCore, TimeUnit } from 'usetemporal'
-import { useDay } from 'usetemporal'
+import { periods } from 'usetemporal'
 
 const props = defineProps<{
   temporal: TemporalCore
   initialDay?: TimeUnit
 }>()
 
-const day = props.initialDay ? props.initialDay : useDay(props.temporal)
+const day = props.initialDay ? props.initialDay : periods.day(props.temporal)
 const hours = computed(() => props.temporal.divide(day, 'hour'))
 
 const currentTime = ref(new Date())

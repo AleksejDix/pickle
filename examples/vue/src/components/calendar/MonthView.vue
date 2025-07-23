@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import type { TemporalCore, TimeUnit } from 'usetemporal'
-import { useMonth } from 'usetemporal'
+import { periods } from 'usetemporal'
 
 const props = defineProps<{
   temporal: TemporalCore
@@ -53,7 +53,7 @@ const emit = defineEmits<{
   selectDay: [day: TimeUnit]
 }>()
 
-const month = props.initialMonth ? props.initialMonth : useMonth(props.temporal)
+const month = props.initialMonth ? props.initialMonth : periods.month(props.temporal)
 const days = computed(() => props.temporal.divide(month, 'day'))
 const selectedDay = ref<TimeUnit | null>(null)
 

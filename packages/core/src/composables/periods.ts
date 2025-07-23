@@ -24,12 +24,3 @@ export const periods = {
   }),
 };
 
-// Export individual functions for backward compatibility
-export const useYear = periods.year;
-export const useMonth = periods.month;
-export const useWeek = periods.week;
-export const useDay = periods.day;
-export const useHour = periods.hour;
-export const useMinute = periods.minute;
-export const useSecond = periods.second;
-export const useQuarter = periods.quarter;

@@ -76,7 +76,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { createTemporal, useYear, useMonth, useWeek, useDay, type TimeUnit } from 'usetemporal'
+import { createTemporal, periods, type TimeUnit } from 'usetemporal'
 import YearView from './YearView.vue'
 import MonthView from './MonthView.vue'
 import WeekView from './WeekView.vue'
@@ -87,10 +87,10 @@ type ViewType = 'year' | 'month' | 'week' | 'day'
 const temporal = createTemporal()
 
 const currentView = ref<ViewType>('month')
-const year = useYear(temporal)
-const month = useMonth(temporal)
-const week = useWeek(temporal)
-const day = useDay(temporal)
+const year = periods.year(temporal)
+const month = periods.month(temporal)
+const week = periods.week(temporal)
+const day = periods.day(temporal)
 
 const currentYear = ref(year)
 const currentMonth = ref(month)
@@ -139,10 +139,10 @@ function switchView(view: ViewType) {
 }
 
 function goToToday() {
-  currentYear.value = useYear(temporal)
-  currentMonth.value = useMonth(temporal)
-  currentWeek.value = useWeek(temporal)
-  currentDay.value = useDay(temporal)
+  currentYear.value = periods.year(temporal)
+  currentMonth.value = periods.month(temporal)
+  currentWeek.value = periods.week(temporal)
+  currentDay.value = periods.day(temporal)
 }
 
 function navigatePrevious() {
@@ -180,12 +180,12 @@ function navigateNext() {
 }
 
 function handleMonthSelect(month: TimeUnit) {
-  currentMonth.value = useMonth(temporal, month.raw.value)
+  currentMonth.value = periods.month(temporal, month.raw.value)
   currentView.value = 'month'
 }
 
 function handleDaySelect(day: TimeUnit) {
-  currentDay.value = useDay(temporal, day.raw.value)
+  currentDay.value = periods.day(temporal, day.raw.value)
   currentView.value = 'day'
 }
 </script>

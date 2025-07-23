@@ -269,15 +269,15 @@ describe("createTemporal", () => {
 
   describe("Composables Integration", () => {
     it("should test useYear composable", async () => {
-      const { default: useYear } = await import(
-        "../../src/composables/useYear"
+      const { periods } = await import(
+        "../../src/composables/periods"
       );
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15),
       });
 
-      const year = useYear({
+      const year = periods.year({
         now: temporal.now,
         browsing: temporal.browsing,
         adapter: temporal.adapter,
@@ -299,15 +299,15 @@ describe("createTemporal", () => {
     });
 
     it("should test useMonth composable", async () => {
-      const { default: useMonth } = await import(
-        "../../src/composables/useMonth"
+      const { periods } = await import(
+        "../../src/composables/periods"
       );
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15),
       });
 
-      const month = useMonth({
+      const month = periods.month({
         now: temporal.now,
         browsing: temporal.browsing,
         adapter: temporal.adapter,
@@ -326,15 +326,15 @@ describe("createTemporal", () => {
     });
 
     it("should test useWeek composable", async () => {
-      const { default: useWeek } = await import(
-        "../../src/composables/useWeek"
+      const { periods } = await import(
+        "../../src/composables/periods"
       );
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15),
       }); // Saturday
 
-      const week = useWeek({
+      const week = periods.week({
         now: temporal.now,
         browsing: temporal.browsing,
         adapter: temporal.adapter,
@@ -354,13 +354,13 @@ describe("createTemporal", () => {
     });
 
     it("should test useDay composable", async () => {
-      const { default: useDay } = await import("../../src/composables/useDay");
+      const { periods } = await import("../../src/composables/periods");
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15),
       });
 
-      const day = useDay({
+      const day = periods.day({
         now: temporal.now,
         browsing: temporal.browsing,
         adapter: temporal.adapter,
@@ -378,15 +378,15 @@ describe("createTemporal", () => {
     });
 
     it("should test useHour composable", async () => {
-      const { default: useHour } = await import(
-        "../../src/composables/useHour"
+      const { periods } = await import(
+        "../../src/composables/periods"
       );
       const temporal = createTemporal({
         dateAdapter: mockAdapter,
         date: createTestDate(2024, 5, 15, 14, 30),
       });
 
-      const hour = useHour({
+      const hour = periods.hour({
         now: temporal.now,
         browsing: temporal.browsing,
         adapter: temporal.adapter,
@@ -414,9 +414,9 @@ describe("createTemporal", () => {
     /*
     it("should divide year into months", async () => {
       const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 0, 15) });
-      const { default: useYear } = await import("../../src/composables/useYear");
+      const { periods } = await import("../../src/composables/periods");
       
-      const year = useYear({
+      const year = periods.year({
         now: temporal.now,
         browsing: temporal.browsing,
         adapter: temporal.adapter
@@ -433,9 +433,9 @@ describe("createTemporal", () => {
 
     it("should divide month into days", async () => {
       const temporal = createTemporal({ dateAdapter: mockAdapter, date: createTestDate(2024, 0, 15) });
-      const { default: useMonth } = await import("../../src/composables/useMonth");
+      const { periods } = await import("../../src/composables/periods");
       
-      const month = useMonth({
+      const month = periods.month({
         now: temporal.now,
         browsing: temporal.browsing,
         adapter: temporal.adapter

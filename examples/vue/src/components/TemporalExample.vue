@@ -61,7 +61,7 @@
 import { ref, computed } from 'vue'
 import {
   createTemporal,
-  useYear,
+  periods,
   type TemporalCore,
   type TimeUnit,
 } from 'usetemporal'
@@ -75,7 +75,7 @@ const selectedAdapter = ref('native')
 const temporal = ref<TemporalCore>(createTemporal())
 
 // Create composables
-const year = useYear(temporal.value)
+const year = periods.year(temporal.value)
 const months = computed(() => temporal.value.divide(year, 'month'))
 const selectedMonth = ref<TimeUnit | null>(months.value[new Date().getMonth()])
 const days = computed(() =>
