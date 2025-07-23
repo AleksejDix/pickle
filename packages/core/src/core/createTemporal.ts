@@ -37,7 +37,7 @@ export function createTemporal(
     const dates = adapter.eachInterval(
       timespan.start,
       timespan.end,
-      unit as any
+      unit
     );
 
     const results: TimeUnit[] = [];
@@ -61,11 +61,3 @@ export function createTemporal(
   return { browsing, picked, now, adapter, divide };
 }
 
-// Temporarily disabled due to circular dependency
-// TODO: Fix circular dependency between createTemporal and composables
-/*
-function getComposableForUnit(unit: TimeUnitKind) {
-  // Implementation removed to avoid circular dependency
-  return null;
-}
-*/
