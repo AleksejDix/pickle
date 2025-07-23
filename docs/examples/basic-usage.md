@@ -88,26 +88,60 @@ hours.forEach(hour => {
 })
 ```
 
-## Fiscal Year Calendar
+## Minute-Level Precision
 
 ```typescript
-// Create temporal with fiscal year starting in April
+const temporal = createTemporal({ dateAdapter: nativeAdapter })
+const minute = useMinute(temporal)
+
+console.log(minute.name.value)   // "3:45 PM"
+console.log(minute.number.value) // 45
+
+// Navigate by minutes
+minute.future() // Next minute
+minute.past()   // Previous minute
+
+// Get all minutes in an hour
+const hour = useHour(temporal)
+const minutes = temporal.divide(hour, 'minute') // 60 minutes
+```
+
+## Second-Level Precision
+
+```typescript
+const temporal = createTemporal({ dateAdapter: nativeAdapter })
+const second = useSecond(temporal)
+
+console.log(second.name.value)   // "3:45:30 PM"
+console.log(second.number.value) // 30
+
+// Navigate by seconds
+second.future() // Next second
+second.past()   // Previous second
+
+// Perfect for stopwatches or precise timing
+const minute = useMinute(temporal)
+const seconds = temporal.divide(minute, 'second') // 60 seconds
+```
+
+## Quarterly Calendar
+
+```typescript
+// Create temporal instance
 const temporal = createTemporal({ 
-  dateAdapter: nativeAdapter,
-  fiscalYearStart: 3 // April (0-indexed)
+  dateAdapter: nativeAdapter
 })
 
-const year = useYear(temporal)
-console.log(`Fiscal Year ${year.name.value}`)
+const quarter = useQuarter(temporal)
+console.log(`Current Quarter: ${quarter.name.value}`)
 
-// Get fiscal quarters
-const months = temporal.divide(year, 'month')
-const quarters = [
-  { name: 'Q1', months: months.slice(0, 3) },
-  { name: 'Q2', months: months.slice(3, 6) },
-  { name: 'Q3', months: months.slice(6, 9) },
-  { name: 'Q4', months: months.slice(9, 12) }
-]
+// Navigate quarters
+quarter.future() // Next quarter
+quarter.past()   // Previous quarter
+
+// Get all quarters in a year
+const year = useYear(temporal)
+const quarters = temporal.divide(year, 'quarter')
 ```
 
 ## Multi-Language Support

@@ -351,6 +351,16 @@ export class TemporalAdapter implements DateAdapter {
     return (jsDayOfWeek - weekStartsOn + 7) % 7;
   }
 
+  getWeekOfYear(date: Date, _options?: WeekOptions): number {
+    const temporal = this.temporal;
+    const instant = temporal.Instant.fromEpochMilliseconds(date.getTime());
+    const zonedDateTime = instant.toZonedDateTimeISO(temporal.Now.timeZone());
+    const plainDate = zonedDateTime.toPlainDate();
+    
+    // Temporal API provides weekOfYear property
+    return plainDate.weekOfYear;
+  }
+
   isWeekend(date: Date): boolean {
     const temporal = this.temporal;
     const instant = temporal.Instant.fromEpochMilliseconds(date.getTime());

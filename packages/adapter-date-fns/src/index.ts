@@ -199,6 +199,13 @@ export class DateFnsAdapter implements DateAdapter {
     return (dayOfWeek - weekStartsOn + 7) % 7;
   }
 
+  getWeekOfYear(date: Date, options?: WeekOptions): number {
+    const { getWeek } = this.dateFns;
+    return getWeek(date, {
+      weekStartsOn: options?.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6 | undefined
+    });
+  }
+
   isWeekend(date: Date): boolean {
     const { isWeekend } = this.dateFns;
     return isWeekend(date);

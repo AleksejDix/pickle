@@ -57,18 +57,17 @@ year.future()   // Next year
 day.past()      // Yesterday
 ```
 
-### 6. **Fiscal Year Support**
-Comprehensive fiscal year configurations:
+### 6. **Quarter Support**
+Built-in quarter management:
 
 ```typescript
-// US Federal (October start)
-createTemporal({ fiscalYearStart: 9 })
+const quarter = useQuarter(temporal)
+quarter.name.value    // "Q1 2024"
+quarter.number.value  // 1-4
 
-// UK/India (April start)
-createTemporal({ fiscalYearStart: 3 })
-
-// Custom fiscal year
-createTemporal({ fiscalYearStart: 6 }) // July
+// Navigate by quarters
+quarter.future()  // Next quarter
+quarter.past()    // Previous quarter
 ```
 
 ### 7. **Internationalization (i18n)**
@@ -99,6 +98,9 @@ import { nativeAdapter } from '@usetemporal/adapter-native'
 - `useWeek()` - Week management
 - `useDay()` - Day management
 - `useHour()` - Hour management
+- `useQuarter()` - Quarter management
+- `useMinute()` - Minute management
+- `useSecond()` - Second management
 
 Each composable provides:
 ```typescript
@@ -235,7 +237,7 @@ Automatic cleanup when subdivisions are no longer referenced
 1. **Only library with divide() pattern** - No other JS library offers this
 2. **True framework agnostic** - Not tied to any specific framework
 3. **Flexible adapter system** - Use any date library or none
-4. **Built-in fiscal year support** - Not an afterthought
+4. **Built-in quarter support** - Navigate by business quarters
 5. **Reactive by default** - Perfect for modern UIs
 6. **Zero dependencies possible** - Unique in date library space
 
@@ -248,6 +250,6 @@ Perfect for:
 - Gantt charts
 - Scheduling interfaces
 - Time tracking apps
-- Financial applications (fiscal years)
+- Financial applications (quarters)
 - International applications (i18n)
 - Any application dealing with hierarchical time

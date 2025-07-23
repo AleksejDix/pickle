@@ -23,13 +23,13 @@ export type TimeUnitType =
   | "century"
   | "decade"
   | "year"
-  | "yearQuarter"
+  | "quarter"
   | "month"
   | "week"
   | "day"
   | "hour"
-  | "hourQuarter"
-  | "minute";
+  | "minute"
+  | "second";
 
 // Function Type Definitions - Framework Agnostic
 export type DateFormatter = (
@@ -94,5 +94,6 @@ export interface DateAdapter {
   isAfter(date1: Date, date2: Date): boolean;
   eachInterval(start: Date, end: Date, unit: TimeUnitName): Date[];
   getWeekday(date: Date, options?: WeekOptions): number;
+  getWeekOfYear(date: Date, options?: WeekOptions): number;
   isWeekend(date: Date): boolean;
 }

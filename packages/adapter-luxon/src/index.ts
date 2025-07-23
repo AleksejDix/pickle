@@ -258,6 +258,13 @@ export class LuxonAdapter implements DateAdapter {
     return (jsWeekday - weekStartsOn + 7) % 7;
   }
 
+  getWeekOfYear(date: Date, _options?: WeekOptions): number {
+    const { DateTime } = this.luxon;
+    const dt = DateTime.fromJSDate(date);
+    // Luxon's weekNumber follows ISO 8601 by default
+    return dt.weekNumber;
+  }
+
   isWeekend(date: Date): boolean {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
