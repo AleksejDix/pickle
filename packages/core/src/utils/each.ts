@@ -1,9 +1,9 @@
-import type { DateAdapter, Duration } from "../types/core";
+import type { DateAdapter, DateDuration } from "../types/core";
 
 interface EachOptions {
   start: Date;
   end: Date;
-  step?: Duration;
+  step?: DateDuration;
   adapter: DateAdapter;
 }
 

@@ -249,7 +249,7 @@ export class NativeDateAdapter implements DateAdapter {
           break;
         default:
           // Prevent infinite loop for unknown units
-          break;
+          return result;
       }
     }
 

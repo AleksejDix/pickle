@@ -38,6 +38,7 @@
   "devDependencies": {
     "@types/node": "^22.12.1",
     "@usetemporal/tsconfig": "2.0.0-alpha.1",
+    "@vitest/coverage-v8": "^3.2.4",
     "typescript": "^5.7.3",
     "vite": "^6.0.7",
     "vite-plugin-dts": "^4.4.0",
