@@ -9,19 +9,12 @@ import type {
   DateAdapterOptions,
 } from "./types";
 
+// Import date-fns functions - these will be tree-shaken if adapter is not used
+import * as dateFnsImport from "date-fns";
+
 export class DateFnsAdapter implements DateAdapter {
   name = "date-fns";
-
-  // Lazy import date-fns functions to avoid bundling if not used
-  private get dateFns() {
-    try {
-      return require("date-fns");
-    } catch (_error) {
-      throw new Error(
-        "date-fns is required when using DateFnsAdapter. Install it with: npm install date-fns"
-      );
-    }
-  }
+  private dateFns = dateFnsImport;
 
   add(date: Date, duration: DateDuration): Date {
     const { add } = this.dateFns;
@@ -216,5 +209,11 @@ export class DateFnsAdapter implements DateAdapter {
 
 // Factory function to create adapter instance
 export function createDateFnsAdapter(): DateFnsAdapter {
+  // Check if date-fns is available
+  if (!dateFnsImport || !dateFnsImport.add) {
+    throw new Error(
+      "date-fns is required when using DateFnsAdapter. Install it with: npm install date-fns"
+    );
+  }
   return new DateFnsAdapter();
 }

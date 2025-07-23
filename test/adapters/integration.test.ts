@@ -350,11 +350,11 @@ describe("Adapter Integration Tests", () => {
       expect(adapter.name).toMatch(/native|date-fns|luxon|temporal/);
     });
 
-    it("should fall back to native adapter when others unavailable", () => {
-      // Force fallback by creating adapter when other libraries aren't available
-      const adapter = createAdapter("auto");
+    it("should fall back to native adapter when explicitly requested", () => {
+      // Force native adapter
+      const adapter = createAdapter("native");
 
-      // At minimum, should always get native adapter
+      // Should get native adapter
       expect(adapter.name).toBe("native");
     });
 

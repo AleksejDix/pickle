@@ -12,8 +12,8 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, "src/index.ts"),
       name: "useTemporal",
-      formats: ["es", "cjs"],
-      fileName: (format) => `index.${format === "es" ? "js" : "cjs"}`,
+      formats: ["es"],
+      fileName: () => "index.js",
     },
     rollupOptions: {
       external: ["vue", "date-fns", "luxon", "@vue/reactivity"],

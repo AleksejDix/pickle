@@ -9,19 +9,12 @@ import type {
   DateAdapterOptions,
 } from "./types";
 
+// Import Luxon - this will be tree-shaken if adapter is not used
+import * as luxonImport from "luxon";
+
 export class LuxonAdapter implements DateAdapter {
   name = "luxon";
-
-  // Lazy import Luxon to avoid bundling if not used
-  private get luxon() {
-    try {
-      return require("luxon");
-    } catch (_error) {
-      throw new Error(
-        "luxon is required when using LuxonAdapter. Install it with: npm install luxon"
-      );
-    }
-  }
+  private luxon = luxonImport;
 
   add(date: Date, duration: DateDuration): Date {
     const { DateTime } = this.luxon;
@@ -278,5 +271,11 @@ export class LuxonAdapter implements DateAdapter {
 
 // Factory function to create adapter instance
 export function createLuxonAdapter(): LuxonAdapter {
+  // Check if Luxon is available
+  if (!luxonImport || !luxonImport.DateTime) {
+    throw new Error(
+      "luxon is required when using LuxonAdapter. Install it with: npm install luxon"
+    );
+  }
   return new LuxonAdapter();
 }

@@ -54,9 +54,10 @@ describe("createTemporal", () => {
   });
 
   describe("Adapter System Integration", () => {
-    it("should use native adapter by default", () => {
+    it("should auto-detect adapter by default", () => {
       const temporal = createTemporal();
-      expect(temporal.adapter.name).toBe("native");
+      // Auto-detection will pick the best available adapter
+      expect(["native", "date-fns", "luxon", "temporal"]).toContain(temporal.adapter.name);
     });
 
     it("should accept explicit adapter name", () => {

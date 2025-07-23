@@ -3,6 +3,9 @@
 
 import type { DateAdapter, AdapterName } from "./types";
 import { nativeAdapter } from "./native";
+import { createDateFnsAdapter } from "./date-fns";
+import { createLuxonAdapter } from "./luxon";
+import { createTemporalAdapter } from "./temporal-api";
 
 // Adapter registry
 const adapters = new Map<AdapterName, () => DateAdapter>();
@@ -10,10 +13,9 @@ const adapters = new Map<AdapterName, () => DateAdapter>();
 // Register native adapter (always available)
 adapters.set("native", () => nativeAdapter);
 
-// Register date-fns adapter (lazy-loaded)
+// Register date-fns adapter
 adapters.set("date-fns", () => {
   try {
-    const { createDateFnsAdapter } = require("./date-fns");
     return createDateFnsAdapter();
   } catch (error) {
     console.warn("date-fns adapter not available:", error);
@@ -21,10 +23,9 @@ adapters.set("date-fns", () => {
   }
 });
 
-// Register future adapters
+// Register luxon adapter
 adapters.set("luxon", () => {
   try {
-    const { createLuxonAdapter } = require("./luxon");
     return createLuxonAdapter();
   } catch (error) {
     console.warn("luxon adapter not available:", error);
@@ -32,9 +33,9 @@ adapters.set("luxon", () => {
   }
 });
 
+// Register temporal adapter
 adapters.set("temporal", () => {
   try {
-    const { createTemporalAdapter } = require("./temporal-api");
     return createTemporalAdapter();
   } catch (error) {
     console.warn("temporal-api adapter not available:", error);
@@ -66,19 +67,12 @@ function isAdapterAvailable(adapterName: AdapterName): boolean {
   if (adapterName === "native") return true;
 
   try {
-    switch (adapterName) {
-      case "date-fns":
-        require.resolve("date-fns");
-        return true;
-      case "luxon":
-        require.resolve("luxon");
-        return true;
-      case "temporal":
-        // Check for native Temporal API
-        return typeof (globalThis as any).Temporal !== "undefined";
-      default:
-        return false;
-    }
+    const factory = adapters.get(adapterName);
+    if (!factory) return false;
+    
+    // Try to create the adapter to see if it's available
+    const adapter = factory();
+    return adapter !== nativeAdapter; // If it falls back to native, it's not available
   } catch {
     return false;
   }
