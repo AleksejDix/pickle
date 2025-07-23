@@ -1,8 +1,10 @@
 # RFC-009: Relative Time Utilities
 
+**Status: NOT FOR CORE - Should be a separate package or userland**
+
 ## Summary
 
-Add utilities to generate human-friendly relative time descriptions like "Today", "Tomorrow", "Next week".
+Human-friendly relative time descriptions like "Today", "Tomorrow", "Next week" are too opinionated and locale-specific for core.
 
 ## Motivation
 
@@ -116,4 +118,14 @@ class RelativeTimeImpl implements RelativeTime {
 
 ## Migration Path
 
-Pure addition to existing TimeUnit interface.
+This would be a separate optional package or left to userland.
+
+## Decision
+
+**This feature is too opinionated for the core library.** Relative time formatting:
+- Is highly locale-dependent
+- Requires translation strings
+- Has many formatting preferences
+- Should use browser's `Intl.RelativeTimeFormat` API
+
+Users should implement this themselves or use a dedicated i18n library.

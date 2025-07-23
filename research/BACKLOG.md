@@ -9,11 +9,7 @@
 
 ## High Priority 🔴
 
-1. **Calendar Grid Generation** - [RFC-001](./RFC/001-calendar-grid.md)
-   - Eliminate complex calendar logic
-   - Reduce boilerplate by ~40%
-
-2. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
+1. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
    - Common checks: isWeekend, isToday, isPast, isFuture
    - Reduce repetitive date operations
 
@@ -45,13 +41,20 @@
    - First-class range objects
    - Range operations (contains, overlaps, merge)
 
-2. **Relative Time Utilities** - [RFC-009](./RFC/009-relative-time.md)
-   - "Today", "Tomorrow", "Next week" descriptions
-   - Human-friendly time differences
-
-3. **Advanced Comparison Utilities** - [RFC-010](./RFC/010-comparison-utils.md)
+2. **Advanced Comparison Utilities** - [RFC-010](./RFC/010-comparison-utils.md)
    - `isBetween()`, `diff()`, `closest()`
    - Complex date comparisons
+
+## Not for Core (Separate Packages or Userland)
+
+1. **Calendar Grid Generation** - [RFC-001](./RFC/001-calendar-grid.md)
+   - Too opinionated for core
+   - Should be `@usetemporal/calendar` package
+
+2. **Relative Time Utilities** - [RFC-009](./RFC/009-relative-time.md)
+   - Locale-dependent formatting
+   - Should use `Intl.RelativeTimeFormat`
+   - Better in userland or i18n library
 
 ## Notes
 
@@ -59,3 +62,4 @@
 - Focus on reducing boilerplate and improving DX
 - Maintain tree-shakable architecture
 - Date formatting remains in userland
+- UI-specific utilities belong in separate packages

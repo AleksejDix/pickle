@@ -1,8 +1,10 @@
 # RFC-001: Calendar Grid Generation
 
+**Status: NOT FOR CORE - Should be a separate package**
+
 ## Summary
 
-Add a `createCalendarGrid()` method to generate calendar grids with all necessary metadata, eliminating repetitive complex logic in calendar components.
+Create a separate `@usetemporal/calendar` package for calendar grid generation utilities.
 
 ## Motivation
 
@@ -134,4 +136,17 @@ function createCalendarGrid(month: TimeUnit): CalendarGrid {
 
 ## Migration Path
 
-No breaking changes. This is a new addition that doesn't affect existing code.
+This would be a separate optional package:
+
+```bash
+npm install @usetemporal/calendar
+```
+
+## Decision
+
+**This feature is too opinionated for the core library.** Calendar grid generation should be:
+- A separate package (`@usetemporal/calendar`)
+- Or left to userland implementation
+- Or provided as example code/recipes
+
+The core library should remain focused on time manipulation primitives, not UI-specific utilities.
