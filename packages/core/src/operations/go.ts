@@ -1,17 +1,13 @@
-import type { Period, PeriodType, TemporalContext } from "../types";
+import type { Period, Unit, Temporal } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
  * Move by a specific number of periods
  */
-export function go(
-  context: TemporalContext,
-  period: Period,
-  steps: number
-): Period {
+export function go(temporal: Temporal, period: Period, steps: number): Period {
   if (steps === 0) return period;
 
-  const { adapter } = context;
+  const { adapter } = temporal;
   const duration = getDuration(period.type, Math.abs(steps));
   const newValue =
     steps > 0
@@ -26,13 +22,13 @@ export function go(
     date: newValue,
   };
 
-  return createPeriod(context, period.type, tempPeriod);
+  return createPeriod(temporal, period.type, tempPeriod);
 }
 
 /**
  * Get duration object for a period type
  */
-function getDuration(type: PeriodType, count: number = 1): any {
+function getDuration(type: Unit, count: number = 1): any {
   switch (type) {
     case "year":
       return { years: count };

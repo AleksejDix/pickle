@@ -1,4 +1,4 @@
-import type { Period, PeriodType, Temporal, DivideUnit } from "../types";
+import type { Period, Unit, Temporal } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
@@ -7,7 +7,7 @@ import { createPeriod } from "./createPeriod";
 export function zoomTo(
   temporal: Temporal,
   period: Period,
-  targetUnit: DivideUnit
+  targetUnit: Unit
 ): Period {
   // Update browsing to the period's date
   temporal.browsing.value = {
@@ -18,5 +18,5 @@ export function zoomTo(
   };
 
   // Create and return the target unit
-  return createPeriod(temporal, targetUnit as PeriodType, period);
+  return createPeriod(temporal, targetUnit, period);
 }

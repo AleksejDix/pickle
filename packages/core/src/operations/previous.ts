@@ -1,11 +1,11 @@
-import type { Period, PeriodType, TemporalContext } from "../types";
+import type { Period, Unit, Temporal } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
  * Move to the previous period
  */
-export function previous(context: TemporalContext, period: Period): Period {
-  const { adapter } = context;
+export function previous(temporal: Temporal, period: Period): Period {
+  const { adapter } = temporal;
   const duration = getDuration(period.type);
   const prevValue = adapter.subtract(period.date, duration);
 
@@ -17,13 +17,13 @@ export function previous(context: TemporalContext, period: Period): Period {
     date: prevValue,
   };
 
-  return createPeriod(context, period.type, tempPeriod);
+  return createPeriod(temporal, period.type, tempPeriod);
 }
 
 /**
  * Get duration object for a period type
  */
-function getDuration(type: PeriodType, count: number = 1): any {
+function getDuration(type: Unit, count: number = 1): any {
   switch (type) {
     case "year":
       return { years: count };

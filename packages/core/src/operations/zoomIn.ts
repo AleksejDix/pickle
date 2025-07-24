@@ -1,4 +1,4 @@
-import type { Period, Temporal, DivideUnit } from "../types";
+import type { Period, Temporal, Unit } from "../types";
 import { divide } from "./divide";
 
 /**
@@ -7,7 +7,7 @@ import { divide } from "./divide";
 export function zoomIn(
   temporal: Temporal,
   period: Period,
-  targetUnit: DivideUnit
+  targetUnit: Unit
 ): Period[] {
   return divide(temporal, period, targetUnit);
 }

@@ -1,15 +1,15 @@
-import type { Period, PeriodType, TemporalContext } from "../types";
+import type { Period, Unit, Temporal } from "../types";
 
 /**
  * Create a period of a specific type from another period
  * Uses the period's date as the reference point
  */
 export function createPeriod(
-  context: TemporalContext,
-  type: PeriodType,
+  temporal: Temporal,
+  type: Unit,
   period: Period
 ): Period {
-  const { adapter, weekStartsOn } = context;
+  const { adapter, weekStartsOn } = temporal;
   const date = period.date;
 
   const start = adapter.startOf(date, type as any, {

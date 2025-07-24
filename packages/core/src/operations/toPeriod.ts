@@ -1,4 +1,4 @@
-import type { Period, PeriodType, TemporalContext } from "../types";
+import type { Period, Unit, Temporal } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
@@ -16,9 +16,9 @@ import { createPeriod } from "./createPeriod";
  * const yearPeriod = toPeriod(temporal, new Date(), "year");
  */
 export function toPeriod(
-  context: TemporalContext,
+  temporal: Temporal,
   date: Date,
-  type: PeriodType = "day"
+  type: Unit = "day"
 ): Period {
   // Create a temporary point-in-time period
   const tempPeriod: Period = {
@@ -28,5 +28,5 @@ export function toPeriod(
     date: date,
   };
 
-  return createPeriod(context, type, tempPeriod);
+  return createPeriod(temporal, type, tempPeriod);
 }

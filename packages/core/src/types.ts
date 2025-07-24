@@ -12,13 +12,17 @@ export interface Period {
   end: Date;
 
   /** Type of time unit this period represents */
-  type: PeriodType;
+  type: Unit;
 
   /** The reference date used to create this period */
   date: Date;
 }
 
-export type PeriodType =
+/**
+ * Unified type for all time units
+ * Simplified from multiple overlapping types (TimeUnitKind, PeriodType, DivideUnit)
+ */
+export type Unit =
   | "year"
   | "month"
   | "week"
@@ -29,6 +33,15 @@ export type PeriodType =
   | "quarter"
   | "stableMonth"
   | "custom";
+
+// Keep PeriodType as alias for backward compatibility (will remove later)
+export type PeriodType = Unit;
+
+// Keep TimeUnitKind as alias for backward compatibility (will remove later)
+export type TimeUnitKind = Exclude<Unit, "custom">;
+
+// Keep DivideUnit as alias for backward compatibility (will remove later)
+export type DivideUnit = Exclude<Unit, "custom">;
 
 /**
  * Minimal temporal context needed for operations
@@ -45,25 +58,6 @@ export interface Temporal extends TemporalContext {
   browsing: Ref<Period>;
   now: Ref<Period>;
 }
-
-// Time Unit Types - unified type for all time units
-export type TimeUnitKind =
-  | "millennium"
-  | "century"
-  | "decade"
-  | "year"
-  | "quarter"
-  | "month"
-  | "week"
-  | "day"
-  | "hour"
-  | "minute"
-  | "second"
-  | "millisecond"
-  | "stableMonth";
-
-// Extended type for divide function to support special units
-export type DivideUnit = TimeUnitKind | "stableMonth";
 
 // Adapter Types
 export interface Duration {
@@ -95,7 +89,7 @@ export interface Adapter {
 
 // Split operation options
 export interface SplitOptions {
-  by?: DivideUnit; // Split by unit type
+  by?: Unit; // Split by unit type
   count?: number; // Split into N equal parts
   duration?: {
     // Split by duration

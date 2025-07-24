@@ -1,14 +1,14 @@
-import type { Period, PeriodType, TemporalContext, DivideUnit } from "../types";
+import type { Period, Unit, Temporal } from "../types";
 
 /**
  * Divide a period into smaller units
  */
 export function divide(
-  context: TemporalContext,
+  temporal: Temporal,
   period: Period,
-  unit: DivideUnit
+  unit: Unit
 ): Period[] {
-  const { adapter } = context;
+  const { adapter } = temporal;
 
   if (unit === "stableMonth") {
     throw new Error(
@@ -64,16 +64,16 @@ export function divide(
 
   return intervals.map((date) => {
     const start = adapter.startOf(date, unit, {
-      weekStartsOn: context.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+      weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
     });
     const end = adapter.endOf(date, unit, {
-      weekStartsOn: context.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+      weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
     });
 
     return {
       start,
       end,
-      type: unit as PeriodType,
+      type: unit,
       date: date,
     };
   });

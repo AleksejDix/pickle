@@ -1,4 +1,4 @@
-import type { Period, PeriodType, TemporalContext, DivideUnit } from "../types";
+import type { Period, Unit, Temporal } from "../types";
 
 /**
  * Check if two periods are the same for a given unit
@@ -15,10 +15,10 @@ import type { Period, PeriodType, TemporalContext, DivideUnit } from "../types";
  * isSame(temporal, period, sameDayPeriod, 'day')
  */
 export function isSame(
-  context: TemporalContext,
+  temporal: Temporal,
   a: Period | null | undefined,
   b: Period | null | undefined,
-  unit: PeriodType | DivideUnit
+  unit: Unit
 ): boolean {
   if (!a || !b) return false;
 
@@ -39,5 +39,5 @@ export function isSame(
     return yearA === yearB && quarterA === quarterB;
   }
 
-  return context.adapter.isSame(dateA, dateB, unit as any);
+  return temporal.adapter.isSame(dateA, dateB, unit as any);
 }
