@@ -14,7 +14,6 @@
    - Implement `zoomIn()`, `zoomOut()`, `zoomTo()` methods
    - Semantic wrappers over split/merge operations
    - Intuitive bidirectional time navigation
-   
 2. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
    - Common checks: isWeekend, isToday, isPast, isFuture
    - Reduce repetitive date operations

@@ -12,10 +12,7 @@ export default defineConfig({
   ],
   build: {
     lib: {
-      entry: {
-        index: resolve(__dirname, "src/index.ts"),
-        "composables/index": resolve(__dirname, "src/composables/index.ts"),
-      },
+      entry: resolve(__dirname, "src/index.ts"),
       name: "useTemporal",
       formats: ["es"],
     },

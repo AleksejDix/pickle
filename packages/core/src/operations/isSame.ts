@@ -1,11 +1,15 @@
-import type { DateAdapter } from "../types/core";
+import type { PeriodType, TemporalContext } from "../types/period";
+import type { DivideUnit } from "../types/reactive";
 
-export const same = (
+/**
+ * Check if two dates are the same for a given unit
+ */
+export function isSame(
+  context: TemporalContext,
   a: Date | null | undefined,
   b: Date | null | undefined,
-  unit: string,
-  adapter: DateAdapter
-): boolean => {
+  unit: PeriodType | DivideUnit
+): boolean {
   if (!a || !b) return false;
 
   // Handle quarter comparison specially
@@ -22,5 +26,5 @@ export const same = (
     return yearA === yearB && quarterA === quarterB;
   }
 
-  return adapter.isSame(a, b, unit as any);
-};
+  return context.adapter.isSame(a, b, unit as any);
+}

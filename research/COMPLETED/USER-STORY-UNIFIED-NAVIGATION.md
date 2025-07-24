@@ -9,35 +9,38 @@ Implemented a powerful unified time navigation system that combines split, merge
 ### What Was Built
 
 1. **Split Method** - More flexible than divide
+
    ```typescript
    // Split by unit (equivalent to divide)
    temporal.split(year, { by: "month" }); // 12 months
-   
-   // Split by count  
+
+   // Split by count
    temporal.split(year, { count: 4 }); // 4 quarters
-   
+
    // Split by duration
    temporal.split(month, { duration: { weeks: 2 } }); // 2-week sprints
    ```
 
 2. **Merge Method** - Combine periods intelligently
+
    ```typescript
    // Merge with natural unit detection
    const days = temporal.divide(week, "day");
    const week = temporal.merge(days); // Detects as week
-   
+
    // Custom period from non-consecutive units
    const q1 = temporal.merge([jan, feb, mar]); // Quarter
    ```
 
 3. **CreatePeriod Method** - Custom time periods
+
    ```typescript
    // Create any arbitrary period
    const sprint = temporal.createPeriod(
      new Date(2024, 0, 1),
      new Date(2024, 0, 14)
    );
-   
+
    // Full TimeUnit interface
    sprint.contains(date);
    sprint.next();
@@ -60,15 +63,16 @@ interface TemporalCore {
   split: (period: TimeUnit, options: SplitOptions) => TimeUnit[];
   merge: (periods: TimeUnit[]) => TimeUnit | null;
   createPeriod: (start: Date, end: Date) => TimeUnit;
-  
+
   // Legacy (eventually deprecated)
   divide: (interval: TimeUnit, unit: DivideUnit) => TimeUnit[];
 }
 
 interface SplitOptions {
-  by?: DivideUnit;        // Split by unit type
-  count?: number;         // Split into N equal parts
-  duration?: {            // Split by duration
+  by?: DivideUnit; // Split by unit type
+  count?: number; // Split into N equal parts
+  duration?: {
+    // Split by duration
     days?: number;
     hours?: number;
     weeks?: number;
@@ -79,15 +83,17 @@ interface SplitOptions {
 ### Use Cases Enabled
 
 1. **Fiscal Year Handling**
+
    ```typescript
    const fiscalYear = temporal.createPeriod(
-     new Date(2024, 3, 1),  // April 1
-     new Date(2025, 2, 31)  // March 31
+     new Date(2024, 3, 1), // April 1
+     new Date(2025, 2, 31) // March 31
    );
    const quarters = temporal.split(fiscalYear, { count: 4 });
    ```
 
 2. **Sprint Planning**
+
    ```typescript
    const quarter = temporal.createPeriod(start, end);
    const sprints = temporal.split(quarter, { duration: { weeks: 2 } });
@@ -96,8 +102,8 @@ interface SplitOptions {
 3. **Academic Terms**
    ```typescript
    const academicYear = temporal.createPeriod(
-     new Date(2024, 8, 1),   // Sept 1
-     new Date(2025, 5, 30)   // June 30
+     new Date(2024, 8, 1), // Sept 1
+     new Date(2025, 5, 30) // June 30
    );
    const semesters = temporal.split(academicYear, { count: 2 });
    ```

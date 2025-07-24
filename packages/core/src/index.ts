@@ -1,29 +1,49 @@
-// useTemporal v2.0 - Framework-Agnostic Reactive Time Library
-// Revolutionary zero-dependency reactive time management
+// Core function
+export { createTemporal } from "./createTemporal";
+export type { CreateTemporalOptions } from "./createTemporal";
 
-// Import composables to register them with the factory
-import "./composables";
+// Period composables - module exports
+export {
+  useYear,
+  useMonth,
+  useWeek,
+  useDay,
+  useHour,
+  useMinute,
+  useSecond,
+  useQuarter,
+  useStableMonth,
+} from "./composables/usePeriods";
 
-// Core exports
-export { createTemporal } from "./core/createTemporal";
+// Operations - functional API
+export {
+  divide,
+  next,
+  previous,
+  go,
+  contains,
+  zoomIn,
+  zoomOut,
+  createPeriod,
+  split,
+  merge,
+  createCustomPeriod,
+  isSame,
+} from "./operations";
+export type { SplitOptions } from "./operations";
 
-// Type exports
-export type * from "./types/core";
-export type * from "./types/reactive";
+// Types
+export type {
+  Period,
+  PeriodType,
+  Temporal,
+  TemporalContext,
+} from "./types/period";
 
-// Periods - export the consolidated periods object
-export { periods } from "./composables/periods";
-
-// Navigation exports
-export { next, previous, go } from "./navigation";
-
-// Type exports for adapters
+// Re-export adapter types for convenience
 export type {
   DateAdapter,
-  AdapterName,
-  DateDuration,
   DateAdapterOptions,
-} from "./types";
-
-// Default export for convenience
-export { createTemporal as default } from "./core/createTemporal";
+  DateDuration,
+  TimeUnitKind,
+} from "./types/core";

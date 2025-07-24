@@ -64,6 +64,19 @@ export interface SplitOptions {
   };
 }
 
+// Period composables interface
+export interface PeriodComposables {
+  year: () => TimeUnit;
+  month: () => TimeUnit;
+  week: () => TimeUnit;
+  day: () => TimeUnit;
+  hour: () => TimeUnit;
+  minute: () => TimeUnit;
+  second: () => TimeUnit;
+  quarter: () => TimeUnit;
+  stableMonth: () => TimeUnit;
+}
+
 // Reactive Temporal Core Interface
 export interface TemporalCore {
   browsing: Ref<Date>;
@@ -77,6 +90,9 @@ export interface TemporalCore {
   split: (period: TimeUnit, options: SplitOptions) => TimeUnit[];
   merge: (periods: TimeUnit[]) => TimeUnit | null;
   createPeriod: (start: Date, end: Date) => TimeUnit;
+
+  // Period composables
+  periods: PeriodComposables;
 }
 
 // Utility Types
