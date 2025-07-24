@@ -5,7 +5,7 @@ import type {
   Adapter,
   AdapterOptions,
   Duration,
-  TimeUnitKind,
+  Unit,
 } from "@usetemporal/core";
 
 export class TemporalAdapter implements Adapter {
@@ -63,7 +63,11 @@ export class TemporalAdapter implements Adapter {
     return new Date(result.epochMilliseconds);
   }
 
-  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
+  startOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -147,7 +151,11 @@ export class TemporalAdapter implements Adapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
+  endOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -232,7 +240,7 @@ export class TemporalAdapter implements Adapter {
     }
   }
 
-  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
+  isSame(a: Date, b: Date, unit: Exclude<Unit, "custom">): boolean {
     const { Instant, Now } = this.temporal;
 
     const instantA = Instant.fromEpochMilliseconds(a.getTime());
@@ -271,7 +279,7 @@ export class TemporalAdapter implements Adapter {
     return temporal.Instant.compare(instantA, instantB) > 0;
   }
 
-  eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
+  eachInterval(start: Date, end: Date, unit: Exclude<Unit, "custom">): Date[] {
     const result: Date[] = [];
     let current = new Date(start);
     let iterations = 0;

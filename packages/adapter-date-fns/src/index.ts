@@ -5,7 +5,7 @@ import type {
   Adapter,
   AdapterOptions,
   Duration,
-  TimeUnitKind,
+  Unit,
 } from "@usetemporal/core";
 
 // Import date-fns functions - these will be tree-shaken if adapter is not used
@@ -25,7 +25,11 @@ export class DateFnsAdapter implements Adapter {
     return sub(date, duration);
   }
 
-  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
+  startOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date {
     const {
       startOfYear,
       startOfMonth,
@@ -64,7 +68,11 @@ export class DateFnsAdapter implements Adapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
+  endOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date {
     const {
       endOfYear,
       endOfMonth,
@@ -110,7 +118,7 @@ export class DateFnsAdapter implements Adapter {
     }
   }
 
-  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
+  isSame(a: Date, b: Date, unit: Exclude<Unit, "custom">): boolean {
     const {
       isSameYear,
       isSameMonth,
@@ -154,7 +162,7 @@ export class DateFnsAdapter implements Adapter {
     return isAfter(a, b);
   }
 
-  eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
+  eachInterval(start: Date, end: Date, unit: Exclude<Unit, "custom">): Date[] {
     const {
       eachYearOfInterval,
       eachMonthOfInterval,

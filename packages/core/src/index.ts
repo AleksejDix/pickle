@@ -27,14 +27,11 @@ export type { SplitOptions } from "./types";
 // Types
 export type {
   Period,
-  Unit, // New unified type
-  PeriodType, // Deprecated - use Unit
+  Unit,
   Temporal,
   TemporalContext,
   Adapter,
   AdapterOptions,
   Duration,
-  TimeUnitKind, // Deprecated - use Unit
-  DivideUnit, // Deprecated - use Unit
   DateOrRef,
 } from "./types";

@@ -5,7 +5,7 @@ import type {
   Adapter,
   AdapterOptions,
   Duration,
-  TimeUnitKind,
+  Unit,
 } from "@usetemporal/core";
 
 export class NativeDateAdapter implements Adapter {
@@ -56,7 +56,11 @@ export class NativeDateAdapter implements Adapter {
     return this.add(date, inverseDuration);
   }
 
-  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
+  startOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date {
     const result = new Date(date);
 
     switch (unit) {
@@ -107,7 +111,11 @@ export class NativeDateAdapter implements Adapter {
     return result;
   }
 
-  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
+  endOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date {
     const result = new Date(date);
 
     switch (unit) {
@@ -163,7 +171,7 @@ export class NativeDateAdapter implements Adapter {
     return result;
   }
 
-  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
+  isSame(a: Date, b: Date, unit: Exclude<Unit, "custom">): boolean {
     switch (unit) {
       case "stableMonth":
         // StableMonth comparison is same as month
@@ -207,7 +215,7 @@ export class NativeDateAdapter implements Adapter {
     return a.getTime() > b.getTime();
   }
 
-  eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
+  eachInterval(start: Date, end: Date, unit: Exclude<Unit, "custom">): Date[] {
     const result: Date[] = [];
     let current = new Date(start);
 

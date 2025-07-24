@@ -5,7 +5,7 @@ import type {
   Adapter,
   AdapterOptions,
   Duration,
-  TimeUnitKind,
+  Unit,
 } from "@usetemporal/core";
 
 // Import Luxon - this will be tree-shaken if adapter is not used
@@ -51,7 +51,11 @@ export class LuxonAdapter implements Adapter {
     return result.toJSDate();
   }
 
-  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
+  startOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
@@ -105,7 +109,11 @@ export class LuxonAdapter implements Adapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
+  endOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
@@ -157,7 +165,7 @@ export class LuxonAdapter implements Adapter {
     }
   }
 
-  isSame(a: Date, b: Date, unit: TimeUnitKind): boolean {
+  isSame(a: Date, b: Date, unit: Exclude<Unit, "custom">): boolean {
     const { DateTime } = this.luxon;
     const dtA = DateTime.fromJSDate(a);
     const dtB = DateTime.fromJSDate(b);
@@ -207,7 +215,7 @@ export class LuxonAdapter implements Adapter {
     return dtA > dtB;
   }
 
-  eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[] {
+  eachInterval(start: Date, end: Date, unit: Exclude<Unit, "custom">): Date[] {
     const { DateTime, Interval } = this.luxon;
     const startDt = DateTime.fromJSDate(start);
     const endDt = DateTime.fromJSDate(end);

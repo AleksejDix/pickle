@@ -1,8 +1,8 @@
-import type { Period, Temporal, DivideUnit } from "../types";
+import type { Period, Temporal, Unit } from "../types";
 import { divide } from "./divide";
 
 export interface SplitOptions {
-  by?: DivideUnit;
+  by?: Exclude<Unit, "custom">;
   count?: number;
   duration?: Partial<{
     years: number;

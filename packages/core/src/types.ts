@@ -20,7 +20,7 @@ export interface Period {
 
 /**
  * Unified type for all time units
- * Simplified from multiple overlapping types (TimeUnitKind, PeriodType, DivideUnit)
+ * Comprehensive type for all time units, including custom periods
  */
 export type Unit =
   | "year"
@@ -33,15 +33,6 @@ export type Unit =
   | "quarter"
   | "stableMonth"
   | "custom";
-
-// Keep PeriodType as alias for backward compatibility (will remove later)
-export type PeriodType = Unit;
-
-// Keep TimeUnitKind as alias for backward compatibility (will remove later)
-export type TimeUnitKind = Exclude<Unit, "custom">;
-
-// Keep DivideUnit as alias for backward compatibility (will remove later)
-export type DivideUnit = Exclude<Unit, "custom">;
 
 /**
  * Minimal temporal context needed for operations
@@ -97,7 +88,7 @@ export interface Adapter {
 
 // Split operation options
 export interface SplitOptions {
-  by?: Unit; // Split by unit type
+  by?: Exclude<Unit, "custom">; // Split by unit type
   count?: number; // Split into N equal parts
   duration?: {
     // Split by duration
