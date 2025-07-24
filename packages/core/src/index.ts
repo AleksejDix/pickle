@@ -28,6 +28,8 @@ export type { SplitOptions } from "./types";
 export type {
   Period,
   Unit,
+  UnitRegistry,
+  AdapterUnit,
   Temporal,
   TemporalContext,
   Adapter,
@@ -51,3 +53,15 @@ export {
   STABLE_MONTH,
   CUSTOM,
 } from "./types";
+
+// Unit registry functionality
+export { 
+  defineUnit, 
+  getUnitDefinition, 
+  hasUnit, 
+  getRegisteredUnits,
+  type UnitDefinition 
+} from "./unit-registry";
+
+// Initialize core unit definitions
+import "./units/definitions";

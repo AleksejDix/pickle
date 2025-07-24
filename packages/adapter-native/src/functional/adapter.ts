@@ -1,4 +1,4 @@
-import type { Adapter, Unit, UnitHandler } from "@usetemporal/core";
+import type { Adapter, AdapterUnit, UnitHandler } from "@usetemporal/core";
 import { yearHandler } from "./units/year";
 import { monthHandler } from "./units/month";
 import { createWeekHandler } from "./units/week";
@@ -18,7 +18,7 @@ export function createNativeAdapter(options?: {
   const weekStartsOn = options?.weekStartsOn ?? 1;
   
   // Create handlers map
-  const handlers: Record<Exclude<Unit, "custom" | "stableMonth">, UnitHandler> = {
+  const handlers: Record<AdapterUnit, UnitHandler> = {
     year: yearHandler,
     month: monthHandler,
     week: createWeekHandler(weekStartsOn),
@@ -30,19 +30,19 @@ export function createNativeAdapter(options?: {
   };
 
   return {
-    startOf: (date: Date, unit: Exclude<Unit, "custom" | "stableMonth">): Date => {
+    startOf: (date: Date, unit: AdapterUnit): Date => {
       return handlers[unit].startOf(date);
     },
 
-    endOf: (date: Date, unit: Exclude<Unit, "custom" | "stableMonth">): Date => {
+    endOf: (date: Date, unit: AdapterUnit): Date => {
       return handlers[unit].endOf(date);
     },
 
-    add: (date: Date, amount: number, unit: Exclude<Unit, "custom" | "stableMonth">): Date => {
+    add: (date: Date, amount: number, unit: AdapterUnit): Date => {
       return handlers[unit].add(date, amount);
     },
 
-    diff: (from: Date, to: Date, unit: Exclude<Unit, "custom" | "stableMonth">): number => {
+    diff: (from: Date, to: Date, unit: AdapterUnit): number => {
       return handlers[unit].diff(from, to);
     },
   };

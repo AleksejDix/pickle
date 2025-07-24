@@ -19,20 +19,26 @@ export interface Period {
 }
 
 /**
- * Unified type for all time units
- * Comprehensive type for all time units, including custom periods
+ * Registry for unit types - extend this interface to add custom units
  */
-export type Unit =
-  | "year"
-  | "month"
-  | "week"
-  | "day"
-  | "hour"
-  | "minute"
-  | "second"
-  | "quarter"
-  | "stableMonth"
-  | "custom";
+export interface UnitRegistry {
+  year: true;
+  quarter: true;
+  month: true;
+  week: true;
+  day: true;
+  hour: true;
+  minute: true;
+  second: true;
+  stableMonth: true;
+  custom: true;
+}
+
+/**
+ * Unified type for all time units
+ * Extensible via module augmentation of UnitRegistry
+ */
+export type Unit = keyof UnitRegistry | (string & {});
 
 /**
  * Type-safe unit constants for better developer experience
@@ -95,21 +101,26 @@ export interface AdapterOptions {
 }
 
 /**
+ * Known adapter units (units that adapters must implement)
+ */
+export type AdapterUnit = Exclude<keyof UnitRegistry, "custom" | "stableMonth">;
+
+/**
  * Simplified functional adapter interface (RFC 015)
  * Only 4 core operations needed for date manipulation
  */
 export interface Adapter {
-  startOf(date: Date, unit: Exclude<Unit, "custom" | "stableMonth">): Date;
-  endOf(date: Date, unit: Exclude<Unit, "custom" | "stableMonth">): Date;
+  startOf(date: Date, unit: AdapterUnit): Date;
+  endOf(date: Date, unit: AdapterUnit): Date;
   add(
     date: Date,
     amount: number,
-    unit: Exclude<Unit, "custom" | "stableMonth">
+    unit: AdapterUnit
   ): Date;
   diff(
     from: Date,
     to: Date,
-    unit: Exclude<Unit, "custom" | "stableMonth">
+    unit: AdapterUnit
   ): number;
 }
 

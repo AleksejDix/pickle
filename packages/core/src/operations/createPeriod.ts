@@ -1,4 +1,5 @@
-import type { Period, Unit, Temporal } from "../types";
+import type { Period, Unit, Temporal, AdapterUnit } from "../types";
+import { getUnitDefinition } from "../unit-registry";
 
 /**
  * Create a period of a specific type from another period
@@ -41,19 +42,47 @@ export function createPeriod(
     };
   }
 
-  const start = adapter.startOf(
-    date,
-    type as Exclude<Unit, "custom" | "stableMonth">
-  );
-  const end = adapter.endOf(
-    date,
-    type as Exclude<Unit, "custom" | "stableMonth">
-  );
+  // Check if this is a registered custom unit
+  const unitDefinition = getUnitDefinition(type);
+  if (unitDefinition) {
+    const { start, end } = unitDefinition.createPeriod(date, adapter);
+    return {
+      start,
+      end,
+      type,
+      date,
+    };
+  }
 
-  return {
-    start,
-    end,
-    type,
-    date,
-  };
+  // Fall back to adapter built-in units
+  if (isAdapterUnit(type)) {
+    const start = adapter.startOf(date, type);
+    const end = adapter.endOf(date, type);
+
+    return {
+      start,
+      end,
+      type,
+      date,
+    };
+  }
+
+  throw new Error(`Unknown unit type: ${type}`);
+}
+
+/**
+ * Type guard to check if a unit is an adapter unit
+ */
+function isAdapterUnit(unit: string): unit is AdapterUnit {
+  const adapterUnits: AdapterUnit[] = [
+    "year",
+    "quarter", 
+    "month",
+    "week",
+    "day",
+    "hour",
+    "minute",
+    "second",
+  ];
+  return adapterUnits.includes(unit as AdapterUnit);
 }
