@@ -100,27 +100,6 @@ export class LuxonAdapter implements Adapter {
         return dt.startOf("minute").toJSDate();
       case "second":
         return dt.startOf("second").toJSDate();
-      case "decade":
-        const currentYear = dt.year;
-        const decadeStart = Math.floor(currentYear / 10) * 10;
-        return dt
-          .set({ year: decadeStart, month: 1, day: 1 })
-          .startOf("day")
-          .toJSDate();
-      case "century":
-        const centuryYear = dt.year;
-        const centuryStart = Math.floor(centuryYear / 100) * 100;
-        return dt
-          .set({ year: centuryStart, month: 1, day: 1 })
-          .startOf("day")
-          .toJSDate();
-      case "millennium":
-        const millenniumYear = dt.year;
-        const millenniumStart = Math.floor(millenniumYear / 1000) * 1000;
-        return dt
-          .set({ year: millenniumStart, month: 1, day: 1 })
-          .startOf("day")
-          .toJSDate();
       default:
         return dt.toJSDate();
     }
@@ -173,27 +152,6 @@ export class LuxonAdapter implements Adapter {
         return dt.endOf("minute").toJSDate();
       case "second":
         return dt.endOf("second").toJSDate();
-      case "decade":
-        const currentYear = dt.year;
-        const decadeEnd = Math.floor(currentYear / 10) * 10 + 9;
-        return dt
-          .set({ year: decadeEnd, month: 12, day: 31 })
-          .endOf("day")
-          .toJSDate();
-      case "century":
-        const centuryYear = dt.year;
-        const centuryEnd = Math.floor(centuryYear / 100) * 100 + 99;
-        return dt
-          .set({ year: centuryEnd, month: 12, day: 31 })
-          .endOf("day")
-          .toJSDate();
-      case "millennium":
-        const millenniumYear = dt.year;
-        const millenniumEnd = Math.floor(millenniumYear / 1000) * 1000 + 999;
-        return dt
-          .set({ year: millenniumEnd, month: 12, day: 31 })
-          .endOf("day")
-          .toJSDate();
       default:
         return dt.toJSDate();
     }
@@ -222,18 +180,6 @@ export class LuxonAdapter implements Adapter {
         return dtA.hasSame(dtB, "minute");
       case "second":
         return dtA.hasSame(dtB, "second");
-      case "decade":
-        const decadeA = Math.floor(dtA.year / 10);
-        const decadeB = Math.floor(dtB.year / 10);
-        return decadeA === decadeB;
-      case "century":
-        const centuryA = Math.floor(dtA.year / 100);
-        const centuryB = Math.floor(dtB.year / 100);
-        return centuryA === centuryB;
-      case "millennium":
-        const millenniumA = Math.floor(dtA.year / 1000);
-        const millenniumB = Math.floor(dtB.year / 1000);
-        return millenniumA === millenniumB;
       default:
         const aValue = dtA.valueOf();
         const bValue = dtB.valueOf();
@@ -276,9 +222,6 @@ export class LuxonAdapter implements Adapter {
 
     switch (unit) {
       case "year":
-      case "decade":
-      case "century":
-      case "millennium":
         return interval
           .splitBy({ years: 1 })
           .map((i: any) => i.start.toJSDate());

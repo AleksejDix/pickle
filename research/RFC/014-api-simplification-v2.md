@@ -25,83 +25,31 @@ The Period-centric architecture has already implemented many good design princip
 - Operations as pure functions
 - Simplified Period interface (no `number` field)
 - Functional architecture throughout
+- **Simplified `Unit` type** (fully implemented!)
+- **Single composable `usePeriod`** (implemented!)
+- **Minimal Temporal interface** with just: adapter, weekStartsOn, browsing, now
 
 ❌ **Opportunities Before Release:**
 
-- 14 time unit types (including rarely used ones)
-- 9 separate composables
-- Mixed operation signatures
-- 30+ exports
+- Mixed operation signatures (some still use TemporalContext vs Temporal)
+- Large export surface (but improving)
+- Remove deprecated type aliases
 
 ## Proposed Simplifications
 
-### 1. Simplify Time Unit Types
+### 1. ~~Simplify Time Unit Types~~ ✅ IMPLEMENTED
 
-**Current:**
+**Status**: The `Unit` type has been fully implemented as proposed. Old types (`TimeUnitKind`, `PeriodType`, `DivideUnit`) are now just aliases for backward compatibility.
 
-```typescript
-type TimeUnitKind =
-  | "millennium"
-  | "century"
-  | "decade"
-  | "year"
-  | "quarter"
-  | "month"
-  | "week"
-  | "day"
-  | "hour"
-  | "minute"
-  | "second"
-  | "millisecond"
-  | "stableMonth";
-type PeriodType =
-  | "year"
-  | "month"
-  | "week"
-  | "day"
-  | "hour"
-  | "minute"
-  | "second"
-  | "quarter"
-  | "stableMonth"
-  | "custom";
-type DivideUnit = TimeUnitKind | "stableMonth";
-```
+**Update**: Based on the latest code review:
 
-**Proposed:**
+- ✅ Adapter interface now uses `Unit` (uses `Exclude<Unit, "custom">`)
+- ✅ split.ts now uses `Unit` in SplitOptions interface
+- ⏳ Type aliases remain for backward compatibility (can be removed in future)
 
-```typescript
-type Unit =
-  | "year"
-  | "month"
-  | "week"
-  | "day"
-  | "hour"
-  | "minute"
-  | "second"
-  | "quarter"
-  | "stableMonth"
-  | "custom";
-```
+### 2. ~~Single Composable Pattern~~ ✅ IMPLEMENTED
 
-Benefits:
-
-- Single type for all time units (no confusing distinctions)
-- Remove rarely used units: `millennium`, `century`, `decade`, `millisecond`
-- No more overlapping types (TimeUnitKind vs PeriodType vs DivideUnit)
-
-### 2. Single Composable Pattern
-
-**Current:**
-
-```typescript
-import { useYear, useMonth, useWeek, useDay } from "@usetemporal/core";
-const year = useYear(temporal);
-const month = useMonth(temporal);
-const week = useWeek(temporal);
-```
-
-**Proposed:**
+**Status**: The `usePeriod` composable has been implemented! The individual composables (useYear, useMonth, etc.) are still exported but `usePeriod` provides the unified interface as proposed.
 
 ```typescript
 import { usePeriod } from "@usetemporal/core";
@@ -109,7 +57,7 @@ const year = usePeriod(temporal, "year");
 const month = usePeriod(temporal, "month");
 const week = usePeriod(temporal, "week");
 
-// Enables dynamic usage
+// Dynamic usage is supported
 const unit = ref("month");
 const period = usePeriod(temporal, unit);
 ```
@@ -141,24 +89,17 @@ merge(temporal: Temporal, periods: Period[]): Period
 split(temporal: Temporal, period: Period, options: SplitOptions): Period[]
 ```
 
-**Current exports (30+):**
+**Current exports (as of latest changes):**
 
 ```typescript
-// Factory
+// Factory (1)
 createTemporal;
+CreateTemporalOptions;
 
-// 9 Composables
-(useYear,
-  useMonth,
-  useWeek,
-  useDay,
-  useHour,
-  useMinute,
-  useSecond,
-  useQuarter,
-  useStableMonth);
+// Composables (1 main + legacy)
+usePeriod; // New unified composable
 
-// 14 Operations
+// Operations (14)
 (divide,
   next,
   previous,
@@ -174,15 +115,18 @@ createTemporal;
   isSame,
   toPeriod);
 
-// 8+ Types
+// Types (10)
 (Period,
-  PeriodType,
+  Unit, // New unified type
+  PeriodType, // Deprecated alias for Unit
   Temporal,
   TemporalContext,
   Adapter,
   AdapterOptions,
   Duration,
-  TimeUnitKind,
+  TimeUnitKind, // Deprecated alias for Unit
+  DivideUnit, // Deprecated alias for Unit
+  DateOrRef,
   SplitOptions);
 ```
 
@@ -270,23 +214,64 @@ const days = divide(temporal, month.value, "day");
 
 Based on current implementation success:
 
-- ✅ Keep Period as plain data (no methods)
+- ✅ Keep Period as plain data (no methods, just: start, end, type, date)
 - ✅ Keep operations as functions (not methods)
 - ✅ Keep adapter pattern (handles complexity well)
 - ✅ Keep reactive browsing/now (valuable for UI)
+- ✅ No more TimeUnit classes - everything uses Period interface
+
+## Current Core Types
+
+```typescript
+// The actual current types in the codebase:
+interface Period {
+  start: Date;
+  end: Date;
+  type: Unit;
+  date: Date;
+}
+
+interface TemporalContext {
+  adapter: Adapter;
+  weekStartsOn: number; // 0-6 for Sunday-Saturday
+}
+
+interface Temporal extends TemporalContext {
+  browsing: Ref<Period>;
+  now: Ref<Period>;
+}
+
+type Unit =
+  | "year"
+  | "month"
+  | "week"
+  | "day"
+  | "hour"
+  | "minute"
+  | "second"
+  | "quarter"
+  | "stableMonth"
+  | "custom";
+```
 
 ## Recommended Changes for v2.0
 
-1. **High Priority** (Before Release):
-   - Unify types to single `Unit` type
-   - Make operation signatures consistent
-   - Remove rarely used units
+1. **Already Done** ✅:
+   - Unified types to single `Unit` type (complete!)
+   - Single `usePeriod` composable (implemented!)
+   - Removed rarely used units (millennium, century, decade, millisecond)
+   - Updated Adapter to use Unit type
+   - No more TimeUnit classes
 
-2. **Medium Priority** (Can wait for v2.1):
-   - Single `usePeriod` composable
+2. **High Priority** (Complete before Release):
+   - Make operation signatures consistent (all use Temporal, not TemporalContext)
+   - Remove deprecated type aliases
+
+3. **Medium Priority** (Can wait for v2.1):
+   - Remove individual composables (keep only usePeriod)
    - Further API reduction
 
-3. **Low Priority** (Future):
+4. **Low Priority** (Future):
    - Additional simplifications based on user feedback
 
 ## Next Steps

@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Temporal, Period } from 'usetemporal'
-import { useYear, divide, useMonth, isSame, toPeriod } from 'usetemporal'
+import { usePeriod, divide, isSame, toPeriod } from 'usetemporal'
 
 const props = defineProps<{
   temporal: Temporal
@@ -63,7 +63,7 @@ const emit = defineEmits<{
   selectMonth: [month: Period]
 }>()
 
-const year = useYear(props.temporal)
+const year = usePeriod(props.temporal, 'year')
 const months = computed(() => divide(props.temporal, year.value, 'month'))
 
 // Weekdays starting with Monday if configured
@@ -73,7 +73,7 @@ const weekdays =
     : ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 // Get current month to check against
-const currentMonth = useMonth(props.temporal)
+const currentMonth = usePeriod(props.temporal, 'month')
 
 // Check if a month is the current month
 function isCurrentMonth(month: Period): boolean {

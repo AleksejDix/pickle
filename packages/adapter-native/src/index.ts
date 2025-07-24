@@ -99,24 +99,6 @@ export class NativeDateAdapter implements Adapter {
         result.setHours(0, 0, 0, 0);
         break;
       }
-      case "decade":
-        const currentYear = result.getFullYear();
-        const decadeStart = Math.floor(currentYear / 10) * 10;
-        result.setFullYear(decadeStart, 0, 1);
-        result.setHours(0, 0, 0, 0);
-        break;
-      case "century":
-        const centuryYear = result.getFullYear();
-        const centuryStart = Math.floor(centuryYear / 100) * 100;
-        result.setFullYear(centuryStart, 0, 1);
-        result.setHours(0, 0, 0, 0);
-        break;
-      case "millennium":
-        const millenniumYear = result.getFullYear();
-        const millenniumStart = Math.floor(millenniumYear / 1000) * 1000;
-        result.setFullYear(millenniumStart, 0, 1);
-        result.setHours(0, 0, 0, 0);
-        break;
       default:
         // No change for unknown units
         break;
@@ -173,24 +155,6 @@ export class NativeDateAdapter implements Adapter {
         result.setHours(23, 59, 59, 999);
         break;
       }
-      case "decade":
-        const currentYear = result.getFullYear();
-        const decadeEnd = Math.floor(currentYear / 10) * 10 + 9;
-        result.setFullYear(decadeEnd, 11, 31);
-        result.setHours(23, 59, 59, 999);
-        break;
-      case "century":
-        const centuryYear = result.getFullYear();
-        const centuryEnd = Math.floor(centuryYear / 100) * 100 + 99;
-        result.setFullYear(centuryEnd, 11, 31);
-        result.setHours(23, 59, 59, 999);
-        break;
-      case "millennium":
-        const millenniumYear = result.getFullYear();
-        const millenniumEnd = Math.floor(millenniumYear / 1000) * 1000 + 999;
-        result.setFullYear(millenniumEnd, 11, 31);
-        result.setHours(23, 59, 59, 999);
-        break;
       default:
         // No change for unknown units
         break;
@@ -230,18 +194,6 @@ export class NativeDateAdapter implements Adapter {
         const startA = this.startOf(a, "week");
         const startB = this.startOf(b, "week");
         return startA.getTime() === startB.getTime();
-      case "decade":
-        const decadeA = Math.floor(a.getFullYear() / 10);
-        const decadeB = Math.floor(b.getFullYear() / 10);
-        return decadeA === decadeB;
-      case "century":
-        const centuryA = Math.floor(a.getFullYear() / 100);
-        const centuryB = Math.floor(b.getFullYear() / 100);
-        return centuryA === centuryB;
-      case "millennium":
-        const millenniumA = Math.floor(a.getFullYear() / 1000);
-        const millenniumB = Math.floor(b.getFullYear() / 1000);
-        return millenniumA === millenniumB;
       default:
         return a.getTime() === b.getTime();
     }

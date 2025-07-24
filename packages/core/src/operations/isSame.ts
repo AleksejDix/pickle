@@ -39,5 +39,10 @@ export function isSame(
     return yearA === yearB && quarterA === quarterB;
   }
 
-  return temporal.adapter.isSame(dateA, dateB, unit as any);
+  // Handle custom periods - they are the same if their dates are exactly equal
+  if (unit === "custom") {
+    return dateA.getTime() === dateB.getTime();
+  }
+
+  return temporal.adapter.isSame(dateA, dateB, unit as Exclude<Unit, "custom">);
 }

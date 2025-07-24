@@ -53,14 +53,14 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, ref, type ComputedRef } from 'vue'
 import type { Temporal, Period } from 'usetemporal'
-import { useWeek, divide } from 'usetemporal'
+import { usePeriod, divide } from 'usetemporal'
 
 const props = defineProps<{
   temporal: Temporal
   initialWeek?: ComputedRef<Period>
 }>()
 
-const week = props.initialWeek || useWeek(props.temporal)
+const week = props.initialWeek || usePeriod(props.temporal, 'week')
 
 // Computed property to check if data is ready
 const isReady = computed(() => {

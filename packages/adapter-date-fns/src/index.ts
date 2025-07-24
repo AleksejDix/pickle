@@ -59,18 +59,6 @@ export class DateFnsAdapter implements Adapter {
         return startOfMinute(date);
       case "second":
         return startOfSecond(date);
-      case "decade":
-        const currentYear = date.getFullYear();
-        const decadeStart = Math.floor(currentYear / 10) * 10;
-        return new Date(decadeStart, 0, 1);
-      case "century":
-        const centuryYear = date.getFullYear();
-        const centuryStart = Math.floor(centuryYear / 100) * 100;
-        return new Date(centuryStart, 0, 1);
-      case "millennium":
-        const millenniumYear = date.getFullYear();
-        const millenniumStart = Math.floor(millenniumYear / 1000) * 1000;
-        return new Date(millenniumStart, 0, 1);
       default:
         return new Date(date);
     }
@@ -117,18 +105,6 @@ export class DateFnsAdapter implements Adapter {
         return endOfMinute(date);
       case "second":
         return endOfSecond(date);
-      case "decade":
-        const currentYear = date.getFullYear();
-        const decadeEnd = Math.floor(currentYear / 10) * 10 + 9;
-        return new Date(decadeEnd, 11, 31, 23, 59, 59, 999);
-      case "century":
-        const centuryYear = date.getFullYear();
-        const centuryEnd = Math.floor(centuryYear / 100) * 100 + 99;
-        return new Date(centuryEnd, 11, 31, 23, 59, 59, 999);
-      case "millennium":
-        const millenniumYear = date.getFullYear();
-        const millenniumEnd = Math.floor(millenniumYear / 1000) * 1000 + 999;
-        return new Date(millenniumEnd, 11, 31, 23, 59, 59, 999);
       default:
         return new Date(date);
     }
@@ -199,9 +175,6 @@ export class DateFnsAdapter implements Adapter {
 
     switch (unit) {
       case "year":
-      case "decade":
-      case "century":
-      case "millennium":
         return eachYearOfInterval(interval);
       case "month":
         return eachMonthOfInterval(interval);

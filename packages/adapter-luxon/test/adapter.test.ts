@@ -209,21 +209,6 @@ describe("LuxonAdapter", () => {
       expect(result).toEqual(new Date("2024-06-15T10:30:45.000"));
     });
 
-    it("should get start of decade", () => {
-      const result = adapter.startOf(testDate, "decade");
-      expect(result).toEqual(new Date("2020-01-01T00:00:00.000"));
-    });
-
-    it("should get start of century", () => {
-      const result = adapter.startOf(testDate, "century");
-      expect(result).toEqual(new Date("2000-01-01T00:00:00.000"));
-    });
-
-    it("should get start of millennium", () => {
-      const result = adapter.startOf(testDate, "millennium");
-      expect(result).toEqual(new Date("2000-01-01T00:00:00.000"));
-    });
-
     it("should handle unknown unit", () => {
       const result = adapter.startOf(testDate, "unknown" as any);
       expect(result.getTime()).toBe(testDate.getTime());
@@ -285,21 +270,6 @@ describe("LuxonAdapter", () => {
       const result = adapter.endOf(testDate, "second");
       expect(result.getSeconds()).toBe(45);
       expect(result.getMilliseconds()).toBeGreaterThan(990);
-    });
-
-    it("should get end of decade", () => {
-      const result = adapter.endOf(testDate, "decade");
-      expect(result).toEqual(new Date("2029-12-31T23:59:59.999"));
-    });
-
-    it("should get end of century", () => {
-      const result = adapter.endOf(testDate, "century");
-      expect(result).toEqual(new Date("2099-12-31T23:59:59.999"));
-    });
-
-    it("should get end of millennium", () => {
-      const result = adapter.endOf(testDate, "millennium");
-      expect(result).toEqual(new Date("2999-12-31T23:59:59.999"));
     });
 
     it("should handle unknown unit", () => {
@@ -371,33 +341,6 @@ describe("LuxonAdapter", () => {
 
       expect(adapter.isSame(date1, date2, "second")).toBe(true);
       expect(adapter.isSame(date1, date3, "second")).toBe(false);
-    });
-
-    it("should check same decade", () => {
-      const date1 = new Date("2020-01-01");
-      const date2 = new Date("2029-12-31");
-      const date3 = new Date("2030-01-01");
-
-      expect(adapter.isSame(date1, date2, "decade")).toBe(true);
-      expect(adapter.isSame(date1, date3, "decade")).toBe(false);
-    });
-
-    it("should check same century", () => {
-      const date1 = new Date("2000-01-01");
-      const date2 = new Date("2099-12-31");
-      const date3 = new Date("2100-01-01");
-
-      expect(adapter.isSame(date1, date2, "century")).toBe(true);
-      expect(adapter.isSame(date1, date3, "century")).toBe(false);
-    });
-
-    it("should check same millennium", () => {
-      const date1 = new Date("2000-01-01");
-      const date2 = new Date("2999-12-31");
-      const date3 = new Date("3000-01-01");
-
-      expect(adapter.isSame(date1, date2, "millennium")).toBe(true);
-      expect(adapter.isSame(date1, date3, "millennium")).toBe(false);
     });
 
     it("should handle unknown unit", () => {
@@ -527,15 +470,6 @@ describe("LuxonAdapter", () => {
       expect(result.length).toBeGreaterThanOrEqual(3);
       expect(result[0].getMinutes()).toBe(0);
       expect(result[result.length - 1].getMinutes()).toBeLessThanOrEqual(3);
-    });
-
-    it("should handle decades", () => {
-      const start = new Date("2000-01-01");
-      const end = new Date("2030-01-01");
-      const result = adapter.eachInterval(start, end, "decade");
-
-      // Luxon doesn't have specific decade handling, so it uses year
-      expect(result.length).toBeGreaterThan(0);
     });
 
     it("should handle unknown unit", () => {

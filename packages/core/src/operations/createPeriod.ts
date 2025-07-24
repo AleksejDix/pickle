@@ -12,10 +12,15 @@ export function createPeriod(
   const { adapter, weekStartsOn } = temporal;
   const date = period.date;
 
-  const start = adapter.startOf(date, type as any, {
+  if (type === "custom") {
+    // For custom periods, just return the original period
+    return period;
+  }
+
+  const start = adapter.startOf(date, type as Exclude<Unit, "custom">, {
     weekStartsOn: weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
   });
-  const end = adapter.endOf(date, type as any, {
+  const end = adapter.endOf(date, type as Exclude<Unit, "custom">, {
     weekStartsOn: weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
   });
 

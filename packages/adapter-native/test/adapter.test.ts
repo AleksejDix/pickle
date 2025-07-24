@@ -254,31 +254,6 @@ describe("NativeDateAdapter", () => {
       const endSecond = adapter.endOf(date, "second");
       expect(endSecond.getMilliseconds()).toBe(999);
 
-      // Decade
-      const startDecade = adapter.startOf(date, "decade");
-      expect(startDecade.getFullYear()).toBe(2020);
-      expect(startDecade.getMonth()).toBe(0);
-      expect(startDecade.getDate()).toBe(1);
-
-      const endDecade = adapter.endOf(date, "decade");
-      expect(endDecade.getFullYear()).toBe(2029);
-      expect(endDecade.getMonth()).toBe(11);
-      expect(endDecade.getDate()).toBe(31);
-
-      // Century
-      const startCentury = adapter.startOf(date, "century");
-      expect(startCentury.getFullYear()).toBe(2000);
-
-      const endCentury = adapter.endOf(date, "century");
-      expect(endCentury.getFullYear()).toBe(2099);
-
-      // Millennium
-      const startMillennium = adapter.startOf(date, "millennium");
-      expect(startMillennium.getFullYear()).toBe(2000);
-
-      const endMillennium = adapter.endOf(date, "millennium");
-      expect(endMillennium.getFullYear()).toBe(2999);
-
       // Unknown unit
       const unknownStart = adapter.startOf(date, "unknown" as any);
       expect(unknownStart.getTime()).toBe(date.getTime());
@@ -308,31 +283,6 @@ describe("NativeDateAdapter", () => {
       const date3Second = new Date(2024, 5, 15, 14, 30, 46, 0);
       expect(adapter.isSame(date1Second, date2Second, "second")).toBe(true);
       expect(adapter.isSame(date1Second, date3Second, "second")).toBe(false);
-
-      // Decade
-      const date1Decade = new Date(2020, 0, 1);
-      const date2Decade = new Date(2029, 11, 31);
-      const date3Decade = new Date(2030, 0, 1);
-      expect(adapter.isSame(date1Decade, date2Decade, "decade")).toBe(true);
-      expect(adapter.isSame(date1Decade, date3Decade, "decade")).toBe(false);
-
-      // Century
-      const date1Century = new Date(2000, 0, 1);
-      const date2Century = new Date(2099, 11, 31);
-      const date3Century = new Date(2100, 0, 1);
-      expect(adapter.isSame(date1Century, date2Century, "century")).toBe(true);
-      expect(adapter.isSame(date1Century, date3Century, "century")).toBe(false);
-
-      // Millennium
-      const date1Millennium = new Date(2000, 0, 1);
-      const date2Millennium = new Date(2999, 11, 31);
-      const date3Millennium = new Date(3000, 0, 1);
-      expect(
-        adapter.isSame(date1Millennium, date2Millennium, "millennium")
-      ).toBe(true);
-      expect(
-        adapter.isSame(date1Millennium, date3Millennium, "millennium")
-      ).toBe(false);
 
       // Unknown unit - exact time comparison
       const dateExact1 = new Date(2024, 5, 15, 14, 30, 45, 123);

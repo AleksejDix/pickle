@@ -16,6 +16,12 @@ export function divide(
     );
   }
 
+  if (unit === "custom") {
+    throw new Error(
+      "Cannot divide by custom unit. Custom periods have arbitrary boundaries."
+    );
+  }
+
   // Special handling for stableMonth periods
   if (period.type === "stableMonth") {
     if (unit !== "day" && unit !== "week") {
@@ -60,15 +66,28 @@ export function divide(
   }
 
   // Standard division using adapter's eachInterval
-  const intervals = adapter.eachInterval(period.start, period.end, unit);
+  // At this point, unit cannot be "custom" or "stableMonth" due to the checks above
+  const intervals = adapter.eachInterval(
+    period.start,
+    period.end,
+    unit as Exclude<Unit, "custom" | "stableMonth">
+  );
 
   return intervals.map((date) => {
-    const start = adapter.startOf(date, unit, {
-      weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-    });
-    const end = adapter.endOf(date, unit, {
-      weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-    });
+    const start = adapter.startOf(
+      date,
+      unit as Exclude<Unit, "custom" | "stableMonth">,
+      {
+        weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+      }
+    );
+    const end = adapter.endOf(
+      date,
+      unit as Exclude<Unit, "custom" | "stableMonth">,
+      {
+        weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
+      }
+    );
 
     return {
       start,

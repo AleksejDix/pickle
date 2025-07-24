@@ -3,18 +3,7 @@ export { createTemporal } from "./createTemporal";
 export type { CreateTemporalOptions } from "./createTemporal";
 
 // Period composables - module exports
-export {
-  usePeriod, // Unified composable
-  useYear,
-  useMonth,
-  useWeek,
-  useDay,
-  useHour,
-  useMinute,
-  useSecond,
-  useQuarter,
-  useStableMonth,
-} from "./composables/usePeriods";
+export { usePeriod } from "./composables/usePeriods";
 
 // Operations - functional API
 export {

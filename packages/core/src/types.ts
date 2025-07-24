@@ -79,12 +79,20 @@ export interface Adapter {
   name: string;
   add(date: Date, duration: Duration): Date;
   subtract(date: Date, duration: Duration): Date;
-  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date;
-  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date;
-  isSame(date1: Date, date2: Date, unit: TimeUnitKind): boolean;
+  startOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date;
+  endOf(
+    date: Date,
+    unit: Exclude<Unit, "custom">,
+    options?: AdapterOptions
+  ): Date;
+  isSame(date1: Date, date2: Date, unit: Exclude<Unit, "custom">): boolean;
   isBefore(date1: Date, date2: Date): boolean;
   isAfter(date1: Date, date2: Date): boolean;
-  eachInterval(start: Date, end: Date, unit: TimeUnitKind): Date[];
+  eachInterval(start: Date, end: Date, unit: Exclude<Unit, "custom">): Date[];
 }
 
 // Split operation options

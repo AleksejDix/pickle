@@ -39,14 +39,14 @@
 <script setup lang="ts">
 import { computed, type ComputedRef } from 'vue'
 import type { Temporal, Period } from 'usetemporal'
-import { useDay, divide, isSame, toPeriod } from 'usetemporal'
+import { usePeriod, divide, isSame, toPeriod } from 'usetemporal'
 
 const props = defineProps<{
   temporal: Temporal
   initialDay?: ComputedRef<Period>
 }>()
 
-const day = props.initialDay || useDay(props.temporal)
+const day = props.initialDay || usePeriod(props.temporal, 'day')
 
 const dayTitle = computed(() => {
   return formatDate(day.value.date)

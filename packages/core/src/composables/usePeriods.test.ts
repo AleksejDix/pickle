@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { ref, computed } from "@vue/reactivity";
-import { usePeriod, useYear, useMonth, useWeek } from "./usePeriods";
+import { usePeriod } from "./usePeriods";
 import { createTemporal } from "../createTemporal";
 import { mockAdapter } from "../test/mockAdapter";
 import { TEST_DATE } from "../test/testDates";
@@ -64,23 +64,6 @@ describe("usePeriod", () => {
     // Toggle view
     isYearView.value = false;
     expect(period.value.type).toBe("month");
-  });
-
-  it("should match behavior of individual composables", () => {
-    const yearFromUsePeriod = usePeriod(temporal, "year");
-    const yearFromUseYear = useYear(temporal);
-
-    expect(yearFromUsePeriod.value).toEqual(yearFromUseYear.value);
-
-    const monthFromUsePeriod = usePeriod(temporal, "month");
-    const monthFromUseMonth = useMonth(temporal);
-
-    expect(monthFromUsePeriod.value).toEqual(monthFromUseMonth.value);
-
-    const weekFromUsePeriod = usePeriod(temporal, "week");
-    const weekFromUseWeek = useWeek(temporal);
-
-    expect(weekFromUsePeriod.value).toEqual(weekFromUseWeek.value);
   });
 
   it("should support all unit types", () => {

@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { createTemporal, usePeriod, go, type Period, type Unit } from 'usetemporal'
+import { createTemporal, usePeriod, go, type Period } from 'usetemporal'
 import { NativeDateAdapter } from '@usetemporal/adapter-native'
 import YearView from './YearView.vue'
 import MonthView from './MonthView.vue'
@@ -89,7 +89,7 @@ const temporal = createTemporal({
 const currentView = ref<ViewType>('month')
 
 // Using the unified usePeriod composable with reactive unit
-const currentPeriod = usePeriod(temporal, currentView as Unit)
+const currentPeriod = usePeriod(temporal, currentView)
 
 const views = [
   { type: 'day' as ViewType, label: 'Day' },

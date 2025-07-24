@@ -142,43 +142,6 @@ export class TemporalAdapter implements Adapter {
             millisecond: 0,
           });
         return new Date(startOfWeekZoned.epochMilliseconds);
-      case "decade":
-        const currentYear = zonedDateTime.year;
-        const decadeStart = Math.floor(currentYear / 10) * 10;
-        const startOfDecadeZoned = zonedDateTime.with({
-          year: decadeStart,
-          month: 1,
-          day: 1,
-          hour: 0,
-          minute: 0,
-          second: 0,
-          millisecond: 0,
-        });
-        return new Date(startOfDecadeZoned.epochMilliseconds);
-      case "century":
-        const centuryStart = Math.floor(zonedDateTime.year / 100) * 100;
-        const startOfCenturyZoned = zonedDateTime.with({
-          year: centuryStart,
-          month: 1,
-          day: 1,
-          hour: 0,
-          minute: 0,
-          second: 0,
-          millisecond: 0,
-        });
-        return new Date(startOfCenturyZoned.epochMilliseconds);
-      case "millennium":
-        const millenniumStart = Math.floor(zonedDateTime.year / 1000) * 1000;
-        const startOfMillenniumZoned = zonedDateTime.with({
-          year: millenniumStart,
-          month: 1,
-          day: 1,
-          hour: 0,
-          minute: 0,
-          second: 0,
-          millisecond: 0,
-        });
-        return new Date(startOfMillenniumZoned.epochMilliseconds);
       default:
         return new Date(date);
     }
@@ -264,43 +227,6 @@ export class TemporalAdapter implements Adapter {
           millisecond: 999,
         });
         return new Date(endOfWeekZoned.epochMilliseconds);
-      case "decade":
-        const decadeEnd = Math.floor(zonedDateTime.year / 10) * 10 + 9;
-        const endOfDecadeZoned = zonedDateTime.with({
-          year: decadeEnd,
-          month: 12,
-          day: 31,
-          hour: 23,
-          minute: 59,
-          second: 59,
-          millisecond: 999,
-        });
-        return new Date(endOfDecadeZoned.epochMilliseconds);
-      case "century":
-        const centuryEnd = Math.floor(zonedDateTime.year / 100) * 100 + 99;
-        const endOfCenturyZoned = zonedDateTime.with({
-          year: centuryEnd,
-          month: 12,
-          day: 31,
-          hour: 23,
-          minute: 59,
-          second: 59,
-          millisecond: 999,
-        });
-        return new Date(endOfCenturyZoned.epochMilliseconds);
-      case "millennium":
-        const millenniumEnd =
-          Math.floor(zonedDateTime.year / 1000) * 1000 + 999;
-        const endOfMillenniumZoned = zonedDateTime.with({
-          year: millenniumEnd,
-          month: 12,
-          day: 31,
-          hour: 23,
-          minute: 59,
-          second: 59,
-          millisecond: 999,
-        });
-        return new Date(endOfMillenniumZoned.epochMilliseconds);
       default:
         return new Date(date);
     }
@@ -326,18 +252,6 @@ export class TemporalAdapter implements Adapter {
         return zonedA.year === zonedB.year && zonedA.month === zonedB.month;
       case "day":
         return plainA.equals(plainB);
-      case "decade":
-        const decadeA = Math.floor(zonedA.year / 10);
-        const decadeB = Math.floor(zonedB.year / 10);
-        return decadeA === decadeB;
-      case "century":
-        const centuryA = Math.floor(zonedA.year / 100);
-        const centuryB = Math.floor(zonedB.year / 100);
-        return centuryA === centuryB;
-      case "millennium":
-        const millenniumA = Math.floor(zonedA.year / 1000);
-        const millenniumB = Math.floor(zonedB.year / 1000);
-        return millenniumA === millenniumB;
       default:
         return a.getTime() === b.getTime();
     }

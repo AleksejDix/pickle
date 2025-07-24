@@ -31,7 +31,7 @@
 <script setup lang="ts">
 import { computed, ref, type ComputedRef } from 'vue'
 import type { Temporal, Period } from 'usetemporal'
-import { useMonth, useStableMonth, divide } from 'usetemporal'
+import { usePeriod, divide } from 'usetemporal'
 
 const props = defineProps<{
   temporal: Temporal
@@ -42,10 +42,10 @@ const emit = defineEmits<{
   selectDay: [day: Period]
 }>()
 
-const month = props.initialMonth || useMonth(props.temporal)
+const month = props.initialMonth || usePeriod(props.temporal, 'month')
 
 // Use stableMonth for the calendar grid
-const stableMonth = useStableMonth(props.temporal)
+const stableMonth = usePeriod(props.temporal, 'stableMonth')
 
 const selectedDay = ref<Period | null>(null)
 

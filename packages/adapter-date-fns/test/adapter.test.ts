@@ -194,21 +194,6 @@ describe("DateFnsAdapter", () => {
       expect(result).toEqual(new Date("2024-06-15T10:30:45.000"));
     });
 
-    it("should get start of decade", () => {
-      const result = adapter.startOf(testDate, "decade");
-      expect(result).toEqual(new Date("2020-01-01T00:00:00.000"));
-    });
-
-    it("should get start of century", () => {
-      const result = adapter.startOf(testDate, "century");
-      expect(result).toEqual(new Date("2000-01-01T00:00:00.000"));
-    });
-
-    it("should get start of millennium", () => {
-      const result = adapter.startOf(testDate, "millennium");
-      expect(result).toEqual(new Date("2000-01-01T00:00:00.000"));
-    });
-
     it("should handle unknown unit", () => {
       const result = adapter.startOf(testDate, "unknown" as any);
       expect(result.getTime()).toBe(testDate.getTime());
@@ -254,21 +239,6 @@ describe("DateFnsAdapter", () => {
     it("should get end of second", () => {
       const result = adapter.endOf(testDate, "second");
       expect(result).toEqual(new Date("2024-06-15T10:30:45.999"));
-    });
-
-    it("should get end of decade", () => {
-      const result = adapter.endOf(testDate, "decade");
-      expect(result).toEqual(new Date("2029-12-31T23:59:59.999"));
-    });
-
-    it("should get end of century", () => {
-      const result = adapter.endOf(testDate, "century");
-      expect(result).toEqual(new Date("2099-12-31T23:59:59.999"));
-    });
-
-    it("should get end of millennium", () => {
-      const result = adapter.endOf(testDate, "millennium");
-      expect(result).toEqual(new Date("2999-12-31T23:59:59.999"));
     });
 
     it("should handle unknown unit", () => {
@@ -440,15 +410,6 @@ describe("DateFnsAdapter", () => {
       expect(result).toHaveLength(4);
       expect(result[0].getMinutes()).toBe(0);
       expect(result[3].getMinutes()).toBe(3);
-    });
-
-    it("should handle decades", () => {
-      const start = new Date("2000-01-01");
-      const end = new Date("2030-01-01");
-      const result = adapter.eachInterval(start, end, "decade");
-
-      // date-fns doesn't have specific decade handling, so it uses year
-      expect(result.length).toBeGreaterThan(0);
     });
 
     it("should handle unknown unit", () => {

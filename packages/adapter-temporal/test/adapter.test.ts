@@ -293,21 +293,6 @@ describe("TemporalAdapter", () => {
       expect(result.getMilliseconds()).toBe(0);
     });
 
-    it("should get start of decade", () => {
-      const result = adapter.startOf(testDate, "decade");
-      expect(result).toEqual(new Date("2020-01-01T00:00:00.000"));
-    });
-
-    it("should get start of century", () => {
-      const result = adapter.startOf(testDate, "century");
-      expect(result).toEqual(new Date("2000-01-01T00:00:00.000"));
-    });
-
-    it("should get start of millennium", () => {
-      const result = adapter.startOf(testDate, "millennium");
-      expect(result).toEqual(new Date("2000-01-01T00:00:00.000"));
-    });
-
     it("should handle unknown unit", () => {
       const result = adapter.startOf(testDate, "unknown" as any);
       expect(result.getTime()).toBe(testDate.getTime());
@@ -333,21 +318,6 @@ describe("TemporalAdapter", () => {
       expect(result.getMinutes()).toBe(59);
       expect(result.getSeconds()).toBe(59);
       expect(result.getMilliseconds()).toBe(999);
-    });
-
-    it("should get end of decade", () => {
-      const result = adapter.endOf(testDate, "decade");
-      expect(result).toEqual(new Date("2029-12-31T23:59:59.999"));
-    });
-
-    it("should get end of century", () => {
-      const result = adapter.endOf(testDate, "century");
-      expect(result).toEqual(new Date("2099-12-31T23:59:59.999"));
-    });
-
-    it("should get end of millennium", () => {
-      const result = adapter.endOf(testDate, "millennium");
-      expect(result).toEqual(new Date("2999-12-31T23:59:59.999"));
     });
 
     it("should handle unknown unit", () => {
@@ -382,33 +352,6 @@ describe("TemporalAdapter", () => {
 
       expect(adapter.isSame(date1, date2, "day")).toBe(true);
       expect(adapter.isSame(date1, date3, "day")).toBe(false);
-    });
-
-    it("should check same decade", () => {
-      const date1 = new Date("2020-01-01");
-      const date2 = new Date("2029-12-31");
-      const date3 = new Date("2030-01-01");
-
-      expect(adapter.isSame(date1, date2, "decade")).toBe(true);
-      expect(adapter.isSame(date1, date3, "decade")).toBe(false);
-    });
-
-    it("should check same century", () => {
-      const date1 = new Date("2000-01-01");
-      const date2 = new Date("2099-12-31");
-      const date3 = new Date("2100-01-01");
-
-      expect(adapter.isSame(date1, date2, "century")).toBe(true);
-      expect(adapter.isSame(date1, date3, "century")).toBe(false);
-    });
-
-    it("should check same millennium", () => {
-      const date1 = new Date("2000-01-01");
-      const date2 = new Date("2999-12-31");
-      const date3 = new Date("3000-01-01");
-
-      expect(adapter.isSame(date1, date2, "millennium")).toBe(true);
-      expect(adapter.isSame(date1, date3, "millennium")).toBe(false);
     });
 
     it("should handle unknown unit", () => {
