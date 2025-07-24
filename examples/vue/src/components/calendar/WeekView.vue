@@ -5,13 +5,13 @@
       <div class="days-header">
         <div
           v-for="day in days"
-          :key="day.value.toISOString()"
+          :key="day.date.toISOString()"
           class="day-header"
           :class="{ 'is-today': isToday(day) }"
         >
           <div class="day-name">{{ getDayName(day) }}</div>
           <div class="day-date" :class="{ 'is-today': isToday(day) }">
-            {{ day.number }}
+            {{ day.date.getDate() }}
           </div>
         </div>
       </div>
@@ -25,7 +25,7 @@
       </div>
 
       <div class="days-grid">
-        <div v-for="day in days" :key="day.value.toISOString()" class="day-column">
+        <div v-for="day in days" :key="day.date.toISOString()" class="day-column">
           <div class="hours-grid">
             <div
               v-for="hour in 24"
@@ -97,14 +97,14 @@ const currentTimePosition = computed(() => {
 function isToday(day: Period): boolean {
   const today = new Date()
   return (
-    day.value.getFullYear() === today.getFullYear() &&
-    day.value.getMonth() === today.getMonth() &&
-    day.value.getDate() === today.getDate()
+    day.date.getFullYear() === today.getFullYear() &&
+    day.date.getMonth() === today.getMonth() &&
+    day.date.getDate() === today.getDate()
   )
 }
 
 function getDayName(day: Period) {
-  const date = day.value
+  const date = day.date
   return date.toLocaleDateString('en-US', { weekday: 'short' })
 }
 

@@ -7,7 +7,7 @@ import { TEST_DATE } from "../test/testDates";
 describe("toPeriod", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    dateAdapter: mockAdapter,
+    adapter: mockAdapter,
     weekStartsOn: 1,
   });
 
@@ -16,8 +16,7 @@ describe("toPeriod", () => {
     const period = toPeriod(temporal, date);
 
     expect(period.type).toBe("day");
-    expect(period.value).toEqual(date);
-    expect(period.number).toBe(15);
+    expect(period.date).toEqual(date);
   });
 
   it("should create a month period", () => {
@@ -25,8 +24,7 @@ describe("toPeriod", () => {
     const period = toPeriod(temporal, date, "month");
 
     expect(period.type).toBe("month");
-    expect(period.value).toEqual(date);
-    expect(period.number).toBe(6); // June is month 6
+    expect(period.date).toEqual(date);
   });
 
   it("should create a year period", () => {
@@ -34,8 +32,7 @@ describe("toPeriod", () => {
     const period = toPeriod(temporal, date, "year");
 
     expect(period.type).toBe("year");
-    expect(period.value).toEqual(date);
-    expect(period.number).toBe(2024);
+    expect(period.date).toEqual(date);
   });
 
   it("should create a week period", () => {
@@ -43,8 +40,7 @@ describe("toPeriod", () => {
     const period = toPeriod(temporal, date, "week");
 
     expect(period.type).toBe("week");
-    expect(period.value).toEqual(date);
-    expect(period.number).toBeGreaterThan(0);
+    expect(period.date).toEqual(date);
   });
 
   it("should create an hour period", () => {
@@ -52,8 +48,7 @@ describe("toPeriod", () => {
     const period = toPeriod(temporal, date, "hour");
 
     expect(period.type).toBe("hour");
-    expect(period.value).toEqual(date);
-    expect(period.number).toBe(14);
+    expect(period.date).toEqual(date);
   });
 
   it("should create a quarter period", () => {
@@ -61,7 +56,6 @@ describe("toPeriod", () => {
     const period = toPeriod(temporal, date, "quarter");
 
     expect(period.type).toBe("quarter");
-    expect(period.value).toEqual(date);
-    expect(period.number).toBe(2);
+    expect(period.date).toEqual(date);
   });
 });

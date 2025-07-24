@@ -1,4 +1,4 @@
-import type { Period } from "../types/period";
+import type { Period } from "../types";
 
 /**
  * Check if a period contains a date or another period

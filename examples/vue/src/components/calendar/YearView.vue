@@ -1,7 +1,7 @@
 <template>
   <div class="year-view">
     <div class="year-header">
-      <h1>{{ year.value.number }}</h1>
+      <h1>{{ year.date.getFullYear() }}</h1>
     </div>
 
     <div class="months-grid">
@@ -13,7 +13,7 @@
         @click="$emit('selectMonth', month)"
       >
         <div class="month-header">
-          {{ month.value.toLocaleDateString('en-US', { month: 'short' }) }}
+          {{ month.date.toLocaleDateString('en-US', { month: 'short' }) }}
         </div>
 
         <div class="month-calendar">
@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Temporal, Period } from 'usetemporal'
-import { useYear, divide, useMonth, isSame } from 'usetemporal'
+import { useYear, divide, useMonth, isSame, toPeriod } from 'usetemporal'
 
 const props = defineProps<{
   temporal: Temporal
@@ -82,54 +82,57 @@ function isCurrentMonth(month: Period): boolean {
 
 // Check if a day is today
 function isToday(day: Date): boolean {
-  const today = new Date()
-  return (
-    day.getFullYear() === today.getFullYear() &&
-    day.getMonth() === today.getMonth() &&
-    day.getDate() === today.getDate()
-  )
+  const dayPeriod = toPeriod(props.temporal, day, 'day')
+  return isSame(props.temporal, dayPeriod, props.temporal.now.value, 'day')
 }
 
 // Get weeks for a month showing the full calendar grid
 function getMonthWeeks(month: Period) {
   // For mini calendar in year view, we'll create a simple grid
   // showing all days of the month including padding days
-  const firstDay = new Date(month.value.getFullYear(), month.value.getMonth(), 1)
-  const lastDay = new Date(month.value.getFullYear(), month.value.getMonth() + 1, 0)
+  const firstDay = new Date(month.date.getFullYear(), month.date.getMonth(), 1)
+  const lastDay = new Date(month.date.getFullYear(), month.date.getMonth() + 1, 0)
   const startPadding = (firstDay.getDay() - props.temporal.weekStartsOn + 7) % 7
-  
-  const weeks: Array<Array<{ dayNumber: number; isCurrentMonth: boolean; isWeekend: boolean; isToday: boolean }>> = []
-  let currentWeek: Array<{ dayNumber: number; isCurrentMonth: boolean; isWeekend: boolean; isToday: boolean }> = []
-  
+
+  const weeks: Array<
+    Array<{ dayNumber: number; isCurrentMonth: boolean; isWeekend: boolean; isToday: boolean }>
+  > = []
+  let currentWeek: Array<{
+    dayNumber: number
+    isCurrentMonth: boolean
+    isWeekend: boolean
+    isToday: boolean
+  }> = []
+
   // Add padding days from previous month
-  const prevMonthLastDay = new Date(month.value.getFullYear(), month.value.getMonth(), 0).getDate()
+  const prevMonthLastDay = new Date(month.date.getFullYear(), month.date.getMonth(), 0).getDate()
   for (let i = startPadding - 1; i >= 0; i--) {
     const dayNum = prevMonthLastDay - i
     currentWeek.push({
       dayNumber: dayNum,
       isCurrentMonth: false,
       isWeekend: false,
-      isToday: false
+      isToday: false,
     })
   }
-  
+
   // Add days of current month
   for (let day = 1; day <= lastDay.getDate(); day++) {
-    const date = new Date(month.value.getFullYear(), month.value.getMonth(), day)
+    const date = new Date(month.date.getFullYear(), month.date.getMonth(), day)
     const dayOfWeek = date.getDay()
     currentWeek.push({
       dayNumber: day,
       isCurrentMonth: true,
       isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
-      isToday: isToday(date)
+      isToday: isToday(date),
     })
-    
+
     if (currentWeek.length === 7) {
       weeks.push(currentWeek)
       currentWeek = []
     }
   }
-  
+
   // Add padding days from next month
   if (currentWeek.length > 0) {
     let nextDay = 1
@@ -138,12 +141,12 @@ function getMonthWeeks(month: Period) {
         dayNumber: nextDay++,
         isCurrentMonth: false,
         isWeekend: false,
-        isToday: false
+        isToday: false,
       })
     }
     weeks.push(currentWeek)
   }
-  
+
   return weeks
 }
 </script>

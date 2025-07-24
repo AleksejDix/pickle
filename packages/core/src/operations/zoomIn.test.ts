@@ -3,12 +3,12 @@ import { zoomIn } from "./zoomIn";
 import { createTemporal } from "../createTemporal";
 import { mockAdapter } from "../test/mockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
-import type { Period } from "../types/period";
+import type { Period } from "../types";
 
 describe("zoomIn", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    dateAdapter: mockAdapter,
+    adapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
@@ -17,8 +17,7 @@ describe("zoomIn", () => {
       start: testDates.jan1,
       end: testDates.dec31,
       type: "year",
-      value: testDates.jun15,
-      number: 2024,
+      date: testDates.jun15,
     };
 
     const months = zoomIn(temporal, year, "month");
@@ -33,8 +32,7 @@ describe("zoomIn", () => {
       start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
       type: "month",
-      value: testDates.jan15,
-      number: 1,
+      date: testDates.jan15,
     };
 
     const weeks = zoomIn(temporal, january, "week");
@@ -48,8 +46,7 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 8), // Monday
       end: new Date(2024, 0, 14, 23, 59, 59, 999), // Sunday
       type: "week",
-      value: testDates.jan10,
-      number: 2,
+      date: testDates.jan10,
     };
 
     const days = zoomIn(temporal, week, "day");
@@ -64,15 +61,12 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 15, 0, 0, 0),
       end: new Date(2024, 0, 15, 23, 59, 59, 999),
       type: "day",
-      value: testDates.jan15,
-      number: 15,
+      date: testDates.jan15,
     };
 
     const hours = zoomIn(temporal, day, "hour");
 
     expect(hours).toHaveLength(24);
-    expect(hours[0].number).toBe(0);
-    expect(hours[23].number).toBe(23);
   });
 
   it("should zoom from custom period", () => {
@@ -80,8 +74,7 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 1),
       end: new Date(2024, 0, 14, 23, 59, 59, 999),
       type: "custom",
-      value: new Date(2024, 0, 7),
-      number: 0,
+      date: new Date(2024, 0, 7),
     };
 
     const days = zoomIn(temporal, sprint, "day");
@@ -96,15 +89,12 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 15, 14, 0, 0),
       end: new Date(2024, 0, 15, 14, 59, 59, 999),
       type: "hour",
-      value: new Date(2024, 0, 15, 14, 30),
-      number: 14,
+      date: new Date(2024, 0, 15, 14, 30),
     };
 
     const minutes = zoomIn(temporal, hour, "minute");
 
     expect(minutes).toHaveLength(60);
-    expect(minutes[0].number).toBe(0);
-    expect(minutes[59].number).toBe(59);
   });
 
   it("should preserve period properties when zooming", () => {
@@ -112,8 +102,7 @@ describe("zoomIn", () => {
       start: testDates.jun1,
       end: testDates.jun30,
       type: "month",
-      value: testDates.jun15,
-      number: 6,
+      date: testDates.jun15,
     };
 
     const days = zoomIn(temporal, month, "day");
@@ -132,16 +121,12 @@ describe("zoomIn", () => {
       start: new Date(2024, 3, 1),
       end: testDates.jun30,
       type: "quarter",
-      value: testDates.may15,
-      number: 2,
+      date: testDates.may15,
     };
 
     const months = zoomIn(temporal, q2, "month");
 
     expect(months).toHaveLength(3);
-    expect(months[0].number).toBe(4); // April
-    expect(months[1].number).toBe(5); // May
-    expect(months[2].number).toBe(6); // June
   });
 
   it("should handle stableMonth zoom to days", () => {
@@ -149,8 +134,7 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 29), // Monday before Feb 1
       end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
       type: "stableMonth",
-      value: testDates.feb15,
-      number: 2,
+      date: testDates.feb15,
     };
 
     const days = zoomIn(temporal, stableMonth, "day");
@@ -163,8 +147,7 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 29), // Monday before Feb 1
       end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
       type: "stableMonth",
-      value: testDates.feb15,
-      number: 2,
+      date: testDates.feb15,
     };
 
     const weeks = zoomIn(temporal, stableMonth, "week");
@@ -177,8 +160,7 @@ describe("zoomIn", () => {
       start: testDates.jan1,
       end: new Date(2024, 0, 31),
       type: "month",
-      value: testDates.jan15,
-      number: 1,
+      date: testDates.jan15,
     };
 
     expect(() => zoomIn(temporal, month, "stableMonth")).toThrow(

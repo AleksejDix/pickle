@@ -1,4 +1,4 @@
-import type { Period, Temporal } from "../types/period";
+import type { Period, Temporal } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
@@ -19,10 +19,10 @@ export function merge(temporal: Temporal, periods: Period[]): Period | null {
   // Check for natural units
   if (periods.length === 7 && periods.every((p) => p.type === "day")) {
     // Check if these 7 days form a complete week
-    const startOfWeek = temporal.adapter.startOf(periods[0].value, "week", {
+    const startOfWeek = temporal.adapter.startOf(periods[0].date, "week", {
       weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
     });
-    const endOfWeek = temporal.adapter.endOf(periods[6].value, "week", {
+    const endOfWeek = temporal.adapter.endOf(periods[6].date, "week", {
       weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
     });
 
@@ -30,13 +30,13 @@ export function merge(temporal: Temporal, periods: Period[]): Period | null {
       start.getTime() === startOfWeek.getTime() &&
       end.getTime() === endOfWeek.getTime()
     ) {
-      return createPeriod(temporal, "week", periods[3].value); // Middle day
+      return createPeriod(temporal, "week", periods[3]); // Middle day
     }
   }
 
   if (periods.length === 3 && periods.every((p) => p.type === "month")) {
     // Check if these form a quarter - they must be consecutive months
-    const months = sorted.map((p) => p.value.getMonth());
+    const months = sorted.map((p) => p.date.getMonth());
     const firstMonth = months[0];
 
     // Check if it's a valid quarter start (0, 3, 6, 9) and consecutive
@@ -45,7 +45,7 @@ export function merge(temporal: Temporal, periods: Period[]): Period | null {
       months[1] === firstMonth + 1 &&
       months[2] === firstMonth + 2
     ) {
-      return createPeriod(temporal, "quarter", periods[1].value);
+      return createPeriod(temporal, "quarter", periods[1]);
     }
   }
 
@@ -54,7 +54,6 @@ export function merge(temporal: Temporal, periods: Period[]): Period | null {
     start,
     end,
     type: "custom",
-    value: new Date((start.getTime() + end.getTime()) / 2),
-    number: 0,
+    date: new Date((start.getTime() + end.getTime()) / 2),
   };
 }

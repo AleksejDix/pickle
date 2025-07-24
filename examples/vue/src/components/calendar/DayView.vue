@@ -11,12 +11,12 @@
       <div class="hours-container">
         <div
           v-for="hour in hours"
-          :key="hour.value.toISOString()"
+          :key="hour.date.toISOString()"
           class="hour-block"
           :class="{ 'is-current': isCurrentHour(hour) }"
         >
           <div class="hour-label">
-            {{ formatHour(hour.number) }}
+            {{ formatHour(hour.date.getHours()) }}
           </div>
           <div class="hour-content">
             <div class="hour-line"></div>
@@ -37,9 +37,9 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, type ComputedRef } from 'vue'
+import { computed, type ComputedRef } from 'vue'
 import type { Temporal, Period } from 'usetemporal'
-import { useDay, divide } from 'usetemporal'
+import { useDay, divide, isSame, toPeriod } from 'usetemporal'
 
 const props = defineProps<{
   temporal: Temporal
@@ -49,32 +49,17 @@ const props = defineProps<{
 const day = props.initialDay || useDay(props.temporal)
 
 const dayTitle = computed(() => {
-  return formatDate(day.value.value)
+  return formatDate(day.value.date)
 })
 
 const dayInfo = computed(() => {
-  return getDayOfWeek(day.value.value)
+  return getDayOfWeek(day.value.date)
 })
 
 const hours = computed(() => divide(props.temporal, day.value, 'hour'))
 
-const currentTime = ref(new Date())
-let intervalId: number
-
-onMounted(() => {
-  updateTime()
-  intervalId = window.setInterval(updateTime, 60000) // Update every minute
-})
-
-onUnmounted(() => {
-  if (intervalId) {
-    clearInterval(intervalId)
-  }
-})
-
-function updateTime() {
-  currentTime.value = new Date()
-}
+// Use temporal's reactive now value which updates automatically
+const currentTime = computed(() => props.temporal.now.value.date)
 
 const currentTimePosition = computed(() => {
   const now = currentTime.value
@@ -94,11 +79,13 @@ function formatDate(date: Date) {
 }
 
 function getDayOfWeek(date: Date) {
-  const today = new Date()
-  const diffTime = date.getTime() - today.getTime()
+  const dayPeriod = toPeriod(props.temporal, date, 'day')
+
+  if (isSame(props.temporal, dayPeriod, props.temporal.now.value, 'day')) return 'Today'
+
+  const diffTime = date.getTime() - props.temporal.now.value.date.getTime()
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
 
-  if (diffDays === 0) return 'Today'
   if (diffDays === 1) return 'Tomorrow'
   if (diffDays === -1) return 'Yesterday'
 
@@ -106,22 +93,11 @@ function getDayOfWeek(date: Date) {
 }
 
 function isToday(day: Period): boolean {
-  const today = new Date()
-  return (
-    day.value.getFullYear() === today.getFullYear() &&
-    day.value.getMonth() === today.getMonth() &&
-    day.value.getDate() === today.getDate()
-  )
+  return isSame(props.temporal, day, props.temporal.now.value, 'day')
 }
 
 function isCurrentHour(hour: Period): boolean {
-  const now = new Date()
-  return (
-    hour.value.getFullYear() === now.getFullYear() &&
-    hour.value.getMonth() === now.getMonth() &&
-    hour.value.getDate() === now.getDate() &&
-    hour.value.getHours() === now.getHours()
-  )
+  return isSame(props.temporal, hour, props.temporal.now.value, 'hour')
 }
 
 function formatHour(hour: number) {

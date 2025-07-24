@@ -2,19 +2,20 @@
 
 ## Completed ✅
 
-1. **Navigation API** - `next()`, `previous()`, `go(n)` methods
-2. **International Week Support** - `weekStartsOn` configuration
-3. **StableMonth Unit** - 6-week calendar grid
-4. **Universal Contains Method** - Check if dates/units fall within boundaries
-5. **Unified Period Operations** - `split()`, `merge()`, `createPeriod()` methods
+1. **Period-Centric API Refactoring** - Complete architectural shift to Period objects
+2. **Navigation API** - `next()`, `previous()`, `go(n)` methods
+3. **International Week Support** - `weekStartsOn` configuration
+4. **StableMonth Unit** - 6-week calendar grid
+5. **Universal Contains Method** - Check if dates/units fall within boundaries
+6. **Unified Period Operations** - `split()`, `merge()`, `createPeriod()` methods
+7. **Zoom Navigation Methods** - `zoomIn()`, `zoomOut()` implemented as aliases
+8. **Quarter Support** - Built-in quarterly period support with `useQuarter()`
+9. **Custom Period Creation** - `createCustomPeriod()` for arbitrary date ranges
+10. **Period Comparison** - `isSame()` method for checking period equality
 
 ## High Priority 🔴
 
-1. **Zoom Navigation Methods** - [RFC-011](./RFC/011-zoom-navigation.md)
-   - Implement `zoomIn()`, `zoomOut()`, `zoomTo()` methods
-   - Semantic wrappers over split/merge operations
-   - Intuitive bidirectional time navigation
-2. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
+1. **Basic Utility Functions** - [RFC-002](./RFC/002-utility-functions.md)
    - Common checks: isWeekend, isToday, isPast, isFuture
    - Reduce repetitive date operations
 

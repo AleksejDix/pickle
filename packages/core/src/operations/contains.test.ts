@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { contains } from "./contains";
 import { testDates } from "../test/testDates";
-import type { Period } from "../types/period";
+import type { Period } from "../types";
 
 describe("contains", () => {
   describe("Period contains Date", () => {
@@ -10,8 +10,7 @@ describe("contains", () => {
         start: new Date(2024, 0, 1, 0, 0, 0, 0),
         end: new Date(2024, 11, 31, 23, 59, 59, 999),
         type: "year",
-        value: new Date(2024, 5, 15),
-        number: 2024,
+        date: new Date(2024, 5, 15),
       };
 
       expect(contains(year, new Date(2024, 0, 1))).toBe(true); // First day
@@ -26,8 +25,7 @@ describe("contains", () => {
         start: new Date(2024, 1, 1, 0, 0, 0, 0),
         end: new Date(2024, 1, 29, 23, 59, 59, 999), // Leap year
         type: "month",
-        value: new Date(2024, 1, 15),
-        number: 2,
+        date: new Date(2024, 1, 15),
       };
 
       expect(contains(february, new Date(2024, 1, 1))).toBe(true); // First day
@@ -42,8 +40,7 @@ describe("contains", () => {
         start: new Date(2024, 0, 8, 0, 0, 0, 0), // Monday
         end: new Date(2024, 0, 14, 23, 59, 59, 999), // Sunday
         type: "week",
-        value: new Date(2024, 0, 10),
-        number: 2,
+        date: new Date(2024, 0, 10),
       };
 
       expect(contains(week, new Date(2024, 0, 8))).toBe(true); // Monday
@@ -58,8 +55,7 @@ describe("contains", () => {
         start: new Date(2024, 0, 15, 0, 0, 0, 0),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 0, 15, 12, 0),
-        number: 15,
+        date: new Date(2024, 0, 15, 12, 0),
       };
 
       expect(contains(day, new Date(2024, 0, 15, 0, 0, 0))).toBe(true); // Start
@@ -73,8 +69,7 @@ describe("contains", () => {
         start: new Date(2024, 0, 15, 14, 0, 0, 0),
         end: new Date(2024, 0, 15, 14, 59, 59, 999),
         type: "hour",
-        value: new Date(2024, 0, 15, 14, 30),
-        number: 14,
+        date: new Date(2024, 0, 15, 14, 30),
       };
 
       expect(contains(hour, new Date(2024, 0, 15, 14, 0))).toBe(true); // Start
@@ -91,24 +86,21 @@ describe("contains", () => {
         start: new Date(2024, 0, 1),
         end: new Date(2024, 11, 31, 23, 59, 59, 999),
         type: "year",
-        value: new Date(2024, 5, 15),
-        number: 2024,
+        date: new Date(2024, 5, 15),
       };
 
       const june2024: Period = {
         start: new Date(2024, 5, 1),
         end: new Date(2024, 5, 30, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 5, 15),
-        number: 6,
+        date: new Date(2024, 5, 15),
       };
 
       const jan2025: Period = {
         start: new Date(2025, 0, 1),
         end: new Date(2025, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2025, 0, 15),
-        number: 1,
+        date: new Date(2025, 0, 15),
       };
 
       expect(contains(year, june2024)).toBe(true);
@@ -120,24 +112,21 @@ describe("contains", () => {
         start: new Date(2024, 1, 1),
         end: new Date(2024, 1, 29, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 1, 15),
-        number: 2,
+        date: new Date(2024, 1, 15),
       };
 
       const dayInMonth: Period = {
         start: new Date(2024, 1, 15, 0, 0, 0),
         end: new Date(2024, 1, 15, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 1, 15, 12, 0),
-        number: 15,
+        date: new Date(2024, 1, 15, 12, 0),
       };
 
       const dayOutsideMonth: Period = {
         start: new Date(2024, 2, 1, 0, 0, 0),
         end: new Date(2024, 2, 1, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 2, 1, 12, 0),
-        number: 1,
+        date: new Date(2024, 2, 1, 12, 0),
       };
 
       expect(contains(month, dayInMonth)).toBe(true);
@@ -149,24 +138,21 @@ describe("contains", () => {
         start: new Date(2024, 0, 8),
         end: new Date(2024, 0, 14, 23, 59, 59, 999),
         type: "week",
-        value: testDates.jan10,
-        number: 2,
+        date: testDates.jan10,
       };
 
       const monday: Period = {
         start: new Date(2024, 0, 8, 0, 0, 0),
         end: new Date(2024, 0, 8, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 0, 8, 12, 0),
-        number: 8,
+        date: new Date(2024, 0, 8, 12, 0),
       };
 
       const nextMonday: Period = {
         start: new Date(2024, 0, 15, 0, 0, 0),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 0, 15, 12, 0),
-        number: 15,
+        date: new Date(2024, 0, 15, 12, 0),
       };
 
       expect(contains(week, monday)).toBe(true);
@@ -178,24 +164,21 @@ describe("contains", () => {
         start: new Date(2024, 0, 15, 0, 0, 0),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 0, 15, 12, 0),
-        number: 15,
+        date: new Date(2024, 0, 15, 12, 0),
       };
 
       const morningHour: Period = {
         start: new Date(2024, 0, 15, 8, 0, 0),
         end: new Date(2024, 0, 15, 8, 59, 59, 999),
         type: "hour",
-        value: new Date(2024, 0, 15, 8, 30),
-        number: 8,
+        date: new Date(2024, 0, 15, 8, 30),
       };
 
       const nextDayHour: Period = {
         start: new Date(2024, 0, 16, 0, 0, 0),
         end: new Date(2024, 0, 16, 0, 59, 59, 999),
         type: "hour",
-        value: new Date(2024, 0, 16, 0, 30),
-        number: 0,
+        date: new Date(2024, 0, 16, 0, 30),
       };
 
       expect(contains(day, morningHour)).toBe(true);
@@ -209,8 +192,7 @@ describe("contains", () => {
         start: new Date(2024, 0, 15, 0, 0, 0, 0),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 0, 15, 12, 0),
-        number: 15,
+        date: new Date(2024, 0, 15, 12, 0),
       };
 
       const startOfDay = new Date(2024, 0, 15, 0, 0, 0, 0);
@@ -225,8 +207,7 @@ describe("contains", () => {
         start: new Date(2024, 0, 1, 0, 0, 0),
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 0, 15),
-        number: 1,
+        date: new Date(2024, 0, 15),
       };
 
       const lastDayJan = new Date(2024, 0, 31, 23, 59, 59);
@@ -241,8 +222,7 @@ describe("contains", () => {
         start: new Date(2024, 0, 29), // Monday before Feb 1
         end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday after Feb 29
         type: "stableMonth",
-        value: new Date(2024, 1, 15),
-        number: 2,
+        date: new Date(2024, 1, 15),
       };
 
       // Note: The current implementation checks grid boundaries, not actual month

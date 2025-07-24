@@ -1,5 +1,4 @@
-import type { Period, Temporal } from "../types/period";
-import type { DivideUnit } from "../types/reactive";
+import type { Period, Temporal, DivideUnit } from "../types";
 import { divide } from "./divide";
 
 /**

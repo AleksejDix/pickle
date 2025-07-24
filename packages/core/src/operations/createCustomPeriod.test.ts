@@ -11,7 +11,6 @@ describe("createCustomPeriod", () => {
     expect(period.type).toBe("custom");
     expect(period.start).toEqual(start);
     expect(period.end).toEqual(end);
-    expect(period.number).toBe(0);
   });
 
   it("should calculate middle value correctly", () => {
@@ -21,7 +20,7 @@ describe("createCustomPeriod", () => {
     const period = createCustomPeriod(start, end);
 
     const expectedMiddle = new Date((start.getTime() + end.getTime()) / 2);
-    expect(period.value).toEqual(expectedMiddle);
+    expect(period.date).toEqual(expectedMiddle);
   });
 
   it("should handle same start and end dates", () => {
@@ -31,7 +30,7 @@ describe("createCustomPeriod", () => {
 
     expect(period.start).toEqual(date);
     expect(period.end).toEqual(date);
-    expect(period.value).toEqual(date);
+    expect(period.date).toEqual(date);
   });
 
   it("should handle time components", () => {
@@ -42,7 +41,7 @@ describe("createCustomPeriod", () => {
 
     expect(period.start.getHours()).toBe(9);
     expect(period.end.getHours()).toBe(17);
-    expect(period.value.getHours()).toBe(13); // Middle of workday
+    expect(period.date.getHours()).toBe(13); // Middle of workday
   });
 
   it("should handle cross-month periods", () => {
@@ -53,7 +52,7 @@ describe("createCustomPeriod", () => {
 
     expect(period.start.getMonth()).toBe(0); // January
     expect(period.end.getMonth()).toBe(1); // February
-    expect(period.value.getMonth()).toBe(0); // Still January (around Jan 30)
+    expect(period.date.getMonth()).toBe(0); // Still January (around Jan 30)
   });
 
   it("should handle cross-year periods", () => {
@@ -65,8 +64,8 @@ describe("createCustomPeriod", () => {
     expect(period.start.getFullYear()).toBe(2023);
     expect(period.end.getFullYear()).toBe(2024);
     // Middle should be around Dec 30, 2023
-    expect(period.value.getFullYear()).toBe(2023);
-    expect(period.value.getMonth()).toBe(11);
+    expect(period.date.getFullYear()).toBe(2023);
+    expect(period.date.getMonth()).toBe(11);
   });
 
   it("should handle millisecond precision", () => {
@@ -76,6 +75,6 @@ describe("createCustomPeriod", () => {
     const period = createCustomPeriod(start, end);
 
     // JavaScript Date rounds milliseconds to integers
-    expect(period.value.getMilliseconds()).toBe(499);
+    expect(period.date.getMilliseconds()).toBe(499);
   });
 });

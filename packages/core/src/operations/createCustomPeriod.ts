@@ -1,4 +1,4 @@
-import type { Period } from "../types/period";
+import type { Period } from "../types";
 
 /**
  * Create a custom period with specific start and end dates
@@ -8,7 +8,6 @@ export function createCustomPeriod(start: Date, end: Date): Period {
     start,
     end,
     type: "custom",
-    value: new Date((start.getTime() + end.getTime()) / 2),
-    number: 0,
+    date: new Date((start.getTime() + end.getTime()) / 2),
   };
 }

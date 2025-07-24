@@ -38,14 +38,50 @@ Each RFC follows this structure:
 - **Alternatives** - Other approaches considered
 - **Migration Path** - How to adopt the feature
 
-## Recent Major Features
+## Current Implementation Status (v2.0.0-alpha.1)
 
-The library has recently implemented several powerful features:
+The library has undergone a major architectural shift to a **Period-centric API**:
 
-1. **Unified Period Operations** - `split()`, `merge()`, and `createPeriod()` methods provide flexible time manipulation
-2. **Universal Contains Method** - All time units can check if they contain dates or other units
-3. **StableMonth** - A 6-week calendar grid that always starts at the beginning of the week
-4. **International Week Support** - Configurable week start day (Monday by default)
+### Core Architecture Changes
+
+- **Period-based Operations**: All operations now work with `Period` objects instead of `TimeUnit` classes
+- **Functional API**: Pure functions that take temporal context and periods
+- **Minimal Temporal State**: The temporal instance is now just a state container with adapter, config, and reactive periods
+
+### Implemented Features
+
+1. **Period Operations**
+   - `createPeriod()` - Create period of specified type
+   - `createCustomPeriod()` - Create custom period with start/end dates
+   - `toPeriod()` - Convert date to period
+
+2. **Division/Split Operations**
+   - `divide()` - The signature pattern for hierarchical time division
+   - `split()` - Advanced splitting with unit/count/duration options
+
+3. **Navigation**
+   - `next()`, `previous()`, `go()` - Move between periods
+   - `zoomIn()`, `zoomOut()` - Zoom navigation (aliases for divide/merge)
+
+4. **Merging**
+   - `merge()` - Intelligent period merging with natural unit detection
+
+5. **Comparison**
+   - `isSame()` - Check if periods are in same unit
+   - `contains()` - Check if period contains date/period
+
+6. **Reactive Composables**
+   - `useYear()`, `useMonth()`, `useWeek()`, `useDay()`, etc.
+   - `useQuarter()` - Quarter support
+   - `useStableMonth()` - 6-week calendar grid
+
+### Key API Differences from Original Design
+
+- No TimeUnit classes - uses plain Period objects
+- All operations are standalone functions
+- Simplified Temporal instance
+- Mandatory date parameter in createTemporal
+- Everything revolves around the Period interface
 
 ## Contributing
 

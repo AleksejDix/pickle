@@ -2,30 +2,30 @@
 // Full-featured adapter using date-fns library
 
 import type {
-  DateAdapter,
-  DateAdapterOptions,
-  DateDuration,
+  Adapter,
+  AdapterOptions,
+  Duration,
   TimeUnitKind,
 } from "@usetemporal/core";
 
 // Import date-fns functions - these will be tree-shaken if adapter is not used
 import * as dateFnsImport from "date-fns";
 
-export class DateFnsAdapter implements DateAdapter {
+export class DateFnsAdapter implements Adapter {
   name = "date-fns";
   private dateFns = dateFnsImport;
 
-  add(date: Date, duration: DateDuration): Date {
+  add(date: Date, duration: Duration): Date {
     const { add } = this.dateFns;
     return add(date, duration);
   }
 
-  subtract(date: Date, duration: DateDuration): Date {
+  subtract(date: Date, duration: Duration): Date {
     const { sub } = this.dateFns;
     return sub(date, duration);
   }
 
-  startOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
+  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
     const {
       startOfYear,
       startOfMonth,
@@ -76,7 +76,7 @@ export class DateFnsAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
+  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
     const {
       endOfYear,
       endOfMonth,

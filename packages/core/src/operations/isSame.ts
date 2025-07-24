@@ -1,18 +1,17 @@
-import type { Period, PeriodType, TemporalContext } from "../types/period";
-import type { DivideUnit } from "../types/reactive";
+import type { Period, PeriodType, TemporalContext, DivideUnit } from "../types";
 
 /**
  * Check if two periods are the same for a given unit
- * 
+ *
  * Uses the Period-centric API pattern where operations work with Period objects.
- * To compare dates directly, wrap them in periods or use period.value.
- * 
+ * To compare dates directly, wrap them in periods or use period.date.
+ *
  * @example
  * // Compare two periods
  * isSame(temporal, yearPeriod, otherYearPeriod, 'year')
- * 
- * // Compare periods by their value dates
- * const sameDayPeriod = createPeriod(temporal, 'day', period.value)
+ *
+ * // Compare periods by their reference dates
+ * const sameDayPeriod = createPeriod(temporal, 'day', period)
  * isSame(temporal, period, sameDayPeriod, 'day')
  */
 export function isSame(
@@ -23,8 +22,8 @@ export function isSame(
 ): boolean {
   if (!a || !b) return false;
 
-  const dateA = a.value;
-  const dateB = b.value;
+  const dateA = a.date;
+  const dateB = b.date;
 
   // Handle quarter comparison specially
   if (unit === "quarter") {

@@ -1,5 +1,4 @@
-import type { Period, PeriodType, TemporalContext } from "../types/period";
-import type { DivideUnit } from "../types/reactive";
+import type { Period, PeriodType, TemporalContext, DivideUnit } from "../types";
 
 /**
  * Divide a period into smaller units
@@ -34,8 +33,7 @@ export function divide(
         start: dayStart,
         end: dayEnd,
         type: "day",
-        value: new Date(currentDate),
-        number: currentDate.getDate(),
+        date: new Date(currentDate),
       });
 
       currentDate = adapter.add(currentDate, { days: 1 });
@@ -51,8 +49,7 @@ export function divide(
             start: weekDays[0].start,
             end: weekDays[weekDays.length - 1].end,
             type: "week",
-            value: weekDays[0].value,
-            number: Math.floor(i / 7) + 1,
+            date: weekDays[0].date,
           });
         }
       }
@@ -77,45 +74,7 @@ export function divide(
       start,
       end,
       type: unit as PeriodType,
-      value: date,
-      number: getNumber(date, unit, adapter),
+      date: date,
     };
   });
-}
-
-/**
- * Get the numeric value for a period type
- */
-function getNumber(
-  date: Date,
-  type: PeriodType | DivideUnit,
-  adapter: any
-): number {
-  switch (type) {
-    case "year":
-      return date.getFullYear();
-    case "month":
-    case "stableMonth":
-      return date.getMonth() + 1;
-    case "week":
-      // Calculate week number
-      const startOfYear = adapter.startOf(date, "year");
-      const startOfWeek = adapter.startOf(date, "week");
-      const daysDiff = Math.floor(
-        (startOfWeek.getTime() - startOfYear.getTime()) / (1000 * 60 * 60 * 24)
-      );
-      return Math.floor(daysDiff / 7) + 1;
-    case "day":
-      return date.getDate();
-    case "hour":
-      return date.getHours();
-    case "minute":
-      return date.getMinutes();
-    case "second":
-      return date.getSeconds();
-    case "quarter":
-      return Math.floor(date.getMonth() / 3) + 1;
-    default:
-      return 0;
-  }
 }

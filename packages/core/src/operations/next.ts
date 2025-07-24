@@ -1,4 +1,4 @@
-import type { Period, PeriodType, TemporalContext } from "../types/period";
+import type { Period, PeriodType, TemporalContext } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
@@ -7,9 +7,17 @@ import { createPeriod } from "./createPeriod";
 export function next(context: TemporalContext, period: Period): Period {
   const { adapter } = context;
   const duration = getDuration(period.type);
-  const nextValue = adapter.add(period.value, duration);
+  const nextValue = adapter.add(period.date, duration);
 
-  return createPeriod(context, period.type, nextValue);
+  // Create a temporary point-in-time period for the new date
+  const tempPeriod: Period = {
+    start: nextValue,
+    end: nextValue,
+    type: "second",
+    date: nextValue,
+  };
+
+  return createPeriod(context, period.type, tempPeriod);
 }
 
 /**

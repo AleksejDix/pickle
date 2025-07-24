@@ -1,34 +1,27 @@
 <template>
-  <div class="month-view">
-    <div class="month-header">
-      <h2>{{ monthTitle }}</h2>
+  <div class="calendar-grid">
+    <div class="weekday-headers">
+      <div v-for="weekday in weekdays" :key="weekday" class="weekday">
+        {{ weekday }}
+      </div>
     </div>
 
-    <div class="calendar-grid">
-      <div class="weekday-headers">
-        <div v-for="weekday in weekdays" :key="weekday" class="weekday">
-          {{ weekday }}
-        </div>
-      </div>
-
-      <div class="weeks-grid">
-        <div v-for="(week, weekIndex) in gridWeeks" :key="`week-${weekIndex}`" class="week">
-          <div
-            v-for="(dayInfo, dayIndex) in week"
-            :key="`day-${weekIndex}-${dayIndex}`"
-            class="day"
-            :class="{
-              'is-today': isToday(dayInfo.day),
-              'is-weekend': dayInfo.isWeekend,
-              'is-selected':
-                selectedDay && selectedDay.value.getTime() === dayInfo.day.value.getTime(),
-              'is-other-month': !dayInfo.isCurrentMonth,
-            }"
-            @click="dayInfo.isCurrentMonth && selectDay(dayInfo.day)"
-          >
-            <span class="day-number">{{ dayInfo.day.number }}</span>
-            <div class="day-content"></div>
-          </div>
+    <div class="weeks-grid">
+      <div v-for="(week, weekIndex) in gridWeeks" :key="`week-${weekIndex}`" class="week">
+        <div
+          v-for="(dayInfo, dayIndex) in week"
+          :key="`day-${weekIndex}-${dayIndex}`"
+          class="day"
+          :class="{
+            'is-today': isToday(dayInfo.day),
+            'is-weekend': dayInfo.isWeekend,
+            'is-selected': selectedDay && selectedDay.date.getTime() === dayInfo.day.date.getTime(),
+            'is-other-month': !dayInfo.isCurrentMonth,
+          }"
+          @click="dayInfo.isCurrentMonth && selectDay(dayInfo.day)"
+        >
+          <span class="day-number">{{ dayInfo.day.date.getDate() }}</span>
+          <div class="day-content"></div>
         </div>
       </div>
     </div>
@@ -54,11 +47,6 @@ const month = props.initialMonth || useMonth(props.temporal)
 // Use stableMonth for the calendar grid
 const stableMonth = useStableMonth(props.temporal)
 
-// Computed property for month title
-const monthTitle = computed(() => {
-  return month.value.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
-})
-
 const selectedDay = ref<Period | null>(null)
 
 const weeks = computed(() => divide(props.temporal, stableMonth.value, 'week'))
@@ -75,8 +63,8 @@ const gridWeeks = computed(() => {
     const days = divide(props.temporal, week, 'day')
     return days.map((day) => ({
       day,
-      isCurrentMonth: day.value.getMonth() === month.value.value.getMonth(),
-      isWeekend: day.value.getDay() === 0 || day.value.getDay() === 6,
+      isCurrentMonth: day.date.getMonth() === month.value.date.getMonth(),
+      isWeekend: day.date.getDay() === 0 || day.date.getDay() === 6,
     }))
   })
 })
@@ -89,36 +77,14 @@ function selectDay(day: Period) {
 function isToday(day: Period): boolean {
   const today = new Date()
   return (
-    day.value.getFullYear() === today.getFullYear() &&
-    day.value.getMonth() === today.getMonth() &&
-    day.value.getDate() === today.getDate()
+    day.date.getFullYear() === today.getFullYear() &&
+    day.date.getMonth() === today.getMonth() &&
+    day.date.getDate() === today.getDate()
   )
 }
 </script>
 
 <style scoped>
-.month-view {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-.month-header {
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.month-header h2 {
-  font-size: 24px;
-  font-weight: 400;
-  color: #333;
-  margin: 0;
-}
-
 .calendar-grid {
   width: 100%;
 }

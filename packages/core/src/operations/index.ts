@@ -11,5 +11,4 @@ export { split } from "./split";
 export { toPeriod } from "./toPeriod";
 export { zoomIn } from "./zoomIn";
 export { zoomOut } from "./zoomOut";
-
-export type { SplitOptions } from "./split";
+export { zoomTo } from "./zoomTo";

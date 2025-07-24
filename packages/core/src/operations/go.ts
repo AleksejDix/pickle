@@ -1,4 +1,4 @@
-import type { Period, PeriodType, TemporalContext } from "../types/period";
+import type { Period, PeriodType, TemporalContext } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
@@ -15,10 +15,18 @@ export function go(
   const duration = getDuration(period.type, Math.abs(steps));
   const newValue =
     steps > 0
-      ? adapter.add(period.value, duration)
-      : adapter.subtract(period.value, duration);
+      ? adapter.add(period.date, duration)
+      : adapter.subtract(period.date, duration);
 
-  return createPeriod(context, period.type, newValue);
+  // Create a temporary point-in-time period for the new date
+  const tempPeriod: Period = {
+    start: newValue,
+    end: newValue,
+    type: "second",
+    date: newValue,
+  };
+
+  return createPeriod(context, period.type, tempPeriod);
 }
 
 /**

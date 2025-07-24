@@ -24,6 +24,7 @@ export {
   contains,
   zoomIn,
   zoomOut,
+  zoomTo,
   createPeriod,
   split,
   merge,
@@ -31,7 +32,7 @@ export {
   isSame,
   toPeriod,
 } from "./operations";
-export type { SplitOptions } from "./operations";
+export type { SplitOptions } from "./types";
 
 // Types
 export type {
@@ -39,12 +40,10 @@ export type {
   PeriodType,
   Temporal,
   TemporalContext,
-} from "./types/period";
-
-// Re-export adapter types for convenience
-export type {
-  DateAdapter,
-  DateAdapterOptions,
-  DateDuration,
+  Adapter,
+  AdapterOptions,
+  Duration,
   TimeUnitKind,
-} from "./types/core";
+  DivideUnit,
+  DateOrRef,
+} from "./types";

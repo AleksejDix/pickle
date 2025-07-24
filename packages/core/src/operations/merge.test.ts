@@ -3,12 +3,12 @@ import { merge } from "./merge";
 import { createTemporal } from "../createTemporal";
 import { mockAdapter } from "../test/mockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
-import type { Period } from "../types/period";
+import type { Period } from "../types";
 
 describe("merge", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    dateAdapter: mockAdapter,
+    adapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
@@ -23,8 +23,7 @@ describe("merge", () => {
         start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: testDates.jan15,
-        number: 1,
+        date: testDates.jan15,
       };
 
       const result = merge(temporal, [month]);
@@ -36,24 +35,21 @@ describe("merge", () => {
         start: new Date(2024, 1, 1),
         end: testDates.feb29,
         type: "month",
-        value: testDates.feb15,
-        number: 2,
+        date: testDates.feb15,
       };
 
       const apr: Period = {
         start: new Date(2024, 3, 1),
         end: new Date(2024, 3, 30, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 3, 15),
-        number: 4,
+        date: new Date(2024, 3, 15),
       };
 
       const jun: Period = {
         start: testDates.jun1,
         end: testDates.jun30,
         type: "month",
-        value: testDates.jun15,
-        number: 6,
+        date: testDates.jun15,
       };
 
       const result = merge(temporal, [feb, apr, jun]);
@@ -69,31 +65,27 @@ describe("merge", () => {
         start: new Date(2024, 2, 1),
         end: new Date(2024, 2, 31, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 2, 15),
-        number: 3,
+        date: new Date(2024, 2, 15),
       };
 
       const jan: Period = {
         start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: testDates.jan15,
-        number: 1,
+        date: testDates.jan15,
       };
 
       const feb: Period = {
         start: new Date(2024, 1, 1),
         end: testDates.feb29,
         type: "month",
-        value: testDates.feb15,
-        number: 2,
+        date: testDates.feb15,
       };
 
       const result = merge(temporal, [mar, jan, feb]);
 
       expect(result).not.toBeNull();
       expect(result!.type).toBe("quarter");
-      expect(result!.number).toBe(1);
     });
   });
 
@@ -123,14 +115,13 @@ describe("merge", () => {
             999
           ),
           type: "day",
-          value: new Date(
+          date: new Date(
             date.getFullYear(),
             date.getMonth(),
             date.getDate(),
             12,
             0
           ),
-          number: date.getDate(),
         });
       }
 
@@ -148,15 +139,13 @@ describe("merge", () => {
           start: new Date(2024, 0, 8, 0, 0, 0),
           end: new Date(2024, 0, 8, 23, 59, 59, 999),
           type: "day",
-          value: new Date(2024, 0, 8, 12, 0),
-          number: 8,
+          date: new Date(2024, 0, 8, 12, 0),
         },
         {
           start: new Date(2024, 0, 10, 0, 0, 0), // Skip day 9
           end: new Date(2024, 0, 10, 23, 59, 59, 999),
           type: "day",
-          value: new Date(2024, 0, 10, 12, 0),
-          number: 10,
+          date: new Date(2024, 0, 10, 12, 0),
         },
       ];
 
@@ -172,22 +161,19 @@ describe("merge", () => {
           start: testDates.jan1,
           end: new Date(2024, 0, 31, 23, 59, 59, 999),
           type: "month",
-          value: testDates.jan15,
-          number: 1,
+          date: testDates.jan15,
         },
         {
           start: new Date(2024, 1, 1),
           end: testDates.feb29,
           type: "month",
-          value: testDates.feb15,
-          number: 2,
+          date: testDates.feb15,
         },
         {
           start: new Date(2024, 2, 1),
           end: new Date(2024, 2, 31, 23, 59, 59, 999),
           type: "month",
-          value: new Date(2024, 2, 15),
-          number: 3,
+          date: new Date(2024, 2, 15),
         },
       ];
 
@@ -195,7 +181,6 @@ describe("merge", () => {
 
       expect(result).not.toBeNull();
       expect(result!.type).toBe("quarter");
-      expect(result!.number).toBe(1); // Q1
     });
 
     it("should detect Q2 as quarter", () => {
@@ -204,22 +189,19 @@ describe("merge", () => {
           start: new Date(2024, 3, 1),
           end: new Date(2024, 3, 30, 23, 59, 59, 999),
           type: "month",
-          value: new Date(2024, 3, 15),
-          number: 4,
+          date: new Date(2024, 3, 15),
         },
         {
           start: new Date(2024, 4, 1),
           end: new Date(2024, 4, 31, 23, 59, 59, 999),
           type: "month",
-          value: testDates.may15,
-          number: 5,
+          date: testDates.may15,
         },
         {
           start: testDates.jun1,
           end: testDates.jun30,
           type: "month",
-          value: testDates.jun15,
-          number: 6,
+          date: testDates.jun15,
         },
       ];
 
@@ -227,7 +209,6 @@ describe("merge", () => {
 
       expect(result).not.toBeNull();
       expect(result!.type).toBe("quarter");
-      expect(result!.number).toBe(2); // Q2
     });
 
     it("should not detect non-quarter months as quarter", () => {
@@ -236,22 +217,19 @@ describe("merge", () => {
           start: new Date(2024, 1, 1), // February
           end: testDates.feb29,
           type: "month",
-          value: testDates.feb15,
-          number: 2,
+          date: testDates.feb15,
         },
         {
           start: new Date(2024, 2, 1), // March
           end: new Date(2024, 2, 31, 23, 59, 59, 999),
           type: "month",
-          value: new Date(2024, 2, 15),
-          number: 3,
+          date: new Date(2024, 2, 15),
         },
         {
           start: new Date(2024, 3, 1), // April
           end: new Date(2024, 3, 30, 23, 59, 59, 999),
           type: "month",
-          value: new Date(2024, 3, 15),
-          number: 4,
+          date: new Date(2024, 3, 15),
         },
       ];
 
@@ -268,16 +246,14 @@ describe("merge", () => {
         start: new Date(2024, 0, 15, 0, 0, 0),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: testDates.jan15,
-        number: 15,
+        date: testDates.jan15,
       };
 
       const hour: Period = {
         start: new Date(2024, 0, 16, 14, 0, 0),
         end: new Date(2024, 0, 16, 14, 59, 59, 999),
         type: "hour",
-        value: new Date(2024, 0, 16, 14, 30),
-        number: 14,
+        date: new Date(2024, 0, 16, 14, 30),
       };
 
       const result = merge(temporal, [day, hour]);
@@ -293,16 +269,14 @@ describe("merge", () => {
         start: new Date(2024, 0, 1),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "custom",
-        value: new Date(2024, 0, 8),
-        number: 0,
+        date: new Date(2024, 0, 8),
       };
 
       const period2: Period = {
         start: new Date(2024, 0, 10),
         end: new Date(2024, 0, 20, 23, 59, 59, 999),
         type: "custom",
-        value: new Date(2024, 0, 15),
-        number: 0,
+        date: new Date(2024, 0, 15),
       };
 
       const result = merge(temporal, [period1, period2]);
@@ -322,8 +296,7 @@ describe("merge", () => {
           start,
           end,
           type: "month", // Changed to month so it returns itself
-          value: testDates.jan15,
-          number: 1,
+          date: testDates.jan15,
         },
       ];
 

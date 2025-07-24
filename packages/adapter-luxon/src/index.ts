@@ -2,20 +2,20 @@
 // Modern immutable date library adapter
 
 import type {
-  DateAdapter,
-  DateAdapterOptions,
-  DateDuration,
+  Adapter,
+  AdapterOptions,
+  Duration,
   TimeUnitKind,
 } from "@usetemporal/core";
 
 // Import Luxon - this will be tree-shaken if adapter is not used
 import * as luxonImport from "luxon";
 
-export class LuxonAdapter implements DateAdapter {
+export class LuxonAdapter implements Adapter {
   name = "luxon";
   private luxon = luxonImport;
 
-  add(date: Date, duration: DateDuration): Date {
+  add(date: Date, duration: Duration): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
@@ -33,7 +33,7 @@ export class LuxonAdapter implements DateAdapter {
     return result.toJSDate();
   }
 
-  subtract(date: Date, duration: DateDuration): Date {
+  subtract(date: Date, duration: Duration): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
@@ -51,7 +51,7 @@ export class LuxonAdapter implements DateAdapter {
     return result.toJSDate();
   }
 
-  startOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
+  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 
@@ -126,7 +126,7 @@ export class LuxonAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
+  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
     const { DateTime } = this.luxon;
     const dt = DateTime.fromJSDate(date);
 

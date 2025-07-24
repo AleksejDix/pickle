@@ -2,7 +2,7 @@
 // Provides a simple entry point with native adapter as default
 
 export * from "@usetemporal/core";
-export { NativeDateAdapter as DateAdapter } from "@usetemporal/adapter-native";
+export { NativeDateAdapter as Adapter } from "@usetemporal/adapter-native";
 import { NativeDateAdapter } from "@usetemporal/adapter-native";
 import { createTemporal as createTemporalCore } from "@usetemporal/core";
 import type { CreateTemporalOptions, Temporal } from "@usetemporal/core";
@@ -10,14 +10,14 @@ import type { Ref } from "@vue/reactivity";
 
 // Convenience function that uses native adapter by default
 export function createTemporal(
-  options: Omit<CreateTemporalOptions, "dateAdapter"> & {
+  options: Omit<CreateTemporalOptions, "adapter"> & {
     date: Date | Ref<Date>;
-    dateAdapter?: CreateTemporalOptions["dateAdapter"];
+    adapter?: CreateTemporalOptions["adapter"];
   }
 ): Temporal {
   return createTemporalCore({
     ...options,
-    dateAdapter: options.dateAdapter || new NativeDateAdapter(),
+    adapter: options.adapter || new NativeDateAdapter(),
   });
 }
 

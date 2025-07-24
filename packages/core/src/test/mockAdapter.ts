@@ -1,10 +1,10 @@
-import type { DateAdapter } from "../types/core";
+import type { Adapter } from "../types";
 
 /**
  * Mock date adapter for testing
  * Returns predictable results for all operations
  */
-export class MockDateAdapter implements DateAdapter {
+export class MockAdapter implements Adapter {
   name = "mock";
 
   startOf(
@@ -277,4 +277,4 @@ export class MockDateAdapter implements DateAdapter {
 }
 
 // Export a singleton instance
-export const mockAdapter = new MockDateAdapter();
+export const mockAdapter = new MockAdapter();

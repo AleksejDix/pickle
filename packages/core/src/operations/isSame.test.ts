@@ -8,10 +8,9 @@ import { TEST_DATE, testDates } from "../test/testDates";
 describe("isSame", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    dateAdapter: mockAdapter,
+    adapter: mockAdapter,
     weekStartsOn: 1,
   });
-
 
   describe("year comparison", () => {
     it("should return true for same year", () => {
@@ -55,13 +54,21 @@ describe("isSame", () => {
   describe("day comparison", () => {
     it("should return true for same day", () => {
       const period1 = toPeriod(temporal, new Date(2024, 5, 15, 0, 0, 0), "day");
-      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 23, 59, 59), "day");
+      const period2 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 23, 59, 59),
+        "day"
+      );
 
       expect(isSame(temporal, period1, period2, "day")).toBe(true);
     });
 
     it("should return false for different days", () => {
-      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 23, 59, 59), "day");
+      const period1 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 23, 59, 59),
+        "day"
+      );
       const period2 = toPeriod(temporal, new Date(2024, 5, 16, 0, 0, 0), "day");
 
       expect(isSame(temporal, period1, period2, "day")).toBe(false);
@@ -70,15 +77,31 @@ describe("isSame", () => {
 
   describe("hour comparison", () => {
     it("should return true for same hour", () => {
-      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 0, 0), "day");
-      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 59, 59), "day");
+      const period1 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 0, 0),
+        "day"
+      );
+      const period2 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 59, 59),
+        "day"
+      );
 
       expect(isSame(temporal, period1, period2, "hour")).toBe(true);
     });
 
     it("should return false for different hours", () => {
-      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 59, 59), "day");
-      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 15, 0, 0), "day");
+      const period1 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 59, 59),
+        "day"
+      );
+      const period2 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 15, 0, 0),
+        "day"
+      );
 
       expect(isSame(temporal, period1, period2, "hour")).toBe(false);
     });
@@ -192,15 +215,31 @@ describe("isSame", () => {
 
   describe("minute comparison", () => {
     it("should return true for same minute", () => {
-      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 0), "minute");
-      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 59), "minute");
+      const period1 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 30, 0),
+        "minute"
+      );
+      const period2 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 30, 59),
+        "minute"
+      );
 
       expect(isSame(temporal, period1, period2, "minute")).toBe(true);
     });
 
     it("should return false for different minutes", () => {
-      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 59), "minute");
-      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 31, 0), "minute");
+      const period1 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 30, 59),
+        "minute"
+      );
+      const period2 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 31, 0),
+        "minute"
+      );
 
       expect(isSame(temporal, period1, period2, "minute")).toBe(false);
     });
@@ -208,15 +247,31 @@ describe("isSame", () => {
 
   describe("second comparison", () => {
     it("should return true for same second", () => {
-      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 45, 0), "second");
-      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 45, 999), "second");
+      const period1 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 30, 45, 0),
+        "second"
+      );
+      const period2 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 30, 45, 999),
+        "second"
+      );
 
       expect(isSame(temporal, period1, period2, "second")).toBe(true);
     });
 
     it("should return false for different seconds", () => {
-      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 45), "second");
-      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 46), "second");
+      const period1 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 30, 45),
+        "second"
+      );
+      const period2 = toPeriod(
+        temporal,
+        new Date(2024, 5, 15, 14, 30, 46),
+        "second"
+      );
 
       expect(isSame(temporal, period1, period2, "second")).toBe(false);
     });

@@ -3,12 +3,12 @@ import { divide } from "./divide";
 import { createTemporal } from "../createTemporal";
 import { mockAdapter } from "../test/mockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
-import type { Period } from "../types/period";
+import type { Period } from "../types";
 
 describe("divide", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    dateAdapter: mockAdapter,
+    adapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
@@ -17,16 +17,13 @@ describe("divide", () => {
       start: testDates.jan1,
       end: testDates.dec31,
       type: "year",
-      value: testDates.jun15,
-      number: 2024,
+      date: testDates.jun15,
     };
 
     const months = divide(temporal, year, "month");
 
     expect(months).toHaveLength(12);
-    expect(months[0].number).toBe(1); // January
     expect(months[0].start.getMonth()).toBe(0);
-    expect(months[11].number).toBe(12); // December
     expect(months[11].start.getMonth()).toBe(11);
   });
 
@@ -35,15 +32,12 @@ describe("divide", () => {
       start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
       type: "month",
-      value: testDates.jan15,
-      number: 1,
+      date: testDates.jan15,
     };
 
     const days = divide(temporal, january, "day");
 
     expect(days).toHaveLength(31); // January has 31 days
-    expect(days[0].number).toBe(1);
-    expect(days[30].number).toBe(31);
   });
 
   it("should divide week into days", () => {
@@ -51,8 +45,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 8), // Monday
       end: new Date(2024, 0, 14, 23, 59, 59, 999), // Sunday
       type: "week",
-      value: testDates.jan10,
-      number: 2,
+      date: testDates.jan10,
     };
 
     const days = divide(temporal, week, "day");
@@ -67,15 +60,12 @@ describe("divide", () => {
       start: new Date(2024, 0, 15, 0, 0, 0),
       end: new Date(2024, 0, 15, 23, 59, 59, 999),
       type: "day",
-      value: testDates.jan15,
-      number: 15,
+      date: testDates.jan15,
     };
 
     const hours = divide(temporal, day, "hour");
 
     expect(hours).toHaveLength(24);
-    expect(hours[0].number).toBe(0);
-    expect(hours[23].number).toBe(23);
   });
 
   it("should throw error when dividing by stableMonth", () => {
@@ -83,8 +73,7 @@ describe("divide", () => {
       start: testDates.jan1,
       end: new Date(2024, 0, 31),
       type: "month",
-      value: testDates.jan15,
-      number: 1,
+      date: testDates.jan15,
     };
 
     expect(() => divide(temporal, month, "stableMonth")).toThrow(
@@ -97,8 +86,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 29), // Monday before Feb 1
       end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
       type: "stableMonth",
-      value: testDates.feb15,
-      number: 2,
+      date: testDates.feb15,
     };
 
     const days = divide(temporal, stableMonth, "day");
@@ -113,8 +101,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 29), // Monday before Feb 1
       end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
       type: "stableMonth",
-      value: testDates.feb15,
-      number: 2,
+      date: testDates.feb15,
     };
 
     const weeks = divide(temporal, stableMonth, "week");
@@ -129,8 +116,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 29),
       end: new Date(2024, 2, 10),
       type: "stableMonth",
-      value: testDates.feb15,
-      number: 2,
+      date: testDates.feb15,
     };
 
     expect(() => divide(temporal, stableMonth, "month")).toThrow(
@@ -141,7 +127,7 @@ describe("divide", () => {
   it("should respect weekStartsOn when dividing by week", () => {
     const sundayTemporal = createTemporal({
       date: TEST_DATE,
-      dateAdapter: mockAdapter,
+      adapter: mockAdapter,
       weekStartsOn: 0, // Sunday
     });
 
@@ -149,8 +135,7 @@ describe("divide", () => {
       start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
       type: "month",
-      value: testDates.jan15,
-      number: 1,
+      date: testDates.jan15,
     };
 
     const weeks = divide(sundayTemporal, january, "week");

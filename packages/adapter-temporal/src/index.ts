@@ -2,13 +2,13 @@
 // Future-proof adapter using the native JavaScript Temporal API
 
 import type {
-  DateAdapter,
-  DateAdapterOptions,
-  DateDuration,
+  Adapter,
+  AdapterOptions,
+  Duration,
   TimeUnitKind,
 } from "@usetemporal/core";
 
-export class TemporalAdapter implements DateAdapter {
+export class TemporalAdapter implements Adapter {
   name = "temporal";
 
   // Check if Temporal API is available
@@ -21,7 +21,7 @@ export class TemporalAdapter implements DateAdapter {
     return (globalThis as any).Temporal;
   }
 
-  add(date: Date, duration: DateDuration): Date {
+  add(date: Date, duration: Duration): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -41,7 +41,7 @@ export class TemporalAdapter implements DateAdapter {
     return new Date(result.epochMilliseconds);
   }
 
-  subtract(date: Date, duration: DateDuration): Date {
+  subtract(date: Date, duration: Duration): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -63,7 +63,7 @@ export class TemporalAdapter implements DateAdapter {
     return new Date(result.epochMilliseconds);
   }
 
-  startOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
+  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());
@@ -184,7 +184,7 @@ export class TemporalAdapter implements DateAdapter {
     }
   }
 
-  endOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
+  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
     const { Instant, Now } = this.temporal;
 
     const instant = Instant.fromEpochMilliseconds(date.getTime());

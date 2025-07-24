@@ -3,12 +3,12 @@ import { split } from "./split";
 import { createTemporal } from "../createTemporal";
 import { mockAdapter } from "../test/mockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
-import type { Period } from "../types/period";
+import type { Period } from "../types";
 
 describe("split", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    dateAdapter: mockAdapter,
+    adapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
@@ -18,8 +18,7 @@ describe("split", () => {
         start: testDates.jan1,
         end: testDates.dec31,
         type: "year",
-        value: testDates.jun15,
-        number: 2024,
+        date: testDates.jun15,
       };
 
       const months = split(temporal, year, { by: "month" });
@@ -34,15 +33,12 @@ describe("split", () => {
         start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: testDates.jan15,
-        number: 1,
+        date: testDates.jan15,
       };
 
       const days = split(temporal, january, { by: "day" });
 
       expect(days).toHaveLength(31);
-      expect(days[0].number).toBe(1);
-      expect(days[30].number).toBe(31);
     });
   });
 
@@ -52,16 +48,13 @@ describe("split", () => {
         start: testDates.jan1,
         end: testDates.dec31,
         type: "year",
-        value: testDates.jun15,
-        number: 2024,
+        date: testDates.jun15,
       };
 
       const quarters = split(temporal, year, { count: 4 });
 
       expect(quarters).toHaveLength(4);
       expect(quarters[0].type).toBe("custom");
-      expect(quarters[0].number).toBe(1);
-      expect(quarters[3].number).toBe(4);
 
       // Each quarter should be roughly equal
       const q1Duration =
@@ -78,8 +71,7 @@ describe("split", () => {
         start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: testDates.jan15,
-        number: 1,
+        date: testDates.jan15,
       };
 
       const parts = split(temporal, january, { count: 3 });
@@ -94,8 +86,7 @@ describe("split", () => {
         start: new Date(2024, 0, 8),
         end: new Date(2024, 0, 14, 23, 59, 59, 999),
         type: "week",
-        value: testDates.jan10,
-        number: 2,
+        date: testDates.jan10,
       };
 
       const parts = split(temporal, week, { count: 1 });
@@ -112,8 +103,7 @@ describe("split", () => {
         start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: testDates.jan15,
-        number: 1,
+        date: testDates.jan15,
       };
 
       const twoWeekPeriods = split(temporal, january, {
@@ -134,8 +124,7 @@ describe("split", () => {
         start: new Date(2024, 0, 8), // Monday
         end: new Date(2024, 0, 14, 23, 59, 59, 999), // Sunday
         type: "week",
-        value: testDates.jan10,
-        number: 2,
+        date: testDates.jan10,
       };
 
       const periods = split(temporal, week, {
@@ -156,8 +145,7 @@ describe("split", () => {
         start: new Date(2024, 0, 15),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: testDates.jan15,
-        number: 15,
+        date: testDates.jan15,
       };
 
       const periods = split(temporal, day, { duration: { days: 2 } });
@@ -172,8 +160,7 @@ describe("split", () => {
         start: testDates.jan1,
         end: testDates.dec31,
         type: "year",
-        value: testDates.jun15,
-        number: 2024,
+        date: testDates.jun15,
       };
 
       const monthPeriods = split(temporal, year, { duration: { months: 1 } });
@@ -188,8 +175,7 @@ describe("split", () => {
         start: testDates.jan1,
         end: new Date(2024, 2, 31, 23, 59, 59, 999),
         type: "quarter",
-        value: testDates.feb15,
-        number: 1,
+        date: testDates.feb15,
       };
 
       const periods = split(temporal, quarter, {
@@ -206,8 +192,7 @@ describe("split", () => {
         start: testDates.jan1,
         end: new Date(2024, 0, 31),
         type: "month",
-        value: testDates.jan15,
-        number: 1,
+        date: testDates.jan15,
       };
 
       expect(() => split(temporal, month, {})).toThrow(
@@ -222,8 +207,7 @@ describe("split", () => {
         start: new Date(2024, 0, 15, 0, 0, 0),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: testDates.jan15,
-        number: 15,
+        date: testDates.jan15,
       };
 
       const hours = split(temporal, day, { by: "hour" });
@@ -242,8 +226,7 @@ describe("split", () => {
         start: new Date(2024, 0, 1, 9, 0, 0),
         end: new Date(2024, 0, 1, 17, 0, 0),
         type: "custom",
-        value: new Date(2024, 0, 1, 13, 0, 0),
-        number: 0,
+        date: new Date(2024, 0, 1, 13, 0, 0),
       };
 
       const parts = split(temporal, customPeriod, { count: 4 });

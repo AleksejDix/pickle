@@ -1,5 +1,4 @@
-import type { Period, Temporal } from "../types/period";
-import type { DivideUnit } from "../types/reactive";
+import type { Period, Temporal, DivideUnit } from "../types";
 import { divide } from "./divide";
 
 export interface SplitOptions {
@@ -42,8 +41,7 @@ export function split(
         start,
         end: i === options.count - 1 ? period.end : end,
         type: "custom",
-        value: start,
-        number: i + 1,
+        date: start,
       });
     }
 
@@ -54,7 +52,6 @@ export function split(
     // Split by duration
     const parts: Period[] = [];
     let current = new Date(period.start);
-    let index = 0;
 
     while (current < period.end) {
       const start = new Date(current);
@@ -65,12 +62,10 @@ export function split(
         start,
         end,
         type: "custom",
-        value: start,
-        number: index + 1,
+        date: start,
       });
 
       current = next;
-      index++;
     }
 
     return parts;

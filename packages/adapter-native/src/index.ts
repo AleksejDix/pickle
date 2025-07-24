@@ -2,16 +2,16 @@
 // Pure JavaScript implementation using only built-in Date methods
 
 import type {
-  DateAdapter,
-  DateAdapterOptions,
-  DateDuration,
+  Adapter,
+  AdapterOptions,
+  Duration,
   TimeUnitKind,
 } from "@usetemporal/core";
 
-export class NativeDateAdapter implements DateAdapter {
+export class NativeDateAdapter implements Adapter {
   name = "native";
 
-  add(date: Date, duration: DateDuration): Date {
+  add(date: Date, duration: Duration): Date {
     const result = new Date(date);
 
     if (duration.years)
@@ -40,8 +40,8 @@ export class NativeDateAdapter implements DateAdapter {
     return result;
   }
 
-  subtract(date: Date, duration: DateDuration): Date {
-    const inverseDuration: DateDuration = {};
+  subtract(date: Date, duration: Duration): Date {
+    const inverseDuration: Duration = {};
 
     if (duration.years) inverseDuration.years = -duration.years;
     if (duration.months) inverseDuration.months = -duration.months;
@@ -56,7 +56,7 @@ export class NativeDateAdapter implements DateAdapter {
     return this.add(date, inverseDuration);
   }
 
-  startOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
+  startOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
     const result = new Date(date);
 
     switch (unit) {
@@ -125,7 +125,7 @@ export class NativeDateAdapter implements DateAdapter {
     return result;
   }
 
-  endOf(date: Date, unit: TimeUnitKind, options?: DateAdapterOptions): Date {
+  endOf(date: Date, unit: TimeUnitKind, options?: AdapterOptions): Date {
     const result = new Date(date);
 
     switch (unit) {

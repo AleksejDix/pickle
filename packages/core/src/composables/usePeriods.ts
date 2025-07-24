@@ -1,5 +1,5 @@
 import { computed, type ComputedRef } from "@vue/reactivity";
-import type { Period, Temporal } from "../types/period";
+import type { Period, Temporal } from "../types";
 import { createPeriod } from "../operations";
 
 /**

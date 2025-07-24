@@ -1,38 +1,35 @@
-# RFC-003: Type-Safe Time Navigation with Zoom API
+# RFC-003: Type-Safe Unit Constants
 
 ## Summary
 
-Introduce a zoom-based navigation API with type-safe constants for intuitive time unit traversal.
+Export type-safe constants for period types to prevent typos and improve developer experience.
 
 ## Motivation
 
-Current API has limitations:
+Current API uses string literals which are error-prone:
 
 ```typescript
-// Current - only goes one direction
-temporal.divide(year, "month"); // Get months in year
-// But how do you go from month back to year?
+// Current - string literals can have typos
+divide(temporal, year, "mnth"); // Runtime error!
+createPeriod(temporal, "motnh", someDate); // Runtime error!
 
-// String literals are error-prone
-temporal.divide(year, "mnth"); // Runtime error!
+// No autocomplete support
+divide(temporal, year, "???"); // What are valid options?
 ```
 
 ## Detailed Design
 
-### Core Concepts
+### Type-Safe Period Constants
 
-**Zoom Navigation** - Move between time hierarchies like zooming a map:
-
-- **zoomIn**: Go from larger to smaller units (year → months)
-- **zoomOut**: Go from smaller to containing unit (month → year)
-- **zoomTo**: Jump to any related unit level (day → year)
+Export constants for all period types to ensure type safety and enable IDE autocomplete:
 
 ### API
 
 ```typescript
-// Type-safe unit constants
-export const UNITS = {
+// Type-safe period type constants
+export const PERIOD_TYPES = {
   year: "year",
+  quarter: "quarter",
   month: "month",
   week: "week",
   day: "day",
@@ -40,143 +37,125 @@ export const UNITS = {
   minute: "minute",
   second: "second",
   stableMonth: "stableMonth",
+  custom: "custom",
 } as const;
 
-export type UnitKey = keyof typeof UNITS;
-export type UnitValue = (typeof UNITS)[UnitKey];
+export type PeriodTypeKey = keyof typeof PERIOD_TYPES;
+export type PeriodTypeValue = (typeof PERIOD_TYPES)[PeriodTypeKey];
 
-// Zoom API on temporal
-interface Temporal {
-  zoomIn(from: TimeUnit, to: UnitValue): TimeUnit[];
-  zoomOut(from: TimeUnit, to: UnitValue): TimeUnit;
-  zoomTo(from: TimeUnit, to: UnitValue): TimeUnit;
-}
-
-// Also available on TimeUnit
-interface TimeUnit {
-  zoomIn(to: UnitValue): TimeUnit[];
-  zoomOut(to: UnitValue): TimeUnit;
-  zoomTo(to: UnitValue): TimeUnit;
-}
+// Convenience individual exports
+export const YEAR = "year" as const;
+export const QUARTER = "quarter" as const;
+export const MONTH = "month" as const;
+export const WEEK = "week" as const;
+export const DAY = "day" as const;
+export const HOUR = "hour" as const;
+export const MINUTE = "minute" as const;
+export const SECOND = "second" as const;
+export const STABLE_MONTH = "stableMonth" as const;
+export const CUSTOM = "custom" as const;
 ```
 
 ### Usage Examples
 
 ```typescript
-import { UNITS } from "@usetemporal/core";
+import { PERIOD_TYPES, MONTH, DAY } from "@usetemporal/core";
 
-// Zoom in - get smaller units within
-const months = year.zoomIn(UNITS.month); // 12 months
-const weeks = month.zoomIn(UNITS.week); // 4-6 weeks
-const days = week.zoomIn(UNITS.day); // 7 days
+// Using the constants object
+const months = divide(temporal, year, PERIOD_TYPES.month);
+const days = divide(temporal, month, PERIOD_TYPES.day);
 
-// Zoom out - get containing unit
-const year = month.zoomOut(UNITS.year); // Containing year
-const month = day.zoomOut(UNITS.month); // Containing month
-const week = day.zoomOut(UNITS.week); // Containing week
+// Using individual constants
+const monthPeriod = createPeriod(temporal, MONTH, somePeriod);
+const dayPeriod = toPeriod(temporal, new Date(), DAY);
 
-// Zoom to - jump to any level
-const year = day.zoomTo(UNITS.year); // Which year is this day in?
-const month = hour.zoomTo(UNITS.month); // Which month is this hour in?
+// IDE autocomplete works
+const period = createPeriod(temporal, PERIOD_TYPES./* autocomplete shows all options */, date);
 
-// Still support divide for compatibility
-const months = temporal.divide(year, UNITS.month); // Works too
+// Type checking prevents errors
+divide(temporal, year, "mnth"); // TypeScript error!
+createPeriod(temporal, "motnh", date); // TypeScript error!
 ```
 
-### Type Safety
+### Integration with Existing Operations
+
+All operations would accept both string literals and constants:
 
 ```typescript
-// Valid zoom operations
-year.zoomIn(UNITS.month)     ✓ // Year contains months
-month.zoomOut(UNITS.year)    ✓ // Month is in a year
-day.zoomTo(UNITS.week)       ✓ // Day can find its week
+// Both work, but constants are safer
+divide(temporal, year, "month"); // Still valid
+divide(temporal, year, PERIOD_TYPES.month); // Recommended
 
-// TypeScript errors for invalid operations
-hour.zoomIn(UNITS.year)      ✗ // Error: Can't zoom from hour to year
-day.zoomOut(UNITS.hour)      ✗ // Error: Day doesn't contain hours
-```
-
-### Hierarchy Rules
-
-```
-year
-  ├── month
-  │     ├── week (partial)
-  │     └── day
-  │           └── hour
-  │                 └── minute
-  │                       └── second
-  └── week
-        └── day
+// Operations with constants
+zoomIn(temporal, year, PERIOD_TYPES.month);
+zoomOut(temporal, day, PERIOD_TYPES.month);
+createPeriod(temporal, PERIOD_TYPES.week, existingPeriod);
+isSame(temporal, periodA, periodB, PERIOD_TYPES.day);
 ```
 
 ## Implementation
 
 ```typescript
-// In TimeUnit interface
-interface TimeUnit {
-  zoomIn(to: UnitValue): TimeUnit[] {
-    // Use existing divide logic
-    return temporal.divide(this, to);
-  }
+// types/period.ts
+export const PERIOD_TYPES = {
+  year: "year",
+  quarter: "quarter",
+  month: "month",
+  week: "week",
+  day: "day",
+  hour: "hour",
+  minute: "minute",
+  second: "second",
+  stableMonth: "stableMonth",
+  custom: "custom",
+} as const;
 
-  zoomOut(to: UnitValue): TimeUnit {
-    // Create a unit at the target level containing this unit's date
-    return periods[to]({
-      now: this.now,
-      browsing: this.raw,
-      adapter: this.adapter
-    });
-  }
+// Individual exports for convenience
+export const YEAR = PERIOD_TYPES.year;
+export const QUARTER = PERIOD_TYPES.quarter;
+// ... etc
 
-  zoomTo(to: UnitValue): TimeUnit {
-    // Alias for zoomOut - jump to any containing level
-    return this.zoomOut(to);
-  }
-}
+// Update PeriodType to use the constants
+export type PeriodType = (typeof PERIOD_TYPES)[keyof typeof PERIOD_TYPES];
 ```
 
 ## Benefits
 
-- **Intuitive**: Zoom metaphor matches mental model
-- **Bidirectional**: Navigate up and down the hierarchy
-- **Type-safe**: Constants prevent typos
-- **Discoverable**: IDE autocomplete shows valid operations
-- **Compatible**: `divide` still works
+- **Type Safety**: Prevents runtime errors from typos
+- **IDE Support**: Autocomplete shows all valid period types
+- **Refactoring**: Renaming a constant updates all usages
+- **Documentation**: Constants serve as API documentation
+- **Tree-shakable**: Import only the constants you need
 
 ## Drawbacks
 
-- Another API to learn (but more intuitive)
-- "Zoom" metaphor might not translate well
-- Some redundancy with existing `divide`
+- More imports needed (but can use \* import)
+- Some developers prefer string literals
+- Slightly more verbose
 
 ## Alternatives
 
-1. Keep only `divide` (status quo)
-2. Use different naming: `drillDown`/`bubbleUp`
-3. Use `children()`/`parent()` methods
-4. Hierarchical API: `year.months`, `month.year`
+1. Keep string literals only (status quo)
+2. Use TypeScript enum instead of const object
+3. Use string union types without constants
+4. Generate constants from TypeScript types
 
 ## Migration Path
 
-No breaking changes. Both APIs work:
+No breaking changes. Pure addition to the API:
 
 ```typescript
-// Old way
-temporal.divide(year, "month");
+// String literals still work
+divide(temporal, year, "month"); // Valid
 
-// New ways - all equivalent
-year.zoomIn(UNITS.month);
-temporal.zoomIn(year, UNITS.month);
+// Constants are recommended
+divide(temporal, year, PERIOD_TYPES.month); // Better
+divide(temporal, year, MONTH); // Also good
+
+// Can adopt gradually
+import { PERIOD_TYPES } from "@usetemporal/core";
 ```
 
-## Future Considerations
+## Notes on Current Implementation
 
-This API opens doors for more intuitive operations:
-
-```typescript
-// Potential future additions
-day.zoomIn(UNITS.hour, { range: "business" }); // Only business hours
-month.zoomOut(UNITS.year, { fiscal: true }); // Fiscal year
-week.siblings(); // Other weeks in month
-```
+**Update**: The zoom navigation functionality mentioned in the original RFC has already been implemented as `zoomIn()` and `zoomOut()` operations in the current codebase. This RFC now focuses solely on providing type-safe constants for period types.

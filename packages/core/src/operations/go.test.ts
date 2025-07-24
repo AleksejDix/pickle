@@ -3,12 +3,12 @@ import { go } from "./go";
 import { createTemporal } from "../createTemporal";
 import { mockAdapter } from "../test/mockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
-import type { Period } from "../types/period";
+import type { Period } from "../types";
 
 describe("go", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    dateAdapter: mockAdapter,
+    adapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
@@ -17,13 +17,11 @@ describe("go", () => {
       start: testDates.jan1,
       end: testDates.dec31,
       type: "year",
-      value: testDates.jun15,
-      number: 2024,
+      date: testDates.jun15,
     };
 
     const year2027 = go(temporal, year2024, 3);
 
-    expect(year2027.number).toBe(2027);
     expect(year2027.start.getFullYear()).toBe(2027);
   });
 
@@ -32,13 +30,11 @@ describe("go", () => {
       start: testDates.jan1,
       end: testDates.dec31,
       type: "year",
-      value: testDates.jun15,
-      number: 2024,
+      date: testDates.jun15,
     };
 
     const year2020 = go(temporal, year2024, -4);
 
-    expect(year2020.number).toBe(2020);
     expect(year2020.start.getFullYear()).toBe(2020);
   });
 
@@ -47,8 +43,7 @@ describe("go", () => {
       start: testDates.jun1,
       end: testDates.jun30,
       type: "month",
-      value: testDates.jun15,
-      number: 6,
+      date: testDates.jun15,
     };
 
     const sameMonth = go(temporal, month, 0);
@@ -61,13 +56,11 @@ describe("go", () => {
       start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
       type: "month",
-      value: testDates.jan15,
-      number: 1,
+      date: testDates.jan15,
     };
 
     const august = go(temporal, january, 7);
 
-    expect(august.number).toBe(8);
     expect(august.start.getMonth()).toBe(7); // August (0-indexed)
   });
 
@@ -76,8 +69,7 @@ describe("go", () => {
       start: new Date(2024, 0, 1), // Monday
       end: new Date(2024, 0, 7, 23, 59, 59, 999), // Sunday
       type: "week",
-      value: new Date(2024, 0, 3),
-      number: 1,
+      date: new Date(2024, 0, 3),
     };
 
     const week5 = go(temporal, week1, 4);
@@ -90,13 +82,11 @@ describe("go", () => {
       start: new Date(2024, 0, 28, 0, 0, 0),
       end: new Date(2024, 0, 28, 23, 59, 59, 999),
       type: "day",
-      value: new Date(2024, 0, 28, 12, 0),
-      number: 28,
+      date: new Date(2024, 0, 28, 12, 0),
     };
 
     const feb3 = go(temporal, jan28, 6);
 
-    expect(feb3.number).toBe(3);
     expect(feb3.start.getMonth()).toBe(1); // February
     expect(feb3.start.getDate()).toBe(3);
   });
@@ -106,13 +96,11 @@ describe("go", () => {
       start: new Date(2024, 0, 15, 22, 0, 0),
       end: new Date(2024, 0, 15, 22, 59, 59, 999),
       type: "hour",
-      value: new Date(2024, 0, 15, 22, 30),
-      number: 22,
+      date: new Date(2024, 0, 15, 22, 30),
     };
 
     const nextDayHour2 = go(temporal, hour22, 4);
 
-    expect(nextDayHour2.number).toBe(2);
     expect(nextDayHour2.start.getDate()).toBe(16);
     expect(nextDayHour2.start.getHours()).toBe(2);
   });
@@ -122,13 +110,11 @@ describe("go", () => {
       start: new Date(2024, 1, 5, 0, 0, 0),
       end: new Date(2024, 1, 5, 23, 59, 59, 999),
       type: "day",
-      value: new Date(2024, 1, 5, 12, 0),
-      number: 5,
+      date: new Date(2024, 1, 5, 12, 0),
     };
 
     const jan27 = go(temporal, feb5, -9);
 
-    expect(jan27.number).toBe(27);
     expect(jan27.start.getMonth()).toBe(0); // January
     expect(jan27.start.getDate()).toBe(27);
   });
@@ -138,13 +124,11 @@ describe("go", () => {
       start: new Date(1999, 0, 1),
       end: new Date(1999, 11, 31, 23, 59, 59, 999),
       type: "year",
-      value: new Date(1999, 5, 15),
-      number: 1999,
+      date: new Date(1999, 5, 15),
     };
 
     const year2005 = go(temporal, year1999, 6);
 
-    expect(year2005.number).toBe(2005);
     expect(year2005.start.getFullYear()).toBe(2005);
   });
 
@@ -153,13 +137,11 @@ describe("go", () => {
       start: testDates.jan1,
       end: new Date(2024, 2, 31, 23, 59, 59, 999),
       type: "quarter",
-      value: testDates.feb15,
-      number: 1,
+      date: testDates.feb15,
     };
 
     const q3 = go(temporal, q1, 2);
 
-    expect(q3.number).toBe(3);
     expect(q3.type).toBe("quarter");
     // The exact boundaries depend on the adapter implementation
   });
@@ -169,13 +151,11 @@ describe("go", () => {
       start: testDates.jan1,
       end: new Date(2024, 1, 11, 23, 59, 59, 999),
       type: "stableMonth",
-      value: testDates.jan15,
-      number: 1,
+      date: testDates.jan15,
     };
 
     const stableMay = go(temporal, stableJan, 4);
 
-    expect(stableMay.number).toBe(5);
-    expect(stableMay.value.getMonth()).toBe(4); // May
+    expect(stableMay.date.getMonth()).toBe(4); // May
   });
 });

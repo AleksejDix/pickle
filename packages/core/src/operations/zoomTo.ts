@@ -2,9 +2,9 @@ import type { Period, PeriodType, Temporal, DivideUnit } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
- * Zoom out to a larger unit
+ * Navigate directly to a specific unit type while preserving the reference date
  */
-export function zoomOut(
+export function zoomTo(
   temporal: Temporal,
   period: Period,
   targetUnit: DivideUnit
@@ -17,6 +17,6 @@ export function zoomOut(
     date: period.date,
   };
 
-  // Create the target unit at this date
+  // Create and return the target unit
   return createPeriod(temporal, targetUnit as PeriodType, period);
 }

@@ -24,7 +24,7 @@
       "import": "./dist/composables/index.js"
     },
     "./types": {
-      "types": "./dist/types/index.d.ts"
+      "types": "./dist/types.d.ts"
     }
   },
   "main": "./dist/index.js",
