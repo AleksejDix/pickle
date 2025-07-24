@@ -1,7 +1,7 @@
 <template>
   <div class="year-view">
     <div class="year-header">
-      <h1>{{ year.number.value }}</h1>
+      <h1>{{ year.value.number }}</h1>
     </div>
 
     <div class="months-grid">
@@ -9,11 +9,11 @@
         v-for="(month, index) in months"
         :key="index"
         class="month-card"
-        :class="{ 'is-current': month.isNow.value }"
+        :class="{ 'is-current': isCurrentMonth(month) }"
         @click="$emit('selectMonth', month)"
       >
         <div class="month-header">
-          {{ month.raw.value.toLocaleDateString('en-US', { month: 'short' }) }}
+          {{ month.value.toLocaleDateString('en-US', { month: 'short' }) }}
         </div>
 
         <div class="month-calendar">
@@ -34,12 +34,12 @@
                 :key="`day-${weekIndex}-${dayIndex}`"
                 class="day"
                 :class="{
-                  'is-today': dayInfo.day.isNow.value,
+                  'is-today': dayInfo.isToday,
                   'is-weekend': dayInfo.isWeekend,
                   'is-other-month': !dayInfo.isCurrentMonth,
                 }"
               >
-                {{ dayInfo.day.number.value }}
+                {{ dayInfo.dayNumber }}
               </div>
             </div>
           </div>
@@ -51,20 +51,20 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import type { TemporalCore, TimeUnit } from 'usetemporal'
-import { periods } from 'usetemporal'
+import type { Temporal, Period } from 'usetemporal'
+import { useYear, divide, useMonth, isSame } from 'usetemporal'
 
 const props = defineProps<{
-  temporal: TemporalCore
+  temporal: Temporal
 }>()
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const emit = defineEmits<{
-  selectMonth: [month: TimeUnit]
+  selectMonth: [month: Period]
 }>()
 
-const year = periods.year(props.temporal)
-const months = computed(() => props.temporal.divide(year, 'month'))
+const year = useYear(props.temporal)
+const months = computed(() => divide(props.temporal, year.value, 'month'))
 
 // Weekdays starting with Monday if configured
 const weekdays =
@@ -72,29 +72,79 @@ const weekdays =
     ? ['M', 'T', 'W', 'T', 'F', 'S', 'S']
     : ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
-// Get stableMonth for each month to show full calendar grid
-function getStableMonth(month: TimeUnit) {
-  return periods.stableMonth({
-    now: props.temporal.now,
-    browsing: month.browsing,
-    adapter: props.temporal.adapter,
-    weekStartsOn: props.temporal.weekStartsOn,
-  })
+// Get current month to check against
+const currentMonth = useMonth(props.temporal)
+
+// Check if a month is the current month
+function isCurrentMonth(month: Period): boolean {
+  return isSame(props.temporal, month.value, currentMonth.value.value, 'month')
 }
 
-// Get weeks for a stableMonth
-function getMonthWeeks(month: TimeUnit) {
-  const stableMonth = getStableMonth(month)
-  const weeks = props.temporal.divide(stableMonth, 'week')
+// Check if a day is today
+function isToday(day: Date): boolean {
+  const today = new Date()
+  return (
+    day.getFullYear() === today.getFullYear() &&
+    day.getMonth() === today.getMonth() &&
+    day.getDate() === today.getDate()
+  )
+}
 
-  return weeks.map((week) => {
-    const days = props.temporal.divide(week, 'day')
-    return days.map((day) => ({
-      day,
-      isCurrentMonth: stableMonth.contains(day.raw.value),
-      isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
-    }))
-  })
+// Get weeks for a month showing the full calendar grid
+function getMonthWeeks(month: Period) {
+  // For mini calendar in year view, we'll create a simple grid
+  // showing all days of the month including padding days
+  const firstDay = new Date(month.value.getFullYear(), month.value.getMonth(), 1)
+  const lastDay = new Date(month.value.getFullYear(), month.value.getMonth() + 1, 0)
+  const startPadding = (firstDay.getDay() - props.temporal.weekStartsOn + 7) % 7
+  
+  const weeks: Array<Array<{ dayNumber: number; isCurrentMonth: boolean; isWeekend: boolean; isToday: boolean }>> = []
+  let currentWeek: Array<{ dayNumber: number; isCurrentMonth: boolean; isWeekend: boolean; isToday: boolean }> = []
+  
+  // Add padding days from previous month
+  const prevMonthLastDay = new Date(month.value.getFullYear(), month.value.getMonth(), 0).getDate()
+  for (let i = startPadding - 1; i >= 0; i--) {
+    const dayNum = prevMonthLastDay - i
+    currentWeek.push({
+      dayNumber: dayNum,
+      isCurrentMonth: false,
+      isWeekend: false,
+      isToday: false
+    })
+  }
+  
+  // Add days of current month
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const date = new Date(month.value.getFullYear(), month.value.getMonth(), day)
+    const dayOfWeek = date.getDay()
+    currentWeek.push({
+      dayNumber: day,
+      isCurrentMonth: true,
+      isWeekend: dayOfWeek === 0 || dayOfWeek === 6,
+      isToday: isToday(date)
+    })
+    
+    if (currentWeek.length === 7) {
+      weeks.push(currentWeek)
+      currentWeek = []
+    }
+  }
+  
+  // Add padding days from next month
+  if (currentWeek.length > 0) {
+    let nextDay = 1
+    while (currentWeek.length < 7) {
+      currentWeek.push({
+        dayNumber: nextDay++,
+        isCurrentMonth: false,
+        isWeekend: false,
+        isToday: false
+      })
+    }
+    weeks.push(currentWeek)
+  }
+  
+  return weeks
 }
 </script>
 

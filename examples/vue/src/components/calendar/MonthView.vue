@@ -1,7 +1,7 @@
 <template>
   <div class="month-view">
     <div class="month-header">
-      <h2>{{ month.raw.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }) }}</h2>
+      <h2>{{ monthTitle }}</h2>
     </div>
 
     <div class="calendar-grid">
@@ -18,15 +18,15 @@
             :key="`day-${weekIndex}-${dayIndex}`"
             class="day"
             :class="{
-              'is-today': dayInfo.day.isNow.value,
+              'is-today': isToday(dayInfo.day),
               'is-weekend': dayInfo.isWeekend,
               'is-selected':
-                selectedDay && selectedDay.raw.value.getTime() === dayInfo.day.raw.value.getTime(),
+                selectedDay && selectedDay.value.getTime() === dayInfo.day.value.getTime(),
               'is-other-month': !dayInfo.isCurrentMonth,
             }"
             @click="dayInfo.isCurrentMonth && selectDay(dayInfo.day)"
           >
-            <span class="day-number">{{ dayInfo.day.number.value }}</span>
+            <span class="day-number">{{ dayInfo.day.number }}</span>
             <div class="day-content"></div>
           </div>
         </div>
@@ -36,33 +36,32 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue'
-import type { TemporalCore, TimeUnit } from 'usetemporal'
-import { periods } from 'usetemporal'
+import { computed, ref, type ComputedRef } from 'vue'
+import type { Temporal, Period } from 'usetemporal'
+import { useMonth, useStableMonth, divide } from 'usetemporal'
 
 const props = defineProps<{
-  temporal: TemporalCore
-  initialMonth?: TimeUnit
+  temporal: Temporal
+  initialMonth?: ComputedRef<Period>
 }>()
 
 const emit = defineEmits<{
-  selectDay: [day: TimeUnit]
+  selectDay: [day: Period]
 }>()
 
-const month = props.initialMonth ? props.initialMonth : periods.month(props.temporal)
+const month = props.initialMonth || useMonth(props.temporal)
 
 // Use stableMonth for the calendar grid
-const stableMonth = computed(() =>
-  periods.stableMonth({
-    now: props.temporal.now,
-    browsing: month.browsing,
-    adapter: props.temporal.adapter,
-    weekStartsOn: props.temporal.weekStartsOn,
-  }),
-)
+const stableMonth = useStableMonth(props.temporal)
 
-const weeks = computed(() => props.temporal.divide(stableMonth.value, 'week'))
-const selectedDay = ref<TimeUnit | null>(null)
+// Computed property for month title
+const monthTitle = computed(() => {
+  return month.value.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+})
+
+const selectedDay = ref<Period | null>(null)
+
+const weeks = computed(() => divide(props.temporal, stableMonth.value, 'week'))
 
 // Weekdays starting with Monday
 const weekdays =
@@ -73,18 +72,27 @@ const weekdays =
 // Group days by week for the grid
 const gridWeeks = computed(() => {
   return weeks.value.map((week) => {
-    const days = props.temporal.divide(week, 'day')
+    const days = divide(props.temporal, week, 'day')
     return days.map((day) => ({
       day,
-      isCurrentMonth: stableMonth.value.contains(day.raw.value),
-      isWeekend: day.raw.value.getDay() === 0 || day.raw.value.getDay() === 6,
+      isCurrentMonth: day.value.getMonth() === month.value.value.getMonth(),
+      isWeekend: day.value.getDay() === 0 || day.value.getDay() === 6,
     }))
   })
 })
 
-function selectDay(day: TimeUnit) {
+function selectDay(day: Period) {
   selectedDay.value = day
   emit('selectDay', day)
+}
+
+function isToday(day: Period): boolean {
+  const today = new Date()
+  return (
+    day.value.getFullYear() === today.getFullYear() &&
+    day.value.getMonth() === today.getMonth() &&
+    day.value.getDate() === today.getDate()
+  )
 }
 </script>
 

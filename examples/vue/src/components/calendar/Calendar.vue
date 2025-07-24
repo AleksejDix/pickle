@@ -59,25 +59,23 @@
       <MonthView
         v-else-if="currentView === 'month'"
         :temporal="temporal"
-        :initial-month="currentMonth"
         @select-day="handleDaySelect"
       />
 
       <WeekView
         v-else-if="currentView === 'week'"
         :temporal="temporal"
-        :initial-week="currentWeek"
       />
 
-      <DayView v-else-if="currentView === 'day'" :temporal="temporal" :initial-day="currentDay" />
+      <DayView v-else-if="currentView === 'day'" :temporal="temporal" />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { createTemporal, periods, type TimeUnit } from 'usetemporal'
-import { nativeAdapter } from '@usetemporal/adapter-native'
+import { createTemporal, useYear, useMonth, useWeek, useDay, go, type Period } from 'usetemporal'
+import { NativeDateAdapter } from '@usetemporal/adapter-native'
 import YearView from './YearView.vue'
 import MonthView from './MonthView.vue'
 import WeekView from './WeekView.vue'
@@ -86,16 +84,16 @@ import DayView from './DayView.vue'
 type ViewType = 'year' | 'month' | 'week' | 'day'
 
 const temporal = createTemporal({
-  dateAdapter: nativeAdapter,
+  dateAdapter: new NativeDateAdapter(),
   weekStartsOn: 1, // Monday
 })
 
 const currentView = ref<ViewType>('month')
 
-const currentYear = periods.year(temporal)
-const currentMonth = periods.month(temporal)
-const currentWeek = periods.week(temporal)
-const currentDay = periods.day(temporal)
+const currentYear = useYear(temporal)
+const currentMonth = useMonth(temporal)
+const currentWeek = useWeek(temporal)
+const currentDay = useDay(temporal)
 
 const views = [
   { type: 'day' as ViewType, label: 'Day' },
@@ -107,19 +105,19 @@ const views = [
 const currentPeriodLabel = computed(() => {
   switch (currentView.value) {
     case 'year':
-      return currentYear.number.value.toString()
+      return currentYear.value.number.toString()
     case 'month':
-      return currentMonth.raw.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      return currentMonth.value.value.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     case 'week':
-      const weekStart = currentWeek.period.value.start
-      const weekEnd = currentWeek.period.value.end
+      const weekStart = currentWeek.value.start
+      const weekEnd = currentWeek.value.end
       if (weekStart.getMonth() === weekEnd.getMonth()) {
         return `${weekStart.getDate()}-${weekEnd.getDate()} ${weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
       } else {
         return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
       }
     case 'day':
-      return currentDay.raw.value.toLocaleDateString('en-US', {
+      return currentDay.value.value.toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -143,46 +141,45 @@ function goToToday() {
 }
 
 function navigatePrevious() {
-  switch (currentView.value) {
-    case 'year':
-      currentYear.previous()
-      break
-    case 'month':
-      currentMonth.previous()
-      break
-    case 'week':
-      currentWeek.previous()
-      break
-    case 'day':
-      currentDay.previous()
-      break
+  const currentPeriod = getCurrentPeriod()
+  if (currentPeriod) {
+    const prevPeriod = go(temporal, currentPeriod, -1)
+    temporal.browsing.value = prevPeriod.value
   }
 }
 
 function navigateNext() {
-  switch (currentView.value) {
-    case 'year':
-      currentYear.next()
-      break
-    case 'month':
-      currentMonth.next()
-      break
-    case 'week':
-      currentWeek.next()
-      break
-    case 'day':
-      currentDay.next()
-      break
+  const currentPeriod = getCurrentPeriod()
+  if (currentPeriod) {
+    const nextPeriod = go(temporal, currentPeriod, 1)
+    temporal.browsing.value = nextPeriod.value
   }
 }
 
-function handleMonthSelect(month: TimeUnit) {
-  temporal.browsing.value = month.raw.value
+function getCurrentPeriod(): Period | null {
+  switch (currentView.value) {
+    case 'year':
+      return currentYear.value
+    case 'month':
+      return currentMonth.value
+    case 'week':
+      return currentWeek.value
+    case 'day':
+      return currentDay.value
+    default:
+      return null
+  }
+}
+
+// No longer needed - go() handles this automatically
+
+function handleMonthSelect(month: Period) {
+  temporal.browsing.value = month.value
   currentView.value = 'month'
 }
 
-function handleDaySelect(day: TimeUnit) {
-  temporal.browsing.value = day.raw.value
+function handleDaySelect(day: Period) {
+  temporal.browsing.value = day.value
   currentView.value = 'day'
 }
 </script>

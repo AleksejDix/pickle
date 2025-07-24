@@ -1,17 +1,17 @@
 <template>
-  <div class="week-view">
+  <div v-if="isReady" class="week-view">
     <div class="week-header">
       <div class="time-gutter"></div>
       <div class="days-header">
         <div
           v-for="day in days"
-          :key="day.raw.value.toISOString()"
+          :key="day.value.toISOString()"
           class="day-header"
-          :class="{ 'is-today': day.isNow.value }"
+          :class="{ 'is-today': isToday(day) }"
         >
           <div class="day-name">{{ getDayName(day) }}</div>
-          <div class="day-date" :class="{ 'is-today': day.isNow.value }">
-            {{ day.number.value }}
+          <div class="day-date" :class="{ 'is-today': isToday(day) }">
+            {{ day.number }}
           </div>
         </div>
       </div>
@@ -25,7 +25,7 @@
       </div>
 
       <div class="days-grid">
-        <div v-for="day in days" :key="day.raw.value.toISOString()" class="day-column">
+        <div v-for="day in days" :key="day.value.toISOString()" class="day-column">
           <div class="hours-grid">
             <div
               v-for="hour in 24"
@@ -38,7 +38,7 @@
           </div>
 
           <div
-            v-if="day.isNow.value"
+            v-if="isToday(day)"
             class="current-time-indicator"
             :style="{ top: currentTimePosition + 'px' }"
           >
@@ -51,17 +51,26 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
-import type { TemporalCore, TimeUnit } from 'usetemporal'
-import { periods } from 'usetemporal'
+import { computed, onMounted, onUnmounted, ref, type ComputedRef } from 'vue'
+import type { Temporal, Period } from 'usetemporal'
+import { useWeek, divide } from 'usetemporal'
 
 const props = defineProps<{
-  temporal: TemporalCore
-  initialWeek?: TimeUnit
+  temporal: Temporal
+  initialWeek?: ComputedRef<Period>
 }>()
 
-const week = props.initialWeek ? props.initialWeek : periods.week(props.temporal)
-const days = computed(() => props.temporal.divide(week, 'day'))
+const week = props.initialWeek || useWeek(props.temporal)
+
+// Computed property to check if data is ready
+const isReady = computed(() => {
+  return week.value !== undefined
+})
+
+const days = computed(() => {
+  if (!week.value) return []
+  return divide(props.temporal, week.value, 'day')
+})
 
 const currentTime = ref(new Date())
 let intervalId: number
@@ -85,8 +94,17 @@ const currentTimePosition = computed(() => {
   return (totalMinutes / (24 * 60)) * (24 * 60) // 60px per hour
 })
 
-function getDayName(day: TimeUnit) {
-  const date = day.raw.value
+function isToday(day: Period): boolean {
+  const today = new Date()
+  return (
+    day.value.getFullYear() === today.getFullYear() &&
+    day.value.getMonth() === today.getMonth() &&
+    day.value.getDate() === today.getDate()
+  )
+}
+
+function getDayName(day: Period) {
+  const date = day.value
   return date.toLocaleDateString('en-US', { weekday: 'short' })
 }
 
@@ -97,8 +115,8 @@ function formatHour(hour: number) {
   return `${hour - 12} PM`
 }
 
-function isCurrentHour(day: TimeUnit, hour: number) {
-  if (!day.isNow.value) return false
+function isCurrentHour(day: Period, hour: number) {
+  if (!isToday(day)) return false
   return currentTime.value.getHours() === hour
 }
 </script>

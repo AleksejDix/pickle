@@ -1,6 +1,5 @@
 import type { Period, PeriodType, TemporalContext } from "../types/period";
 import type { DivideUnit } from "../types/reactive";
-import { createPeriod } from "./createPeriod";
 
 /**
  * Divide a period into smaller units
