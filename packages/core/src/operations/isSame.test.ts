@@ -5,6 +5,7 @@ import { nativeAdapter } from "@usetemporal/adapter-native";
 
 describe("isSame", () => {
   const temporal = createTemporal({
+    date: new Date(),
     dateAdapter: nativeAdapter,
     weekStartsOn: 1,
   });

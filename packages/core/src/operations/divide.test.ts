@@ -6,6 +6,7 @@ import type { Period } from "../types/period";
 
 describe("divide", () => {
   const temporal = createTemporal({
+    date: new Date(),
     dateAdapter: nativeAdapter,
     weekStartsOn: 1, // Monday
   });
@@ -138,6 +139,7 @@ describe("divide", () => {
 
   it("should respect weekStartsOn when dividing by week", () => {
     const sundayTemporal = createTemporal({
+    date: new Date(),
       dateAdapter: nativeAdapter,
       weekStartsOn: 0, // Sunday
     });

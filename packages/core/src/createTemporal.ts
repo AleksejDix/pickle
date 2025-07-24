@@ -3,7 +3,7 @@ import type { Temporal } from "./types/period";
 import type { DateAdapter } from "./types/core";
 
 export interface CreateTemporalOptions {
-  date?: Date | Ref<Date>;
+  date: Date | Ref<Date>;
   now?: Date | Ref<Date>;
   dateAdapter: DateAdapter;
   weekStartsOn?: number;
@@ -20,9 +20,7 @@ export function createTemporal(options: CreateTemporalOptions): Temporal {
     );
   }
 
-  const date = isRef(options.date)
-    ? options.date
-    : ref(options.date || new Date());
+  const date = isRef(options.date) ? options.date : ref(options.date);
 
   const now = isRef(options.now) ? options.now : ref(options.now || new Date());
 

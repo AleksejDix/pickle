@@ -84,6 +84,7 @@ import DayView from './DayView.vue'
 type ViewType = 'year' | 'month' | 'week' | 'day'
 
 const temporal = createTemporal({
+  date: new Date(),
   dateAdapter: new NativeDateAdapter(),
   weekStartsOn: 1, // Monday
 })

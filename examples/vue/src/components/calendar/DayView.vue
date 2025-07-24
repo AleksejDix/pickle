@@ -49,12 +49,10 @@ const props = defineProps<{
 const day = props.initialDay || useDay(props.temporal)
 
 const dayTitle = computed(() => {
-  if (!day.value || !day.value.value) return ''
   return formatDate(day.value.value)
 })
 
 const dayInfo = computed(() => {
-  if (!day.value || !day.value.value) return ''
   return getDayOfWeek(day.value.value)
 })
 
@@ -108,7 +106,6 @@ function getDayOfWeek(date: Date) {
 }
 
 function isToday(day: Period): boolean {
-  if (!day || !day.value) return false
   const today = new Date()
   return (
     day.value.getFullYear() === today.getFullYear() &&
@@ -118,7 +115,6 @@ function isToday(day: Period): boolean {
 }
 
 function isCurrentHour(hour: Period): boolean {
-  if (!hour || !hour.value) return false
   const now = new Date()
   return (
     hour.value.getFullYear() === now.getFullYear() &&

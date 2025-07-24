@@ -6,6 +6,7 @@ import type { Period } from "../types/period";
 
 describe("zoomIn", () => {
   const temporal = createTemporal({
+    date: new Date(),
     dateAdapter: nativeAdapter,
     weekStartsOn: 1, // Monday
   });

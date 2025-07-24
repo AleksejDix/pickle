@@ -5,6 +5,7 @@ import { nativeAdapter } from "@usetemporal/adapter-native";
 
 describe("createPeriod", () => {
   const temporal = createTemporal({
+    date: new Date(),
     dateAdapter: nativeAdapter,
     weekStartsOn: 1, // Monday
   });
@@ -50,6 +51,7 @@ describe("createPeriod", () => {
 
   it("should create week period with Sunday start", () => {
     const sundayTemporal = createTemporal({
+    date: new Date(),
       dateAdapter: nativeAdapter,
       weekStartsOn: 0, // Sunday
     });
