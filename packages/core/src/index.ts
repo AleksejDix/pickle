@@ -4,6 +4,7 @@ export type { CreateTemporalOptions } from "./createTemporal";
 
 // Period composables - module exports
 export {
+  usePeriod, // Unified composable
   useYear,
   useMonth,
   useWeek,
@@ -37,13 +38,14 @@ export type { SplitOptions } from "./types";
 // Types
 export type {
   Period,
-  PeriodType,
+  Unit, // New unified type
+  PeriodType, // Deprecated - use Unit
   Temporal,
   TemporalContext,
   Adapter,
   AdapterOptions,
   Duration,
-  TimeUnitKind,
-  DivideUnit,
+  TimeUnitKind, // Deprecated - use Unit
+  DivideUnit, // Deprecated - use Unit
   DateOrRef,
 } from "./types";

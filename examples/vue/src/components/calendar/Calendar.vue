@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { createTemporal, useYear, useMonth, useWeek, useDay, go, type Period } from 'usetemporal'
+import { createTemporal, usePeriod, go, type Period, type Unit } from 'usetemporal'
 import { NativeDateAdapter } from '@usetemporal/adapter-native'
 import YearView from './YearView.vue'
 import MonthView from './MonthView.vue'
@@ -88,10 +88,8 @@ const temporal = createTemporal({
 
 const currentView = ref<ViewType>('month')
 
-const currentYear = useYear(temporal)
-const currentMonth = useMonth(temporal)
-const currentWeek = useWeek(temporal)
-const currentDay = useDay(temporal)
+// Using the unified usePeriod composable with reactive unit
+const currentPeriod = usePeriod(temporal, currentView as Unit)
 
 const views = [
   { type: 'day' as ViewType, label: 'Day' },
@@ -101,21 +99,23 @@ const views = [
 ]
 
 const currentPeriodLabel = computed(() => {
-  switch (currentView.value) {
+  const period = currentPeriod.value
+
+  switch (period.type) {
     case 'year':
-      return currentYear.value.date.getFullYear().toString()
+      return period.date.getFullYear().toString()
     case 'month':
-      return currentMonth.value.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+      return period.date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     case 'week':
-      const weekStart = currentWeek.value.start
-      const weekEnd = currentWeek.value.end
+      const weekStart = period.start
+      const weekEnd = period.end
       if (weekStart.getMonth() === weekEnd.getMonth()) {
         return `${weekStart.getDate()}-${weekEnd.getDate()} ${weekStart.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}`
       } else {
         return `${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${weekEnd.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
       }
     case 'day':
-      return currentDay.value.date.toLocaleDateString('en-US', {
+      return period.date.toLocaleDateString('en-US', {
         weekday: 'long',
         year: 'numeric',
         month: 'long',
@@ -145,43 +145,22 @@ function goToToday() {
 }
 
 function navigatePrevious() {
-  const currentPeriod = getCurrentPeriod()
-  if (currentPeriod) {
-    const prevPeriod = go(temporal, currentPeriod, -1)
-    temporal.browsing.value = {
-      start: prevPeriod.date,
-      end: prevPeriod.date,
-      type: 'day' as const,
-      date: prevPeriod.date,
-    }
+  const prevPeriod = go(temporal, currentPeriod.value, -1)
+  temporal.browsing.value = {
+    start: prevPeriod.date,
+    end: prevPeriod.date,
+    type: 'day' as const,
+    date: prevPeriod.date,
   }
 }
 
 function navigateNext() {
-  const currentPeriod = getCurrentPeriod()
-  if (currentPeriod) {
-    const nextPeriod = go(temporal, currentPeriod, 1)
-    temporal.browsing.value = {
-      start: nextPeriod.date,
-      end: nextPeriod.date,
-      type: 'day' as const,
-      date: nextPeriod.date,
-    }
-  }
-}
-
-function getCurrentPeriod(): Period | null {
-  switch (currentView.value) {
-    case 'year':
-      return currentYear.value
-    case 'month':
-      return currentMonth.value
-    case 'week':
-      return currentWeek.value
-    case 'day':
-      return currentDay.value
-    default:
-      return null
+  const nextPeriod = go(temporal, currentPeriod.value, 1)
+  temporal.browsing.value = {
+    start: nextPeriod.date,
+    end: nextPeriod.date,
+    type: 'day' as const,
+    date: nextPeriod.date,
   }
 }
 
