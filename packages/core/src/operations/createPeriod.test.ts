@@ -1,17 +1,18 @@
 import { describe, it, expect } from "vitest";
 import { createPeriod } from "./createPeriod";
 import { createTemporal } from "../createTemporal";
-import { nativeAdapter } from "@usetemporal/adapter-native";
+import { mockAdapter } from "../test/mockAdapter";
+import { TEST_DATE, testDates, timeDates } from "../test/testDates";
 
 describe("createPeriod", () => {
   const temporal = createTemporal({
-    date: new Date(),
-    dateAdapter: nativeAdapter,
+    date: TEST_DATE,
+    dateAdapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
   it("should create year period", () => {
-    const date = new Date(2024, 5, 15); // June 15, 2024
+    const date = testDates.jun15;
     const year = createPeriod(temporal, "year", date);
 
     expect(year.type).toBe("year");
@@ -25,7 +26,7 @@ describe("createPeriod", () => {
   });
 
   it("should create month period", () => {
-    const date = new Date(2024, 5, 15); // June 15, 2024
+    const date = testDates.jun15;
     const month = createPeriod(temporal, "month", date);
 
     expect(month.type).toBe("month");
@@ -37,7 +38,7 @@ describe("createPeriod", () => {
   });
 
   it("should create week period respecting weekStartsOn", () => {
-    const date = new Date(2024, 0, 10); // Wednesday, Jan 10, 2024
+    const date = testDates.jan10; // Wednesday
     const week = createPeriod(temporal, "week", date);
 
     expect(week.type).toBe("week");
@@ -51,12 +52,12 @@ describe("createPeriod", () => {
 
   it("should create week period with Sunday start", () => {
     const sundayTemporal = createTemporal({
-    date: new Date(),
-      dateAdapter: nativeAdapter,
+      date: TEST_DATE,
+      dateAdapter: mockAdapter,
       weekStartsOn: 0, // Sunday
     });
 
-    const date = new Date(2024, 0, 10); // Wednesday, Jan 10, 2024
+    const date = testDates.jan10; // Wednesday
     const week = createPeriod(sundayTemporal, "week", date);
 
     // Week should start on Sunday Jan 7
@@ -68,7 +69,7 @@ describe("createPeriod", () => {
   });
 
   it("should create day period", () => {
-    const date = new Date(2024, 5, 15, 14, 30); // June 15, 2024, 2:30 PM
+    const date = timeDates.afternoon;
     const day = createPeriod(temporal, "day", date);
 
     expect(day.type).toBe("day");
@@ -82,7 +83,7 @@ describe("createPeriod", () => {
   });
 
   it("should create hour period", () => {
-    const date = new Date(2024, 5, 15, 14, 30, 45); // 2:30:45 PM
+    const date = timeDates.afternoon;
     const hour = createPeriod(temporal, "hour", date);
 
     expect(hour.type).toBe("hour");
@@ -96,7 +97,7 @@ describe("createPeriod", () => {
   });
 
   it("should create quarter period", () => {
-    const date = new Date(2024, 4, 15); // May 15, 2024 (Q2)
+    const date = testDates.may15; // Q2
     const quarter = createPeriod(temporal, "quarter", date);
 
     expect(quarter.type).toBe("quarter");
@@ -107,32 +108,30 @@ describe("createPeriod", () => {
 
   it("should handle edge cases for quarters", () => {
     // Q1
-    const q1Date = new Date(2024, 1, 15); // February
-    const q1 = createPeriod(temporal, "quarter", q1Date);
+    const q1 = createPeriod(temporal, "quarter", testDates.feb15);
     expect(q1.number).toBe(1);
 
     // Q4
-    const q4Date = new Date(2024, 10, 15); // November
-    const q4 = createPeriod(temporal, "quarter", q4Date);
+    const q4 = createPeriod(temporal, "quarter", testDates.nov15);
     expect(q4.number).toBe(4);
   });
 
   it("should preserve the value date", () => {
-    const date = new Date(2024, 5, 15, 14, 30);
+    const date = TEST_DATE;
     const month = createPeriod(temporal, "month", date);
 
     expect(month.value).toEqual(date);
   });
 
   it("should handle leap year for February", () => {
-    const date = new Date(2024, 1, 15); // February 2024 (leap year)
+    const date = testDates.feb15; // February 2024 (leap year)
     const month = createPeriod(temporal, "month", date);
 
     expect(month.end.getDate()).toBe(29); // Leap year has 29 days
   });
 
   it("should handle non-leap year for February", () => {
-    const date = new Date(2023, 1, 15); // February 2023 (non-leap year)
+    const date = testDates.feb15_2023; // February 2023 (non-leap year)
     const month = createPeriod(temporal, "month", date);
 
     expect(month.end.getDate()).toBe(28); // Non-leap year has 28 days

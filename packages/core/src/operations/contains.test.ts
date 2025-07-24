@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { contains } from "./contains";
+import { testDates } from "../test/testDates";
 import type { Period } from "../types/period";
 
 describe("contains", () => {
@@ -148,7 +149,7 @@ describe("contains", () => {
         start: new Date(2024, 0, 8),
         end: new Date(2024, 0, 14, 23, 59, 59, 999),
         type: "week",
-        value: new Date(2024, 0, 10),
+        value: testDates.jan10,
         number: 2,
       };
 

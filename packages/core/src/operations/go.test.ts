@@ -1,22 +1,23 @@
 import { describe, it, expect } from "vitest";
 import { go } from "./go";
 import { createTemporal } from "../createTemporal";
-import { nativeAdapter } from "@usetemporal/adapter-native";
+import { mockAdapter } from "../test/mockAdapter";
+import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types/period";
 
 describe("go", () => {
   const temporal = createTemporal({
-    date: new Date(),
-    dateAdapter: nativeAdapter,
+    date: TEST_DATE,
+    dateAdapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
   it("should move forward by positive steps", () => {
     const year2024: Period = {
-      start: new Date(2024, 0, 1),
-      end: new Date(2024, 11, 31, 23, 59, 59, 999),
+      start: testDates.jan1,
+      end: testDates.dec31,
       type: "year",
-      value: new Date(2024, 5, 15),
+      value: testDates.jun15,
       number: 2024,
     };
 
@@ -28,10 +29,10 @@ describe("go", () => {
 
   it("should move backward by negative steps", () => {
     const year2024: Period = {
-      start: new Date(2024, 0, 1),
-      end: new Date(2024, 11, 31, 23, 59, 59, 999),
+      start: testDates.jan1,
+      end: testDates.dec31,
       type: "year",
-      value: new Date(2024, 5, 15),
+      value: testDates.jun15,
       number: 2024,
     };
 
@@ -43,10 +44,10 @@ describe("go", () => {
 
   it("should return same period when steps is 0", () => {
     const month: Period = {
-      start: new Date(2024, 5, 1),
-      end: new Date(2024, 5, 30, 23, 59, 59, 999),
+      start: testDates.jun1,
+      end: testDates.jun30,
       type: "month",
-      value: new Date(2024, 5, 15),
+      value: testDates.jun15,
       number: 6,
     };
 
@@ -57,10 +58,10 @@ describe("go", () => {
 
   it("should handle multiple month navigation", () => {
     const january: Period = {
-      start: new Date(2024, 0, 1),
+      start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
       type: "month",
-      value: new Date(2024, 0, 15),
+      value: testDates.jan15,
       number: 1,
     };
 
@@ -149,10 +150,10 @@ describe("go", () => {
 
   it("should handle quarter navigation", () => {
     const q1: Period = {
-      start: new Date(2024, 0, 1),
+      start: testDates.jan1,
       end: new Date(2024, 2, 31, 23, 59, 59, 999),
       type: "quarter",
-      value: new Date(2024, 1, 15),
+      value: testDates.feb15,
       number: 1,
     };
 
@@ -165,10 +166,10 @@ describe("go", () => {
 
   it("should handle stableMonth navigation", () => {
     const stableJan: Period = {
-      start: new Date(2024, 0, 1),
+      start: testDates.jan1,
       end: new Date(2024, 1, 11, 23, 59, 59, 999),
       type: "stableMonth",
-      value: new Date(2024, 0, 15),
+      value: testDates.jan15,
       number: 1,
     };
 

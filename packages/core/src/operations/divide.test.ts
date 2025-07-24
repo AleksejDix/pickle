@@ -1,22 +1,23 @@
 import { describe, it, expect } from "vitest";
 import { divide } from "./divide";
 import { createTemporal } from "../createTemporal";
-import { nativeAdapter } from "@usetemporal/adapter-native";
+import { mockAdapter } from "../test/mockAdapter";
+import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types/period";
 
 describe("divide", () => {
   const temporal = createTemporal({
-    date: new Date(),
-    dateAdapter: nativeAdapter,
+    date: TEST_DATE,
+    dateAdapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
   it("should divide year into months", () => {
     const year: Period = {
-      start: new Date(2024, 0, 1),
-      end: new Date(2024, 11, 31, 23, 59, 59, 999),
+      start: testDates.jan1,
+      end: testDates.dec31,
       type: "year",
-      value: new Date(2024, 5, 15),
+      value: testDates.jun15,
       number: 2024,
     };
 
@@ -31,10 +32,10 @@ describe("divide", () => {
 
   it("should divide month into days", () => {
     const january: Period = {
-      start: new Date(2024, 0, 1),
+      start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
       type: "month",
-      value: new Date(2024, 0, 15),
+      value: testDates.jan15,
       number: 1,
     };
 
@@ -50,7 +51,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 8), // Monday
       end: new Date(2024, 0, 14, 23, 59, 59, 999), // Sunday
       type: "week",
-      value: new Date(2024, 0, 10),
+      value: testDates.jan10,
       number: 2,
     };
 
@@ -66,7 +67,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 15, 0, 0, 0),
       end: new Date(2024, 0, 15, 23, 59, 59, 999),
       type: "day",
-      value: new Date(2024, 0, 15, 12, 0),
+      value: testDates.jan15,
       number: 15,
     };
 
@@ -79,10 +80,10 @@ describe("divide", () => {
 
   it("should throw error when dividing by stableMonth", () => {
     const month: Period = {
-      start: new Date(2024, 0, 1),
+      start: testDates.jan1,
       end: new Date(2024, 0, 31),
       type: "month",
-      value: new Date(2024, 0, 15),
+      value: testDates.jan15,
       number: 1,
     };
 
@@ -96,7 +97,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 29), // Monday before Feb 1
       end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
       type: "stableMonth",
-      value: new Date(2024, 1, 15),
+      value: testDates.feb15,
       number: 2,
     };
 
@@ -112,7 +113,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 29), // Monday before Feb 1
       end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
       type: "stableMonth",
-      value: new Date(2024, 1, 15),
+      value: testDates.feb15,
       number: 2,
     };
 
@@ -128,7 +129,7 @@ describe("divide", () => {
       start: new Date(2024, 0, 29),
       end: new Date(2024, 2, 10),
       type: "stableMonth",
-      value: new Date(2024, 1, 15),
+      value: testDates.feb15,
       number: 2,
     };
 
@@ -139,16 +140,16 @@ describe("divide", () => {
 
   it("should respect weekStartsOn when dividing by week", () => {
     const sundayTemporal = createTemporal({
-    date: new Date(),
-      dateAdapter: nativeAdapter,
+      date: TEST_DATE,
+      dateAdapter: mockAdapter,
       weekStartsOn: 0, // Sunday
     });
 
     const january: Period = {
-      start: new Date(2024, 0, 1),
+      start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
       type: "month",
-      value: new Date(2024, 0, 15),
+      value: testDates.jan15,
       number: 1,
     };
 

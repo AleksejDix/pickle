@@ -1,23 +1,24 @@
 import { describe, it, expect } from "vitest";
 import { split } from "./split";
 import { createTemporal } from "../createTemporal";
-import { nativeAdapter } from "@usetemporal/adapter-native";
+import { mockAdapter } from "../test/mockAdapter";
+import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types/period";
 
 describe("split", () => {
   const temporal = createTemporal({
-    date: new Date(),
-    dateAdapter: nativeAdapter,
+    date: TEST_DATE,
+    dateAdapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
   describe("split by unit", () => {
     it("should split year by months", () => {
       const year: Period = {
-        start: new Date(2024, 0, 1),
-        end: new Date(2024, 11, 31, 23, 59, 59, 999),
+        start: testDates.jan1,
+        end: testDates.dec31,
         type: "year",
-        value: new Date(2024, 5, 15),
+        value: testDates.jun15,
         number: 2024,
       };
 
@@ -30,10 +31,10 @@ describe("split", () => {
 
     it("should split month by days", () => {
       const january: Period = {
-        start: new Date(2024, 0, 1),
+        start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 0, 15),
+        value: testDates.jan15,
         number: 1,
       };
 
@@ -48,10 +49,10 @@ describe("split", () => {
   describe("split by count", () => {
     it("should split year into quarters", () => {
       const year: Period = {
-        start: new Date(2024, 0, 1),
-        end: new Date(2024, 11, 31, 23, 59, 59, 999),
+        start: testDates.jan1,
+        end: testDates.dec31,
         type: "year",
-        value: new Date(2024, 5, 15),
+        value: testDates.jun15,
         number: 2024,
       };
 
@@ -74,10 +75,10 @@ describe("split", () => {
 
     it("should split month into equal parts", () => {
       const january: Period = {
-        start: new Date(2024, 0, 1),
+        start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 0, 15),
+        value: testDates.jan15,
         number: 1,
       };
 
@@ -93,7 +94,7 @@ describe("split", () => {
         start: new Date(2024, 0, 8),
         end: new Date(2024, 0, 14, 23, 59, 59, 999),
         type: "week",
-        value: new Date(2024, 0, 10),
+        value: testDates.jan10,
         number: 2,
       };
 
@@ -108,10 +109,10 @@ describe("split", () => {
   describe("split by duration", () => {
     it("should split month by 2-week periods", () => {
       const january: Period = {
-        start: new Date(2024, 0, 1),
+        start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 0, 15),
+        value: testDates.jan15,
         number: 1,
       };
 
@@ -133,7 +134,7 @@ describe("split", () => {
         start: new Date(2024, 0, 8), // Monday
         end: new Date(2024, 0, 14, 23, 59, 59, 999), // Sunday
         type: "week",
-        value: new Date(2024, 0, 10),
+        value: testDates.jan10,
         number: 2,
       };
 
@@ -155,7 +156,7 @@ describe("split", () => {
         start: new Date(2024, 0, 15),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 0, 15, 12, 0),
+        value: testDates.jan15,
         number: 15,
       };
 
@@ -168,10 +169,10 @@ describe("split", () => {
 
     it("should split year by months", () => {
       const year: Period = {
-        start: new Date(2024, 0, 1),
-        end: new Date(2024, 11, 31, 23, 59, 59, 999),
+        start: testDates.jan1,
+        end: testDates.dec31,
         type: "year",
-        value: new Date(2024, 5, 15),
+        value: testDates.jun15,
         number: 2024,
       };
 
@@ -184,10 +185,10 @@ describe("split", () => {
 
     it("should handle complex durations", () => {
       const quarter: Period = {
-        start: new Date(2024, 0, 1),
+        start: testDates.jan1,
         end: new Date(2024, 2, 31, 23, 59, 59, 999),
         type: "quarter",
-        value: new Date(2024, 1, 15),
+        value: testDates.feb15,
         number: 1,
       };
 
@@ -202,10 +203,10 @@ describe("split", () => {
   describe("error handling", () => {
     it("should throw error without valid options", () => {
       const month: Period = {
-        start: new Date(2024, 0, 1),
+        start: testDates.jan1,
         end: new Date(2024, 0, 31),
         type: "month",
-        value: new Date(2024, 0, 15),
+        value: testDates.jan15,
         number: 1,
       };
 
@@ -221,7 +222,7 @@ describe("split", () => {
         start: new Date(2024, 0, 15, 0, 0, 0),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 0, 15, 12, 0),
+        value: testDates.jan15,
         number: 15,
       };
 

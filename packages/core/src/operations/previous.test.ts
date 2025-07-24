@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { previous } from "./previous";
 import { createTemporal } from "../createTemporal";
-import { nativeAdapter } from "@usetemporal/adapter-native";
+import { mockAdapter } from "../test/mockAdapter";
+import { TEST_DATE } from "../test/testDates";
 import type { Period } from "../types/period";
 
 describe("previous", () => {
   const temporal = createTemporal({
-    date: new Date(),
-    dateAdapter: nativeAdapter,
+    date: TEST_DATE,
+    dateAdapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 

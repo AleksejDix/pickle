@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { merge } from "./merge";
 import { createTemporal } from "../createTemporal";
-import { nativeAdapter } from "@usetemporal/adapter-native";
+import { mockAdapter } from "../test/mockAdapter";
+import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types/period";
 
 describe("merge", () => {
   const temporal = createTemporal({
-    date: new Date(),
-    dateAdapter: nativeAdapter,
+    date: TEST_DATE,
+    dateAdapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
@@ -19,10 +20,10 @@ describe("merge", () => {
 
     it("should return single period unchanged", () => {
       const month: Period = {
-        start: new Date(2024, 0, 1),
+        start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 0, 15),
+        value: testDates.jan15,
         number: 1,
       };
 
@@ -33,9 +34,9 @@ describe("merge", () => {
     it("should merge multiple periods into custom period", () => {
       const feb: Period = {
         start: new Date(2024, 1, 1),
-        end: new Date(2024, 1, 29, 23, 59, 59, 999),
+        end: testDates.feb29,
         type: "month",
-        value: new Date(2024, 1, 15),
+        value: testDates.feb15,
         number: 2,
       };
 
@@ -48,10 +49,10 @@ describe("merge", () => {
       };
 
       const jun: Period = {
-        start: new Date(2024, 5, 1),
-        end: new Date(2024, 5, 30, 23, 59, 59, 999),
+        start: testDates.jun1,
+        end: testDates.jun30,
         type: "month",
-        value: new Date(2024, 5, 15),
+        value: testDates.jun15,
         number: 6,
       };
 
@@ -73,18 +74,18 @@ describe("merge", () => {
       };
 
       const jan: Period = {
-        start: new Date(2024, 0, 1),
+        start: testDates.jan1,
         end: new Date(2024, 0, 31, 23, 59, 59, 999),
         type: "month",
-        value: new Date(2024, 0, 15),
+        value: testDates.jan15,
         number: 1,
       };
 
       const feb: Period = {
         start: new Date(2024, 1, 1),
-        end: new Date(2024, 1, 29, 23, 59, 59, 999),
+        end: testDates.feb29,
         type: "month",
-        value: new Date(2024, 1, 15),
+        value: testDates.feb15,
         number: 2,
       };
 
@@ -168,17 +169,17 @@ describe("merge", () => {
     it("should detect 3 consecutive months as quarter", () => {
       const months: Period[] = [
         {
-          start: new Date(2024, 0, 1),
+          start: testDates.jan1,
           end: new Date(2024, 0, 31, 23, 59, 59, 999),
           type: "month",
-          value: new Date(2024, 0, 15),
+          value: testDates.jan15,
           number: 1,
         },
         {
           start: new Date(2024, 1, 1),
-          end: new Date(2024, 1, 29, 23, 59, 59, 999),
+          end: testDates.feb29,
           type: "month",
-          value: new Date(2024, 1, 15),
+          value: testDates.feb15,
           number: 2,
         },
         {
@@ -210,14 +211,14 @@ describe("merge", () => {
           start: new Date(2024, 4, 1),
           end: new Date(2024, 4, 31, 23, 59, 59, 999),
           type: "month",
-          value: new Date(2024, 4, 15),
+          value: testDates.may15,
           number: 5,
         },
         {
-          start: new Date(2024, 5, 1),
-          end: new Date(2024, 5, 30, 23, 59, 59, 999),
+          start: testDates.jun1,
+          end: testDates.jun30,
           type: "month",
-          value: new Date(2024, 5, 15),
+          value: testDates.jun15,
           number: 6,
         },
       ];
@@ -233,9 +234,9 @@ describe("merge", () => {
       const months: Period[] = [
         {
           start: new Date(2024, 1, 1), // February
-          end: new Date(2024, 1, 29, 23, 59, 59, 999),
+          end: testDates.feb29,
           type: "month",
-          value: new Date(2024, 1, 15),
+          value: testDates.feb15,
           number: 2,
         },
         {
@@ -267,7 +268,7 @@ describe("merge", () => {
         start: new Date(2024, 0, 15, 0, 0, 0),
         end: new Date(2024, 0, 15, 23, 59, 59, 999),
         type: "day",
-        value: new Date(2024, 0, 15, 12, 0),
+        value: testDates.jan15,
         number: 15,
       };
 
@@ -321,7 +322,7 @@ describe("merge", () => {
           start,
           end,
           type: "month", // Changed to month so it returns itself
-          value: new Date(2024, 0, 15),
+          value: testDates.jan15,
           number: 1,
         },
       ];

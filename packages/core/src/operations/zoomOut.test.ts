@@ -1,13 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { zoomOut } from "./zoomOut";
 import { createTemporal } from "../createTemporal";
-import { nativeAdapter } from "@usetemporal/adapter-native";
+import { mockAdapter } from "../test/mockAdapter";
+import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types/period";
 
 describe("zoomOut", () => {
   const temporal = createTemporal({
-    date: new Date(),
-    dateAdapter: nativeAdapter,
+    date: TEST_DATE,
+    dateAdapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
@@ -16,7 +17,7 @@ describe("zoomOut", () => {
       start: new Date(2024, 0, 15, 0, 0, 0),
       end: new Date(2024, 0, 15, 23, 59, 59, 999),
       type: "day",
-      value: new Date(2024, 0, 15, 12, 0),
+      value: testDates.jan15,
       number: 15,
     };
 
@@ -52,10 +53,10 @@ describe("zoomOut", () => {
 
   it("should zoom from month to year", () => {
     const june: Period = {
-      start: new Date(2024, 5, 1),
-      end: new Date(2024, 5, 30, 23, 59, 59, 999),
+      start: testDates.jun1,
+      end: testDates.jun30,
       type: "month",
-      value: new Date(2024, 5, 15),
+      value: testDates.jun15,
       number: 6,
     };
 
@@ -109,7 +110,7 @@ describe("zoomOut", () => {
       start: new Date(2024, 1, 15, 0, 0, 0), // Feb 15, 2024
       end: new Date(2024, 1, 15, 23, 59, 59, 999),
       type: "day",
-      value: new Date(2024, 1, 15, 12, 0),
+      value: testDates.feb15,
       number: 15,
     };
 
@@ -127,7 +128,7 @@ describe("zoomOut", () => {
       start: new Date(2024, 5, 15, 0, 0, 0),
       end: new Date(2024, 5, 15, 23, 59, 59, 999),
       type: "day",
-      value: new Date(2024, 5, 15, 12, 0),
+      value: testDates.jun15,
       number: 15,
     };
 
@@ -159,7 +160,7 @@ describe("zoomOut", () => {
       start: new Date(2024, 4, 1),
       end: new Date(2024, 4, 31, 23, 59, 59, 999),
       type: "month",
-      value: new Date(2024, 4, 15),
+      value: testDates.may15,
       number: 5,
     };
 

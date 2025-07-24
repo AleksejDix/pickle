@@ -1,22 +1,23 @@
 import { describe, it, expect } from "vitest";
 import { zoomIn } from "./zoomIn";
 import { createTemporal } from "../createTemporal";
-import { nativeAdapter } from "@usetemporal/adapter-native";
+import { mockAdapter } from "../test/mockAdapter";
+import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types/period";
 
 describe("zoomIn", () => {
   const temporal = createTemporal({
-    date: new Date(),
-    dateAdapter: nativeAdapter,
+    date: TEST_DATE,
+    dateAdapter: mockAdapter,
     weekStartsOn: 1, // Monday
   });
 
   it("should zoom from year to months", () => {
     const year: Period = {
-      start: new Date(2024, 0, 1),
-      end: new Date(2024, 11, 31, 23, 59, 59, 999),
+      start: testDates.jan1,
+      end: testDates.dec31,
       type: "year",
-      value: new Date(2024, 5, 15),
+      value: testDates.jun15,
       number: 2024,
     };
 
@@ -29,10 +30,10 @@ describe("zoomIn", () => {
 
   it("should zoom from month to weeks", () => {
     const january: Period = {
-      start: new Date(2024, 0, 1),
+      start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
       type: "month",
-      value: new Date(2024, 0, 15),
+      value: testDates.jan15,
       number: 1,
     };
 
@@ -47,7 +48,7 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 8), // Monday
       end: new Date(2024, 0, 14, 23, 59, 59, 999), // Sunday
       type: "week",
-      value: new Date(2024, 0, 10),
+      value: testDates.jan10,
       number: 2,
     };
 
@@ -63,7 +64,7 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 15, 0, 0, 0),
       end: new Date(2024, 0, 15, 23, 59, 59, 999),
       type: "day",
-      value: new Date(2024, 0, 15, 12, 0),
+      value: testDates.jan15,
       number: 15,
     };
 
@@ -108,10 +109,10 @@ describe("zoomIn", () => {
 
   it("should preserve period properties when zooming", () => {
     const month: Period = {
-      start: new Date(2024, 5, 1),
-      end: new Date(2024, 5, 30, 23, 59, 59, 999),
+      start: testDates.jun1,
+      end: testDates.jun30,
       type: "month",
-      value: new Date(2024, 5, 15),
+      value: testDates.jun15,
       number: 6,
     };
 
@@ -129,9 +130,9 @@ describe("zoomIn", () => {
   it("should handle quarter zoom to months", () => {
     const q2: Period = {
       start: new Date(2024, 3, 1),
-      end: new Date(2024, 5, 30, 23, 59, 59, 999),
+      end: testDates.jun30,
       type: "quarter",
-      value: new Date(2024, 4, 15),
+      value: testDates.may15,
       number: 2,
     };
 
@@ -148,7 +149,7 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 29), // Monday before Feb 1
       end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
       type: "stableMonth",
-      value: new Date(2024, 1, 15),
+      value: testDates.feb15,
       number: 2,
     };
 
@@ -162,7 +163,7 @@ describe("zoomIn", () => {
       start: new Date(2024, 0, 29), // Monday before Feb 1
       end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
       type: "stableMonth",
-      value: new Date(2024, 1, 15),
+      value: testDates.feb15,
       number: 2,
     };
 
@@ -173,10 +174,10 @@ describe("zoomIn", () => {
 
   it("should throw error when trying to zoom to stableMonth", () => {
     const month: Period = {
-      start: new Date(2024, 0, 1),
+      start: testDates.jan1,
       end: new Date(2024, 0, 31),
       type: "month",
-      value: new Date(2024, 0, 15),
+      value: testDates.jan15,
       number: 1,
     };
 
