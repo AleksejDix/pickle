@@ -35,3 +35,18 @@ export type {
   Duration,
   DateOrRef,
 } from "./types";
+
+// Unit constants
+export {
+  UNITS,
+  YEAR,
+  QUARTER,
+  MONTH,
+  WEEK,
+  DAY,
+  HOUR,
+  MINUTE,
+  SECOND,
+  STABLE_MONTH,
+  CUSTOM,
+} from "./types";

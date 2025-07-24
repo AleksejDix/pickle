@@ -35,6 +35,34 @@ export type Unit =
   | "custom";
 
 /**
+ * Type-safe unit constants for better developer experience
+ */
+export const UNITS = {
+  year: "year",
+  quarter: "quarter",
+  month: "month",
+  week: "week",
+  day: "day",
+  hour: "hour",
+  minute: "minute",
+  second: "second",
+  stableMonth: "stableMonth",
+  custom: "custom",
+} as const;
+
+// Individual exports for convenience
+export const YEAR = "year" as const;
+export const QUARTER = "quarter" as const;
+export const MONTH = "month" as const;
+export const WEEK = "week" as const;
+export const DAY = "day" as const;
+export const HOUR = "hour" as const;
+export const MINUTE = "minute" as const;
+export const SECOND = "second" as const;
+export const STABLE_MONTH = "stableMonth" as const;
+export const CUSTOM = "custom" as const;
+
+/**
  * Minimal temporal context needed for operations
  */
 export interface TemporalContext {

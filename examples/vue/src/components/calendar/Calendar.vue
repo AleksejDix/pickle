@@ -71,7 +71,7 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { createTemporal, usePeriod, go, type Period } from 'usetemporal'
+import { createTemporal, usePeriod, go, type Period, UNITS, DAY } from 'usetemporal'
 import { NativeDateAdapter } from '@usetemporal/adapter-native'
 import YearView from './YearView.vue'
 import MonthView from './MonthView.vue'
@@ -139,7 +139,7 @@ function goToToday() {
   temporal.browsing.value = {
     start: now,
     end: now,
-    type: 'day' as const,
+    type: DAY,
     date: now,
   }
 }
@@ -149,7 +149,7 @@ function navigatePrevious() {
   temporal.browsing.value = {
     start: prevPeriod.date,
     end: prevPeriod.date,
-    type: 'day' as const,
+    type: UNITS.day,
     date: prevPeriod.date,
   }
 }
@@ -159,7 +159,7 @@ function navigateNext() {
   temporal.browsing.value = {
     start: nextPeriod.date,
     end: nextPeriod.date,
-    type: 'day' as const,
+    type: UNITS.day,
     date: nextPeriod.date,
   }
 }

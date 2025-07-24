@@ -1,13 +1,13 @@
-# Product Requirements Document: Unit Plugin System
+# Product Requirements Document: Unit Extension System (Branded Types Approach)
 
 **Status**: Draft  
-**Version**: 1.0  
+**Version**: 2.0  
 **Last Updated**: 2025-07-24  
 **Author**: useTemporal Team
 
 ## Executive Summary
 
-This PRD outlines the design and implementation of a plugin system for extending useTemporal's time unit capabilities. The goal is to keep the core library minimal while allowing users to add domain-specific time units through plugins.
+This PRD outlines a lightweight unit extension system based on the insight that units are simply "branded types" - Period objects with a type tag. This approach dramatically simplifies extensibility while maintaining type safety and keeping the core minimal.
 
 ## Problem Statement
 
@@ -18,21 +18,35 @@ Currently, useTemporal includes all time units in the core library, which:
 - Couples unit definitions with the core library release cycle
 - Makes it impossible to support niche units without bloating the core
 
+## Key Insight: Units as Branded Types
+
+The fundamental insight is that units aren't complex entities - they're just Period objects with a type tag. A "month" is simply:
+```typescript
+{
+  start: Date,    // Start of month
+  end: Date,      // End of month  
+  type: "month",  // The "brand"
+  date: Date      // Reference date
+}
+```
+
+This realization simplifies the entire architecture.
+
 ## Goals
 
 ### Primary Goals
 
-1. **Minimal Core**: Ship only essential units (year, month, week, day, hour, minute, second) in core
-2. **Extensibility**: Allow third-party unit plugins without modifying core
-3. **Type Safety**: Maintain TypeScript support for plugin-provided units
-4. **Tree-shakable**: Users only pay for the units they use
-5. **Domain Support**: Enable domain-specific time units (business, academic, historical, etc.)
+1. **Minimal Core**: Ship only essential units in core
+2. **Simple Extensions**: Adding units should be trivial (just validators)
+3. **Type Safety**: Maintain TypeScript support for custom units
+4. **Zero Overhead**: Units are just strings, validators are tree-shakable
+5. **Domain Support**: Any string can be a unit type
 
 ### Non-Goals
 
-- Changing the existing adapter system (for date libraries)
-- Breaking existing API compatibility
-- Supporting unit plugins at runtime (compile-time is sufficient)
+- Complex plugin architecture
+- Runtime plugin discovery
+- Unit inheritance or hierarchies
 
 ## User Personas
 

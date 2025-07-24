@@ -52,7 +52,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Temporal, Period } from 'usetemporal'
-import { usePeriod, divide, isSame, toPeriod } from 'usetemporal'
+import { usePeriod, divide, isSame, toPeriod, MONTH, YEAR, DAY } from 'usetemporal'
 
 const props = defineProps<{
   temporal: Temporal
@@ -63,8 +63,8 @@ const emit = defineEmits<{
   selectMonth: [month: Period]
 }>()
 
-const year = usePeriod(props.temporal, 'year')
-const months = computed(() => divide(props.temporal, year.value, 'month'))
+const year = usePeriod(props.temporal, YEAR)
+const months = computed(() => divide(props.temporal, year.value, MONTH))
 
 // Weekdays starting with Monday if configured
 const weekdays =
@@ -73,17 +73,17 @@ const weekdays =
     : ['S', 'M', 'T', 'W', 'T', 'F', 'S']
 
 // Get current month to check against
-const currentMonth = usePeriod(props.temporal, 'month')
+const currentMonth = usePeriod(props.temporal, MONTH)
 
 // Check if a month is the current month
 function isCurrentMonth(month: Period): boolean {
-  return isSame(props.temporal, month, currentMonth.value, 'month')
+  return isSame(props.temporal, month, currentMonth.value, MONTH)
 }
 
 // Check if a day is today
 function isToday(day: Date): boolean {
-  const dayPeriod = toPeriod(props.temporal, day, 'day')
-  return isSame(props.temporal, dayPeriod, props.temporal.now.value, 'day')
+  const dayPeriod = toPeriod(props.temporal, day, DAY)
+  return isSame(props.temporal, dayPeriod, props.temporal.now.value, DAY)
 }
 
 // Get weeks for a month showing the full calendar grid
