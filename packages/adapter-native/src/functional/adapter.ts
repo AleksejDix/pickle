@@ -1,4 +1,4 @@
-import type { FunctionalAdapter, Unit, UnitHandler } from "@usetemporal/core";
+import type { Adapter, Unit, UnitHandler } from "@usetemporal/core";
 import { yearHandler } from "./units/year";
 import { monthHandler } from "./units/month";
 import { createWeekHandler } from "./units/week";
@@ -14,7 +14,7 @@ import { quarterHandler } from "./units/quarter";
  */
 export function createNativeAdapter(options?: {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-}): FunctionalAdapter {
+}): Adapter {
   const weekStartsOn = options?.weekStartsOn ?? 1;
   
   // Create handlers map

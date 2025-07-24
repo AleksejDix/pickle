@@ -1,6 +1,5 @@
 // Functional adapter exports
 export { createNativeAdapter, nativeFunctionalAdapter } from "./adapter";
-export { createCompatibilityAdapter } from "./compatibility";
 
 // Export individual unit handlers for tree-shaking
 export { yearHandler } from "./units/year";

@@ -1,10 +1,10 @@
 import { ref, isRef, computed, type Ref } from "@vue/reactivity";
-import type { Temporal, Period, FunctionalAdapter } from "./types";
+import type { Temporal, Period, Adapter } from "./types";
 
 export interface CreateTemporalOptions {
   date: Date | Ref<Date>;
   now?: Date | Ref<Date>;
-  adapter: FunctionalAdapter;
+  adapter: Adapter;
   weekStartsOn?: number;
 }
 

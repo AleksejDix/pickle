@@ -1,4 +1,4 @@
-import type { FunctionalAdapter, Unit } from "../types";
+import type { Adapter, Unit } from "../types";
 
 /**
  * Functional mock adapter for testing
@@ -6,7 +6,7 @@ import type { FunctionalAdapter, Unit } from "../types";
  */
 export function createMockAdapter(options?: {
   weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
-}): FunctionalAdapter {
+}): Adapter {
   const weekStartsOn = options?.weekStartsOn ?? 1;
 
   return {

@@ -2,7 +2,7 @@
 // Provides a simple entry point with native adapter as default
 
 export * from "@usetemporal/core";
-export { NativeDateAdapter as Adapter } from "@usetemporal/adapter-native";
+export { createNativeAdapter } from "@usetemporal/adapter-native";
 import { createNativeAdapter } from "@usetemporal/adapter-native";
 import { createTemporal as createTemporalCore } from "@usetemporal/core";
 import type { CreateTemporalOptions, Temporal } from "@usetemporal/core";
