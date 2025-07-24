@@ -29,6 +29,7 @@ export {
   merge,
   createCustomPeriod,
   isSame,
+  toPeriod,
 } from "./operations";
 export type { SplitOptions } from "./operations";
 

@@ -77,7 +77,7 @@ const currentMonth = useMonth(props.temporal)
 
 // Check if a month is the current month
 function isCurrentMonth(month: Period): boolean {
-  return isSame(props.temporal, month.value, currentMonth.value.value, 'month')
+  return isSame(props.temporal, month, currentMonth.value, 'month')
 }
 
 // Check if a day is today

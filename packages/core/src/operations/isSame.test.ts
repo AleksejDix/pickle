@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { isSame } from "./isSame";
+import { toPeriod } from "./toPeriod";
 import { createTemporal } from "../createTemporal";
 import { mockAdapter } from "../test/mockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
@@ -11,82 +12,83 @@ describe("isSame", () => {
     weekStartsOn: 1,
   });
 
+
   describe("year comparison", () => {
     it("should return true for same year", () => {
-      const date1 = testDates.jan1;
-      const date2 = testDates.dec31;
+      const period1 = toPeriod(temporal, testDates.jan1, "year");
+      const period2 = toPeriod(temporal, testDates.dec31, "year");
 
-      expect(isSame(temporal, date1, date2, "year")).toBe(true);
+      expect(isSame(temporal, period1, period2, "year")).toBe(true);
     });
 
     it("should return false for different years", () => {
-      const date1 = testDates.dec31;
-      const date2 = testDates.year2025;
+      const period1 = toPeriod(temporal, testDates.dec31, "year");
+      const period2 = toPeriod(temporal, testDates.year2025, "year");
 
-      expect(isSame(temporal, date1, date2, "year")).toBe(false);
+      expect(isSame(temporal, period1, period2, "year")).toBe(false);
     });
   });
 
   describe("month comparison", () => {
     it("should return true for same month", () => {
-      const date1 = testDates.jun1;
-      const date2 = testDates.jun30;
+      const period1 = toPeriod(temporal, testDates.jun1, "month");
+      const period2 = toPeriod(temporal, testDates.jun30, "month");
 
-      expect(isSame(temporal, date1, date2, "month")).toBe(true);
+      expect(isSame(temporal, period1, period2, "month")).toBe(true);
     });
 
     it("should return false for different months", () => {
-      const date1 = testDates.jun30;
-      const date2 = new Date(2024, 6, 1);
+      const period1 = toPeriod(temporal, testDates.jun30, "month");
+      const period2 = toPeriod(temporal, new Date(2024, 6, 1), "month");
 
-      expect(isSame(temporal, date1, date2, "month")).toBe(false);
+      expect(isSame(temporal, period1, period2, "month")).toBe(false);
     });
 
     it("should return false for same month in different years", () => {
-      const date1 = testDates.jun15;
-      const date2 = testDates.year2025;
+      const period1 = toPeriod(temporal, testDates.jun15, "month");
+      const period2 = toPeriod(temporal, testDates.year2025, "month");
 
-      expect(isSame(temporal, date1, date2, "month")).toBe(false);
+      expect(isSame(temporal, period1, period2, "month")).toBe(false);
     });
   });
 
   describe("day comparison", () => {
     it("should return true for same day", () => {
-      const date1 = new Date(2024, 5, 15, 0, 0, 0);
-      const date2 = new Date(2024, 5, 15, 23, 59, 59);
+      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 0, 0, 0), "day");
+      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 23, 59, 59), "day");
 
-      expect(isSame(temporal, date1, date2, "day")).toBe(true);
+      expect(isSame(temporal, period1, period2, "day")).toBe(true);
     });
 
     it("should return false for different days", () => {
-      const date1 = new Date(2024, 5, 15, 23, 59, 59);
-      const date2 = new Date(2024, 5, 16, 0, 0, 0);
+      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 23, 59, 59), "day");
+      const period2 = toPeriod(temporal, new Date(2024, 5, 16, 0, 0, 0), "day");
 
-      expect(isSame(temporal, date1, date2, "day")).toBe(false);
+      expect(isSame(temporal, period1, period2, "day")).toBe(false);
     });
   });
 
   describe("hour comparison", () => {
     it("should return true for same hour", () => {
-      const date1 = new Date(2024, 5, 15, 14, 0, 0);
-      const date2 = new Date(2024, 5, 15, 14, 59, 59);
+      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 0, 0), "day");
+      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 59, 59), "day");
 
-      expect(isSame(temporal, date1, date2, "hour")).toBe(true);
+      expect(isSame(temporal, period1, period2, "hour")).toBe(true);
     });
 
     it("should return false for different hours", () => {
-      const date1 = new Date(2024, 5, 15, 14, 59, 59);
-      const date2 = new Date(2024, 5, 15, 15, 0, 0);
+      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 59, 59), "day");
+      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 15, 0, 0), "day");
 
-      expect(isSame(temporal, date1, date2, "hour")).toBe(false);
+      expect(isSame(temporal, period1, period2, "hour")).toBe(false);
     });
   });
 
   describe("quarter comparison", () => {
     it("should return true for Q1 dates", () => {
-      const jan = testDates.jan15;
-      const feb = new Date(2024, 1, 20);
-      const mar = new Date(2024, 2, 31);
+      const jan = toPeriod(temporal, testDates.jan15, "month");
+      const feb = toPeriod(temporal, new Date(2024, 1, 20), "month");
+      const mar = toPeriod(temporal, new Date(2024, 2, 31), "month");
 
       expect(isSame(temporal, jan, feb, "quarter")).toBe(true);
       expect(isSame(temporal, jan, mar, "quarter")).toBe(true);
@@ -94,9 +96,9 @@ describe("isSame", () => {
     });
 
     it("should return true for Q2 dates", () => {
-      const apr = new Date(2024, 3, 1);
-      const may = testDates.may15;
-      const jun = testDates.jun30;
+      const apr = toPeriod(temporal, new Date(2024, 3, 1), "month");
+      const may = toPeriod(temporal, testDates.may15, "month");
+      const jun = toPeriod(temporal, testDates.jun30, "month");
 
       expect(isSame(temporal, apr, may, "quarter")).toBe(true);
       expect(isSame(temporal, apr, jun, "quarter")).toBe(true);
@@ -104,9 +106,9 @@ describe("isSame", () => {
     });
 
     it("should return true for Q3 dates", () => {
-      const jul = new Date(2024, 6, 1);
-      const aug = new Date(2024, 7, 15);
-      const sep = new Date(2024, 8, 30);
+      const jul = toPeriod(temporal, new Date(2024, 6, 1), "month");
+      const aug = toPeriod(temporal, new Date(2024, 7, 15), "month");
+      const sep = toPeriod(temporal, new Date(2024, 8, 30), "month");
 
       expect(isSame(temporal, jul, aug, "quarter")).toBe(true);
       expect(isSame(temporal, jul, sep, "quarter")).toBe(true);
@@ -114,9 +116,9 @@ describe("isSame", () => {
     });
 
     it("should return true for Q4 dates", () => {
-      const oct = new Date(2024, 9, 1);
-      const nov = testDates.nov15;
-      const dec = testDates.dec31;
+      const oct = toPeriod(temporal, new Date(2024, 9, 1), "month");
+      const nov = toPeriod(temporal, testDates.nov15, "month");
+      const dec = toPeriod(temporal, testDates.dec31, "month");
 
       expect(isSame(temporal, oct, nov, "quarter")).toBe(true);
       expect(isSame(temporal, oct, dec, "quarter")).toBe(true);
@@ -124,65 +126,65 @@ describe("isSame", () => {
     });
 
     it("should return false for different quarters", () => {
-      const q1 = new Date(2024, 2, 31); // March (Q1)
-      const q2 = new Date(2024, 3, 1); // April (Q2)
+      const q1 = toPeriod(temporal, new Date(2024, 2, 31), "month"); // March (Q1)
+      const q2 = toPeriod(temporal, new Date(2024, 3, 1), "month"); // April (Q2)
 
       expect(isSame(temporal, q1, q2, "quarter")).toBe(false);
     });
 
     it("should return false for same quarter in different years", () => {
-      const q1_2024 = testDates.jan15;
-      const q1_2025 = new Date(2025, 0, 15);
+      const q1_2024 = toPeriod(temporal, testDates.jan15, "month");
+      const q1_2025 = toPeriod(temporal, new Date(2025, 0, 15), "month");
 
       expect(isSame(temporal, q1_2024, q1_2025, "quarter")).toBe(false);
     });
   });
 
   describe("null/undefined handling", () => {
-    it("should return false when first date is null", () => {
-      const date = testDates.jun15;
+    it("should return false when first period is null", () => {
+      const period = toPeriod(temporal, testDates.jun15, "day");
 
-      expect(isSame(temporal, null, date, "day")).toBe(false);
+      expect(isSame(temporal, null, period, "day")).toBe(false);
     });
 
-    it("should return false when second date is null", () => {
-      const date = testDates.jun15;
+    it("should return false when second period is null", () => {
+      const period = toPeriod(temporal, testDates.jun15, "day");
 
-      expect(isSame(temporal, date, null, "day")).toBe(false);
+      expect(isSame(temporal, period, null, "day")).toBe(false);
     });
 
-    it("should return false when both dates are null", () => {
+    it("should return false when both periods are null", () => {
       expect(isSame(temporal, null, null, "day")).toBe(false);
     });
 
-    it("should return false when first date is undefined", () => {
-      const date = testDates.jun15;
+    it("should return false when first period is undefined", () => {
+      const period = toPeriod(temporal, testDates.jun15, "day");
 
-      expect(isSame(temporal, undefined, date, "day")).toBe(false);
+      expect(isSame(temporal, undefined, period, "day")).toBe(false);
     });
 
-    it("should return false when second date is undefined", () => {
-      const date = testDates.jun15;
+    it("should return false when second period is undefined", () => {
+      const period = toPeriod(temporal, testDates.jun15, "day");
 
-      expect(isSame(temporal, date, undefined, "day")).toBe(false);
+      expect(isSame(temporal, period, undefined, "day")).toBe(false);
     });
 
-    it("should return false when both dates are undefined", () => {
+    it("should return false when both periods are undefined", () => {
       expect(isSame(temporal, undefined, undefined, "day")).toBe(false);
     });
   });
 
   describe("week comparison", () => {
     it("should return true for dates in same week", () => {
-      const monday = new Date(2024, 0, 8); // Monday
-      const friday = new Date(2024, 0, 12); // Friday
+      const monday = toPeriod(temporal, new Date(2024, 0, 8), "week"); // Monday
+      const friday = toPeriod(temporal, new Date(2024, 0, 12), "week"); // Friday
 
       expect(isSame(temporal, monday, friday, "week")).toBe(true);
     });
 
     it("should return false for dates in different weeks", () => {
-      const sunday = new Date(2024, 0, 14); // Sunday
-      const monday = new Date(2024, 0, 15); // Next Monday
+      const sunday = toPeriod(temporal, new Date(2024, 0, 14), "week"); // Sunday
+      const monday = toPeriod(temporal, new Date(2024, 0, 15), "week"); // Next Monday
 
       expect(isSame(temporal, sunday, monday, "week")).toBe(false);
     });
@@ -190,33 +192,33 @@ describe("isSame", () => {
 
   describe("minute comparison", () => {
     it("should return true for same minute", () => {
-      const date1 = new Date(2024, 5, 15, 14, 30, 0);
-      const date2 = new Date(2024, 5, 15, 14, 30, 59);
+      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 0), "minute");
+      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 59), "minute");
 
-      expect(isSame(temporal, date1, date2, "minute")).toBe(true);
+      expect(isSame(temporal, period1, period2, "minute")).toBe(true);
     });
 
     it("should return false for different minutes", () => {
-      const date1 = new Date(2024, 5, 15, 14, 30, 59);
-      const date2 = new Date(2024, 5, 15, 14, 31, 0);
+      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 59), "minute");
+      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 31, 0), "minute");
 
-      expect(isSame(temporal, date1, date2, "minute")).toBe(false);
+      expect(isSame(temporal, period1, period2, "minute")).toBe(false);
     });
   });
 
   describe("second comparison", () => {
     it("should return true for same second", () => {
-      const date1 = new Date(2024, 5, 15, 14, 30, 45, 0);
-      const date2 = new Date(2024, 5, 15, 14, 30, 45, 999);
+      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 45, 0), "second");
+      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 45, 999), "second");
 
-      expect(isSame(temporal, date1, date2, "second")).toBe(true);
+      expect(isSame(temporal, period1, period2, "second")).toBe(true);
     });
 
     it("should return false for different seconds", () => {
-      const date1 = new Date(2024, 5, 15, 14, 30, 45);
-      const date2 = new Date(2024, 5, 15, 14, 30, 46);
+      const period1 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 45), "second");
+      const period2 = toPeriod(temporal, new Date(2024, 5, 15, 14, 30, 46), "second");
 
-      expect(isSame(temporal, date1, date2, "second")).toBe(false);
+      expect(isSame(temporal, period1, period2, "second")).toBe(false);
     });
   });
 });

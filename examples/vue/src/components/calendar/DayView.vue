@@ -24,7 +24,7 @@
         </div>
 
         <div
-          v-if="isToday(day.value)"
+          v-if="isToday(day)"
           class="current-time-indicator"
           :style="{ top: currentTimePosition + 'px' }"
         >
