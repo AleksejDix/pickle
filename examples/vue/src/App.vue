@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { Calendar } from './components/calendar'
 import { onErrorCaptured } from 'vue'
 
 onErrorCaptured((err) => {
@@ -10,7 +9,7 @@ onErrorCaptured((err) => {
 
 <template>
   <div id="calendar-app">
-    <Calendar />
+    <router-view />
   </div>
 </template>
 

@@ -55,7 +55,16 @@ export function split(
 
     while (current < period.end) {
       const start = new Date(current);
-      const next = temporal.adapter.add(current, options.duration);
+      // Add each duration component separately
+      let next = new Date(current);
+      const dur = options.duration;
+      if (dur.years) next = temporal.adapter.add(next, dur.years, "year");
+      if (dur.months) next = temporal.adapter.add(next, dur.months, "month");
+      if (dur.weeks) next = temporal.adapter.add(next, dur.weeks, "week");
+      if (dur.days) next = temporal.adapter.add(next, dur.days, "day");
+      if (dur.hours) next = temporal.adapter.add(next, dur.hours, "hour");
+      if (dur.minutes) next = temporal.adapter.add(next, dur.minutes, "minute");
+      if (dur.seconds) next = temporal.adapter.add(next, dur.seconds, "second");
       const end = next > period.end ? period.end : next;
 
       parts.push({

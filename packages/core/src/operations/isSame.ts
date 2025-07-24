@@ -25,24 +25,33 @@ export function isSame(
   const dateA = a.date;
   const dateB = b.date;
 
-  // Handle quarter comparison specially
-  if (unit === "quarter") {
-    const monthA = dateA.getMonth();
-    const monthB = dateB.getMonth();
-    const yearA = dateA.getFullYear();
-    const yearB = dateB.getFullYear();
-
-    // Calculate quarters (Q1 = Jan-Mar, Q2 = Apr-Jun, etc)
-    const quarterA = Math.floor(monthA / 3);
-    const quarterB = Math.floor(monthB / 3);
-
-    return yearA === yearB && quarterA === quarterB;
-  }
-
   // Handle custom periods - they are the same if their dates are exactly equal
   if (unit === "custom") {
     return dateA.getTime() === dateB.getTime();
   }
 
-  return temporal.adapter.isSame(dateA, dateB, unit as Exclude<Unit, "custom">);
+  // Handle stableMonth comparison
+  if (unit === "stableMonth") {
+    // Two dates are in same stable month if their stable month starts are equal
+    const startA = temporal.adapter.startOf(
+      new Date(dateA.getFullYear(), dateA.getMonth(), 1),
+      "week"
+    );
+    const startB = temporal.adapter.startOf(
+      new Date(dateB.getFullYear(), dateB.getMonth(), 1),
+      "week"
+    );
+    return startA.getTime() === startB.getTime();
+  }
+
+  // For all other units, compare by checking if startOf values are equal
+  const startA = temporal.adapter.startOf(
+    dateA,
+    unit as Exclude<Unit, "custom" | "stableMonth">
+  );
+  const startB = temporal.adapter.startOf(
+    dateB,
+    unit as Exclude<Unit, "custom" | "stableMonth">
+  );
+  return startA.getTime() === startB.getTime();
 }

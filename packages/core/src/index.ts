@@ -31,6 +31,8 @@ export type {
   Temporal,
   TemporalContext,
   Adapter,
+  FunctionalAdapter,
+  UnitHandler,
   AdapterOptions,
   Duration,
   DateOrRef,

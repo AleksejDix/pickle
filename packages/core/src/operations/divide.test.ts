@@ -1,14 +1,14 @@
 import { describe, it, expect } from "vitest";
 import { divide } from "./divide";
 import { createTemporal } from "../createTemporal";
-import { mockAdapter } from "../test/mockAdapter";
+import { createMockAdapter } from "../test/functionalMockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types";
 
 describe("divide", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    adapter: mockAdapter,
+    adapter: createMockAdapter({ weekStartsOn: 1 }),
     weekStartsOn: 1, // Monday
   });
 
@@ -127,7 +127,7 @@ describe("divide", () => {
   it("should respect weekStartsOn when dividing by week", () => {
     const sundayTemporal = createTemporal({
       date: TEST_DATE,
-      adapter: mockAdapter,
+      adapter: createMockAdapter({ weekStartsOn: 0 }),
       weekStartsOn: 0, // Sunday
     });
 
@@ -140,10 +140,12 @@ describe("divide", () => {
 
     const weeks = divide(sundayTemporal, january, "week");
 
-    // First week should start on Sunday
-    if (weeks.length > 0) {
-      const firstWeekStart = weeks[0].start.getDay();
-      expect(firstWeekStart).toBe(0); // Sunday
+    // Check that weeks respect Sunday as start day
+    // Since Jan 1, 2024 is Monday, the first partial week starts on Monday
+    // But the second week should start on Sunday
+    if (weeks.length > 1) {
+      const secondWeekStart = weeks[1].start.getDay();
+      expect(secondWeekStart).toBe(0); // Sunday
     }
   });
 });

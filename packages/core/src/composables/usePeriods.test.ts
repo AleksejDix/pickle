@@ -2,14 +2,14 @@ import { describe, it, expect } from "vitest";
 import { ref, computed } from "@vue/reactivity";
 import { usePeriod } from "./usePeriods";
 import { createTemporal } from "../createTemporal";
-import { mockAdapter } from "../test/mockAdapter";
+import { createMockAdapter } from "../test/functionalMockAdapter";
 import { TEST_DATE } from "../test/testDates";
 import type { Unit } from "../types";
 
 describe("usePeriod", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    adapter: mockAdapter,
+    adapter: createMockAdapter({ weekStartsOn: 1 }),
     weekStartsOn: 1,
   });
 

@@ -66,7 +66,7 @@ export const CUSTOM = "custom" as const;
  * Minimal temporal context needed for operations
  */
 export interface TemporalContext {
-  adapter: Adapter;
+  adapter: FunctionalAdapter;
   weekStartsOn: number;
 }
 
@@ -112,6 +112,36 @@ export interface Adapter {
   isBefore(date1: Date, date2: Date): boolean;
   isAfter(date1: Date, date2: Date): boolean;
   eachInterval(start: Date, end: Date, unit: Exclude<Unit, "custom">): Date[];
+}
+
+/**
+ * Simplified functional adapter interface (RFC 015)
+ * Only 4 core operations needed for date manipulation
+ */
+export interface FunctionalAdapter {
+  startOf(date: Date, unit: Exclude<Unit, "custom" | "stableMonth">): Date;
+  endOf(date: Date, unit: Exclude<Unit, "custom" | "stableMonth">): Date;
+  add(
+    date: Date,
+    amount: number,
+    unit: Exclude<Unit, "custom" | "stableMonth">
+  ): Date;
+  diff(
+    from: Date,
+    to: Date,
+    unit: Exclude<Unit, "custom" | "stableMonth">
+  ): number;
+}
+
+/**
+ * Unit handler for functional adapters
+ * Each unit has its own implementation
+ */
+export interface UnitHandler {
+  startOf(date: Date): Date;
+  endOf(date: Date): Date;
+  add(date: Date, amount: number): Date;
+  diff(from: Date, to: Date): number;
 }
 
 // Split operation options

@@ -8,6 +8,10 @@ import type {
   Unit,
 } from "@usetemporal/core";
 
+// Export functional adapter (recommended)
+export * from "./functional";
+
+// Legacy class-based adapter (deprecated)
 export class NativeDateAdapter implements Adapter {
   name = "native";
 

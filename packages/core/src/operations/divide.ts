@@ -42,7 +42,7 @@ export function divide(
         date: new Date(currentDate),
       });
 
-      currentDate = adapter.add(currentDate, { days: 1 });
+      currentDate = adapter.add(currentDate, 1, "day");
     }
 
     if (unit === "week") {
@@ -65,35 +65,33 @@ export function divide(
     return days;
   }
 
-  // Standard division using adapter's eachInterval
-  // At this point, unit cannot be "custom" or "stableMonth" due to the checks above
-  const intervals = adapter.eachInterval(
-    period.start,
-    period.end,
-    unit as Exclude<Unit, "custom" | "stableMonth">
-  );
+  // Standard division - calculate intervals manually
+  const periods: Period[] = [];
+  let current = new Date(period.start);
+  const safeUnit = unit as Exclude<Unit, "custom" | "stableMonth">;
 
-  return intervals.map((date) => {
-    const start = adapter.startOf(
-      date,
-      unit as Exclude<Unit, "custom" | "stableMonth">,
-      {
-        weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-      }
-    );
-    const end = adapter.endOf(
-      date,
-      unit as Exclude<Unit, "custom" | "stableMonth">,
-      {
-        weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-      }
-    );
+  while (current <= period.end) {
+    const start = adapter.startOf(current, safeUnit);
+    const end = adapter.endOf(current, safeUnit);
 
-    return {
-      start,
-      end,
-      type: unit,
-      date: date,
-    };
-  });
+    // Only include periods that overlap with the parent period
+    if (end >= period.start && start <= period.end) {
+      periods.push({
+        start: start < period.start ? period.start : start,
+        end: end > period.end ? period.end : end,
+        type: unit,
+        date: new Date(current),
+      });
+    }
+
+    // Move to next period
+    current = adapter.add(current, 1, safeUnit);
+
+    // For safety, break if we've gone too far (prevent infinite loops)
+    if (periods.length > 1000) {
+      throw new Error("Too many periods generated in divide operation");
+    }
+  }
+
+  return periods;
 }

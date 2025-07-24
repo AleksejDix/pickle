@@ -78,65 +78,55 @@ This realization simplifies the entire architecture.
 
 ### Architecture Overview
 
+The solution leverages the branded types insight - units are just Period objects with validation rules.
+
 ```typescript
-// Core Library - Minimal Units Only
+// Core Library
 @usetemporal/core
-├── Units: year, month, week, day, hour, minute, second
-├── Operations: divide, merge, next, previous, etc.
-└── Plugin System: UnitPlugin interface, registration
+├── Core Units: Built-in validators for common units
+├── Operations: Work on any Period regardless of type
+└── Unit Registry: Simple Map<string, UnitDefinition>
 
-// Official Unit Plugins
-@usetemporal/business-units    // quarter, fiscal-year, business-day
-@usetemporal/academic-units    // semester, term, academic-year
-@usetemporal/historical-units  // century, decade, millennium
-@usetemporal/astronomical-units // lunar-month, season, solar-year
-
-// Community Plugins
-@company/project-units         // sprint, milestone, release
-@domain/specialized-units      // Any domain-specific units
+// Extension Packages (lightweight validators)
+@usetemporal/units-business    // quarter, fiscal-year validators
+@usetemporal/units-academic    // semester, term validators
+@usetemporal/units-historical  // century, decade validators
 ```
 
 ### Core Interfaces
 
 ```typescript
-// Unit Plugin Interface
-interface UnitPlugin {
-  // Unique identifier for the unit
-  type: string; // e.g., "quarter", "century"
-
-  // Display name for the unit
-  name: string; // e.g., "Quarter", "Century"
-
-  // Calculate period boundaries for a given date
-  getPeriod(date: Date, context: TemporalContext): Period;
-
-  // Define what units this can be divided into
-  canDivideInto?: string[]; // e.g., century -> ["decade", "year"]
-
-  // Define what this can merge into
-  canMergeInto?: string; // e.g., month -> "quarter"
-
-  // Validation rules
+// Simplified Unit Definition - just a validator/normalizer
+interface UnitDefinition {
+  // Create a normalized period of this unit type from any date
+  createPeriod(date: Date, context: TemporalContext): Period;
+  
+  // Validate that a period conforms to this unit's rules (optional)
   validate?(period: Period): boolean;
-
-  // Custom operations (optional)
-  operations?: {
-    next?: (period: Period, context: TemporalContext) => Period;
-    previous?: (period: Period, context: TemporalContext) => Period;
-  };
+  
+  // What units this can divide into (for divide operation)
+  divisions?: string[];
+  
+  // What unit multiple of these merge into (for merge operation)
+  mergesTo?: string;
 }
 
-// Plugin Registration
-interface CreateTemporalOptions {
-  adapter: Adapter;
-  plugins?: UnitPlugin[]; // Register unit plugins
-  weekStartsOn?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
+// Type to extend Unit type
+declare module '@usetemporal/core' {
+  interface UnitRegistry {
+    // Extended by packages to add their units
+  }
+  
+  // Unit type becomes extensible
+  type Unit = keyof UnitRegistry | (string & {});
 }
-```
+
+// Simple registration
+export function defineUnit(type: string, definition: UnitDefinition): void;
 
 ### Usage Examples
 
-#### Basic Usage (No Plugins)
+#### Basic Usage (Core Units Only)
 
 ```typescript
 import { createTemporal } from '@usetemporal/core';
@@ -146,201 +136,229 @@ const temporal = createTemporal({
   adapter: nativeAdapter
 });
 
-// Only core units available
+// Core units work out of the box
 const year = usePeriod(temporal, 'year'); ✓
-const quarter = usePeriod(temporal, 'quarter'); ✗ // Error: Unknown unit
+const month = usePeriod(temporal, 'month'); ✓
+const quarter = usePeriod(temporal, 'quarter'); ✓ // If included in core
 ```
 
-#### With Business Units Plugin
+#### Adding Business Units
 
 ```typescript
-import { createTemporal } from '@usetemporal/core';
+import { createTemporal, defineUnit } from '@usetemporal/core';
 import { nativeAdapter } from '@usetemporal/adapter-native';
-import { quarterPlugin, fiscalYearPlugin } from '@usetemporal/business-units';
+import '@usetemporal/units-business'; // Side-effect import registers units
 
-const temporal = createTemporal({
-  adapter: nativeAdapter,
-  plugins: [quarterPlugin, fiscalYearPlugin]
-});
-
-// Now business units work!
+// Units are automatically available after import
+const temporal = createTemporal({ adapter: nativeAdapter });
 const quarter = usePeriod(temporal, 'quarter'); ✓
-const quarters = divide(temporal, year.value, 'quarter'); // 4 quarters
+const fiscalYear = usePeriod(temporal, 'fiscal-year'); ✓
 ```
 
-#### Custom Unit Plugin
+#### Custom Unit Definition
 
 ```typescript
-// my-company-units.ts
-export const sprintPlugin: UnitPlugin = {
-  type: "sprint",
-  name: "Sprint",
-
-  getPeriod(date: Date, context: TemporalContext): Period {
-    // 2-week sprints starting on Monday
-    const start = context.adapter.startOf(date, "week", {
-      weekStartsOn: 1,
+// Define a sprint unit (2-week periods)
+defineUnit('sprint', {
+  createPeriod(date: Date, context: TemporalContext): Period {
+    // Find the Monday of this week
+    const start = context.adapter.startOf(date, 'week', { 
+      weekStartsOn: 1 
     });
-    const end = context.adapter.add(start, { weeks: 2 });
-
+    // Sprint is 2 weeks
+    const end = context.adapter.add(start, { days: 13 });
+    
     return {
       start,
-      end: context.adapter.subtract(end, { milliseconds: 1 }),
-      type: "sprint",
-      date,
+      end,
+      type: 'sprint',
+      date
     };
   },
-
-  canDivideInto: ["week", "day"],
-  canMergeInto: "quarter",
-};
-
-// Usage
-const temporal = createTemporal({
-  adapter: nativeAdapter,
-  plugins: [sprintPlugin],
+  
+  // Sprints can be divided into weeks and days
+  divisions: ['week', 'day'],
+  
+  // 6 sprints make a quarter (roughly)
+  mergesTo: 'quarter'
 });
 
-const sprint = usePeriod(temporal, "sprint");
-const days = divide(temporal, sprint.value, "day"); // 14 days
+// Now use it
+const sprint = usePeriod(temporal, 'sprint');
+const days = divide(temporal, sprint.value, 'day'); // 14 days
+```
+
+#### Direct Period Creation (No Registration Needed)
+
+```typescript
+// You can always create custom periods without registration
+const customPeriod: Period = {
+  start: new Date('2024-01-01'),
+  end: new Date('2024-03-31'),
+  type: 'q1-2024',  // Any string works!
+  date: new Date('2024-01-01')
+};
+
+// Operations work on any Period
+const weeks = divide(temporal, customPeriod, 'week'); // Works!
+const next = next(temporal, customPeriod); // Works!
 ```
 
 ### Type Safety with Module Augmentation
 
 ```typescript
-// @usetemporal/business-units/types.d.ts
-declare module "@usetemporal/core" {
+// @usetemporal/units-business/types.d.ts
+declare module '@usetemporal/core' {
   interface UnitRegistry {
-    quarter: true;
-    "fiscal-year": true;
-    "business-day": true;
+    'quarter': true;
+    'fiscal-year': true;
+    'business-day': true;
   }
 }
 
-// This enables TypeScript support
-const quarter = usePeriod(temporal, "quarter"); // Type-safe!
+// This enables TypeScript autocomplete
+const quarter = usePeriod(temporal, 'quarter'); // Type-safe!
+```
+
+## Key Insights
+
+### Why This Works
+
+1. **Units are just strings**: The Period type tag is all that matters
+2. **Operations are generic**: They work on Period shape, not specific units
+3. **Validation is optional**: Many units just need boundary calculation
+4. **Zero runtime overhead**: Unused validators are tree-shaken
+
+### Example: How Operations Work
+
+```typescript
+// The next() operation doesn't care about unit types
+function next(context: TemporalContext, period: Period): Period {
+  // Just shift the period forward by its duration
+  const duration = period.end.getTime() - period.start.getTime() + 1;
+  return {
+    start: new Date(period.end.getTime() + 1),
+    end: new Date(period.end.getTime() + duration),
+    type: period.type,  // Preserve the "brand"
+    date: new Date(period.end.getTime() + 1)
+  };
+}
+
+// Works for ANY unit type!
+next(temporal, monthPeriod);   // Next month
+next(temporal, sprintPeriod);  // Next sprint  
+next(temporal, customPeriod);  // Next whatever
 ```
 
 ## Implementation Plan
 
-### Phase 1: Core Plugin System (v2.1)
+### Phase 1: Core Simplification (v2.1)
 
-1. Define `UnitPlugin` interface
-2. Add plugin registration to `createTemporal`
-3. Update operations to check plugins
-4. Move non-essential units to plugins
-5. Update TypeScript types for extensibility
+1. Add `defineUnit()` function to core
+2. Convert existing units to use definitions
+3. Make Unit type extensible via module augmentation
+4. Update operations to check unit registry when needed
 
-### Phase 2: Official Plugins (v2.2)
+### Phase 2: Extension Packages (v2.2)
 
-1. Create `@usetemporal/business-units`
-   - quarter, fiscal-year, business-day
-2. Create `@usetemporal/historical-units`
-   - century, decade, millennium
-3. Create `@usetemporal/academic-units`
-   - semester, term, academic-year
+1. Create `@usetemporal/units-business`
+   - Simple validators for quarter, fiscal-year
+2. Create `@usetemporal/units-academic`
+   - Validators for semester, term, academic-year
+3. Create `@usetemporal/units-historical`
+   - Validators for century, decade, millennium
 
-### Phase 3: Community & Documentation (v2.3)
+### Phase 3: Documentation (v2.3)
 
-1. Plugin development guide
-2. Plugin testing utilities
-3. Plugin registry/marketplace
-4. Example custom plugins
+1. Unit definition guide
+2. Best practices for custom units
+3. Example implementations
 
 ## Success Metrics
 
-1. **Bundle Size**: Core library reduced by 40-50%
-2. **Adoption**: 20+ community plugins within 6 months
-3. **Performance**: No performance regression with plugins
-4. **Developer Satisfaction**: Positive feedback on extensibility
+1. **Bundle Size**: Core library reduced by 30-40% (fewer built-in units)
+2. **Simplicity**: Unit definition < 20 lines of code
+3. **Adoption**: Community creates 10+ custom units within 3 months
+4. **Performance**: No performance regression (operations remain O(1))
+
+## Benefits of Branded Types Approach
+
+1. **Extreme Simplicity**: Units are just validators, not complex objects
+2. **Zero Overhead**: Period objects are plain data
+3. **Universal Operations**: All operations work on any Period
+4. **Easy Extension**: Adding a unit is just one function
+5. **Type Safety**: TypeScript can still provide autocomplete
 
 ## Risks & Mitigation
 
-### Risk 1: Type Safety Complexity
+### Risk 1: String Collisions
 
-- **Risk**: Module augmentation might be confusing
-- **Mitigation**: Provide clear documentation and examples
+- **Risk**: Two packages define same unit name
+- **Mitigation**: Last registration wins, console warning
 
-### Risk 2: Plugin Conflicts
+### Risk 2: Invalid Periods
 
-- **Risk**: Multiple plugins defining same unit type
-- **Mitigation**: Runtime validation and clear error messages
+- **Risk**: Users create malformed Period objects
+- **Mitigation**: Operations validate periods when needed
 
-### Risk 3: Backward Compatibility
+### Risk 3: Type Discovery
 
-- **Risk**: Breaking existing code using removed units
-- **Mitigation**: Provide migration guide and legacy plugin
+- **Risk**: Users don't know available units
+- **Mitigation**: Good documentation, TypeScript autocomplete
 
-## Migration Strategy
+## Distribution Strategy
 
-### For Users
-
-```typescript
-// Before (v2.0)
-import { createTemporal } from "@usetemporal/core";
-const temporal = createTemporal({ adapter });
-const quarter = usePeriod(temporal, "quarter"); // Works
-
-// After (v3.0)
-import { createTemporal } from "@usetemporal/core";
-import { quarterPlugin } from "@usetemporal/business-units";
-const temporal = createTemporal({
-  adapter,
-  plugins: [quarterPlugin],
-});
-const quarter = usePeriod(temporal, "quarter"); // Works
-```
-
-### Compatibility Package
+### Core Package
 
 ```typescript
-// For easy migration
-import { createTemporal } from "@usetemporal/core";
-import { legacyUnits } from "@usetemporal/legacy-units";
-
-const temporal = createTemporal({
-  adapter,
-  plugins: legacyUnits, // Includes all v2.0 units
-});
+// @usetemporal/core includes only essential units
+const year = usePeriod(temporal, 'year');   // ✓ Built-in
+const month = usePeriod(temporal, 'month'); // ✓ Built-in
+const day = usePeriod(temporal, 'day');     // ✓ Built-in
 ```
+
+### Extension Packages
+
+```typescript
+// Import packages for additional units
+import '@usetemporal/units-business';  // Adds quarter, fiscal-year
+import '@usetemporal/units-academic';  // Adds semester, term
+
+// Now these work
+const quarter = usePeriod(temporal, 'quarter');
+const semester = usePeriod(temporal, 'semester');
+```
+
+
+## Comparison with Original Plugin Approach
+
+| Aspect | Complex Plugin System | Branded Types Approach |
+|--------|----------------------|------------------------|
+| Unit Definition | ~50 lines (interface) | ~10 lines (function) |
+| Runtime Overhead | Plugin objects | None (just strings) |
+| Type Extension | Complex generics | Simple augmentation |
+| Operations | May need customization | Universal (work on any Period) |
+| Bundle Impact | Heavier core | Minimal core |
 
 ## Open Questions
 
-1. **Plugin Discovery**: Should we have a plugin registry/marketplace?
-2. **Validation**: How strict should plugin validation be?
-3. **Performance**: Should plugins be able to optimize operations?
-4. **Naming**: Better name than "Unit Plugin"? (Period Plugin? Time Plugin?)
-
-## Alternative Approaches Considered
-
-### 1. Runtime Registration
-
-```typescript
-temporal.registerUnit("sprint", sprintPlugin);
-```
-
-**Rejected**: Less tree-shakable, harder to type
-
-### 2. Subclassing
-
-```typescript
-class SprintUnit extends BaseUnit { ... }
-```
-
-**Rejected**: Goes against functional architecture
-
-### 3. Configuration-based
-
-```typescript
-units: {
-  sprint: { duration: '2 weeks', startOn: 'monday' }
-}
-```
-
-**Rejected**: Not flexible enough for complex units
+1. **Should some units stay in core?** (year, month, day seem essential)
+2. **How to handle unit-specific operations?** (e.g., `isLeapYear` for year periods)
+3. **Naming for unit packages?** (`@usetemporal/units-*` vs `@usetemporal/*-units`)
 
 ## Conclusion
 
-The Unit Plugin System will transform useTemporal from a monolithic time library into an extensible platform for time manipulation. By keeping the core minimal and enabling plugins, we can support any conceivable time unit while maintaining a small bundle size for basic use cases.
+By recognizing that units are simply branded types (Period objects with a type tag), we can dramatically simplify the extension system. Instead of complex plugins, we just need:
 
-This positions useTemporal as the most flexible and extensible time library in the JavaScript ecosystem.
+1. A way to register unit validators (simple functions)
+2. A type system that allows extension (module augmentation)
+3. Operations that work on the Period shape (already done!)
+
+This approach perfectly aligns with useTemporal's **functional architecture**:
+- No classes or inheritance
+- Pure functions for operations
+- Immutable Period data structures
+- Composition over configuration
+- Side-effect free unit definitions
+
+This makes useTemporal incredibly flexible while keeping the core tiny and the mental model simple: **Everything is just a Period with a type string, and all operations are pure functions**.

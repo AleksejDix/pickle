@@ -6,8 +6,41 @@ import { createPeriod } from "./createPeriod";
  */
 export function next(temporal: Temporal, period: Period): Period {
   const { adapter } = temporal;
-  const duration = getDuration(period.type);
-  const nextValue = adapter.add(period.date, duration);
+
+  // Handle custom periods by using duration
+  if (period.type === "custom") {
+    const duration = period.end.getTime() - period.start.getTime() + 1;
+    const nextStart = new Date(period.end.getTime() + 1);
+    const nextEnd = new Date(nextStart.getTime() + duration - 1);
+    return {
+      start: nextStart,
+      end: nextEnd,
+      type: "custom",
+      date: nextStart,
+    };
+  }
+
+  // Handle stableMonth specially
+  if (period.type === "stableMonth") {
+    const nextMonth = new Date(
+      period.date.getFullYear(),
+      period.date.getMonth() + 1,
+      1
+    );
+    const tempPeriod: Period = {
+      start: nextMonth,
+      end: nextMonth,
+      type: "second",
+      date: nextMonth,
+    };
+    return createPeriod(temporal, "stableMonth", tempPeriod);
+  }
+
+  const nextValue = adapter.add(
+    period.date,
+    1,
+    period.type as Exclude<Unit, "custom" | "stableMonth">
+  );
 
   // Create a temporary point-in-time period for the new date
   const tempPeriod: Period = {
@@ -18,31 +51,4 @@ export function next(temporal: Temporal, period: Period): Period {
   };
 
   return createPeriod(temporal, period.type, tempPeriod);
-}
-
-/**
- * Get duration object for a period type
- */
-function getDuration(type: Unit, count: number = 1): any {
-  switch (type) {
-    case "year":
-      return { years: count };
-    case "month":
-    case "stableMonth":
-      return { months: count };
-    case "week":
-      return { weeks: count };
-    case "day":
-      return { days: count };
-    case "hour":
-      return { hours: count };
-    case "minute":
-      return { minutes: count };
-    case "second":
-      return { seconds: count };
-    case "quarter":
-      return { months: count * 3 };
-    default:
-      return {};
-  }
 }

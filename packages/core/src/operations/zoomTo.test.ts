@@ -1,13 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { zoomTo } from "./zoomTo";
 import { createTemporal } from "../createTemporal";
-import { mockAdapter } from "../test/mockAdapter";
+import { createMockAdapter } from "../test/functionalMockAdapter";
 import { TEST_DATE } from "../test/testDates";
 
 describe("zoomTo", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    adapter: mockAdapter,
+    adapter: createMockAdapter({ weekStartsOn: 1 }),
     weekStartsOn: 1,
   });
 

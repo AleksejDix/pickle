@@ -19,12 +19,8 @@ export function merge(temporal: Temporal, periods: Period[]): Period | null {
   // Check for natural units
   if (periods.length === 7 && periods.every((p) => p.type === "day")) {
     // Check if these 7 days form a complete week
-    const startOfWeek = temporal.adapter.startOf(periods[0].date, "week", {
-      weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-    });
-    const endOfWeek = temporal.adapter.endOf(periods[6].date, "week", {
-      weekStartsOn: temporal.weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-    });
+    const startOfWeek = temporal.adapter.startOf(periods[0].date, "week");
+    const endOfWeek = temporal.adapter.endOf(periods[6].date, "week");
 
     if (
       start.getTime() === startOfWeek.getTime() &&

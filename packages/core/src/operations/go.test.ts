@@ -1,15 +1,15 @@
 import { describe, it, expect } from "vitest";
 import { go } from "./go";
 import { createTemporal } from "../createTemporal";
-import { mockAdapter } from "../test/mockAdapter";
+import { createMockAdapter } from "../test/functionalMockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types";
 
 describe("go", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    adapter: mockAdapter,
-    weekStartsOn: 1, // Monday
+    adapter: createMockAdapter({ weekStartsOn: 1 }), // Monday
+    weekStartsOn: 1,
   });
 
   it("should move forward by positive steps", () => {

@@ -9,7 +9,7 @@ export function createPeriod(
   type: Unit,
   period: Period
 ): Period {
-  const { adapter, weekStartsOn } = temporal;
+  const { adapter } = temporal;
   const date = period.date;
 
   if (type === "custom") {
@@ -17,12 +17,38 @@ export function createPeriod(
     return period;
   }
 
-  const start = adapter.startOf(date, type as Exclude<Unit, "custom">, {
-    weekStartsOn: weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-  });
-  const end = adapter.endOf(date, type as Exclude<Unit, "custom">, {
-    weekStartsOn: weekStartsOn as 0 | 1 | 2 | 3 | 4 | 5 | 6,
-  });
+  // Handle stableMonth specially
+  if (type === "stableMonth") {
+    // Get first day of the month
+    const firstOfMonth = new Date(date.getFullYear(), date.getMonth(), 1);
+    // Find the start of the week containing the 1st
+    const weekStart = adapter.startOf(firstOfMonth, "week");
+
+    // For end, go to first of next month and find its week start, then back 1ms
+    const firstOfNextMonth = new Date(
+      date.getFullYear(),
+      date.getMonth() + 1,
+      1
+    );
+    const nextWeekStart = adapter.startOf(firstOfNextMonth, "week");
+    const end = new Date(nextWeekStart.getTime() - 1);
+
+    return {
+      start: weekStart,
+      end,
+      type: "stableMonth",
+      date,
+    };
+  }
+
+  const start = adapter.startOf(
+    date,
+    type as Exclude<Unit, "custom" | "stableMonth">
+  );
+  const end = adapter.endOf(
+    date,
+    type as Exclude<Unit, "custom" | "stableMonth">
+  );
 
   return {
     start,

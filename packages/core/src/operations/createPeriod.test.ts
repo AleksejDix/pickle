@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { createPeriod } from "./createPeriod";
 import { createTemporal } from "../createTemporal";
-import { mockAdapter } from "../test/mockAdapter";
+import { createMockAdapter } from "../test/functionalMockAdapter";
 import { TEST_DATE, testDates, timeDates } from "../test/testDates";
 import type { Period } from "../types";
 
@@ -18,7 +18,7 @@ function tempPeriod(date: Date): Period {
 describe("createPeriod", () => {
   const temporal = createTemporal({
     date: TEST_DATE,
-    adapter: mockAdapter,
+    adapter: createMockAdapter({ weekStartsOn: 1 }),
     weekStartsOn: 1, // Monday
   });
 
@@ -62,7 +62,7 @@ describe("createPeriod", () => {
   it("should create week period with Sunday start", () => {
     const sundayTemporal = createTemporal({
       date: TEST_DATE,
-      adapter: mockAdapter,
+      adapter: createMockAdapter({ weekStartsOn: 0 }),
       weekStartsOn: 0, // Sunday
     });
 

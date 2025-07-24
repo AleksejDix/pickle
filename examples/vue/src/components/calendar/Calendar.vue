@@ -70,9 +70,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { createTemporal, usePeriod, go, type Period, UNITS, DAY } from 'usetemporal'
-import { NativeDateAdapter } from '@usetemporal/adapter-native'
+import { ref, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
+import { usePeriod, go, type Period, UNITS, DAY } from 'usetemporal'
+import { temporal } from '@/composables/useTemporal'
 import YearView from './YearView.vue'
 import MonthView from './MonthView.vue'
 import WeekView from './WeekView.vue'
@@ -80,13 +81,22 @@ import DayView from './DayView.vue'
 
 type ViewType = 'year' | 'month' | 'week' | 'day'
 
-const temporal = createTemporal({
-  date: new Date(),
-  adapter: new NativeDateAdapter(),
-  weekStartsOn: 1, // Monday
+interface Props {
+  view?: ViewType
+  year?: number
+  month?: number
+  week?: number
+  day?: number
+}
+
+const props = withDefaults(defineProps<Props>(), {
+  view: 'month',
 })
 
-const currentView = ref<ViewType>('month')
+const router = useRouter()
+const route = useRoute()
+
+const currentView = ref<ViewType>(props.view || 'month')
 
 // Using the unified usePeriod composable with reactive unit
 const currentPeriod = usePeriod(temporal, currentView)
@@ -130,61 +140,112 @@ const canNavigateBack = computed(() => {
   return true
 })
 
+// Get week number for a date
+function getWeekNumber(date: Date): number {
+  const d = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()))
+  const dayNum = d.getUTCDay() || 7
+  d.setUTCDate(d.getUTCDate() + 4 - dayNum)
+  const yearStart = new Date(Date.UTC(d.getUTCFullYear(), 0, 1))
+  return Math.ceil((((d.getTime() - yearStart.getTime()) / 86400000) + 1) / 7)
+}
+
+// Navigate to a specific route based on view and date
+function navigateToDate(date: Date, view: ViewType) {
+  const year = date.getFullYear()
+  const month = String(date.getMonth() + 1).padStart(2, '0')
+  const day = String(date.getDate()).padStart(2, '0')
+  const week = getWeekNumber(date)
+
+  switch (view) {
+    case 'year':
+      router.push({ name: 'year', params: { year } })
+      break
+    case 'month':
+      router.push({ name: 'month', params: { year, month } })
+      break
+    case 'week':
+      router.push({ name: 'week', params: { year, week } })
+      break
+    case 'day':
+      router.push({ name: 'day', params: { year, month, day } })
+      break
+  }
+}
+
 function switchView(view: ViewType) {
-  currentView.value = view
+  // Use the current browsing date when switching views
+  navigateToDate(temporal.browsing.value.date, view)
 }
 
 function goToToday() {
   const now = new Date()
-  temporal.browsing.value = {
-    start: now,
-    end: now,
-    type: DAY,
-    date: now,
-  }
+  navigateToDate(now, currentView.value)
 }
 
 function navigatePrevious() {
   const prevPeriod = go(temporal, currentPeriod.value, -1)
-  temporal.browsing.value = {
-    start: prevPeriod.date,
-    end: prevPeriod.date,
-    type: UNITS.day,
-    date: prevPeriod.date,
-  }
+  navigateToDate(prevPeriod.date, currentView.value)
 }
 
 function navigateNext() {
   const nextPeriod = go(temporal, currentPeriod.value, 1)
-  temporal.browsing.value = {
-    start: nextPeriod.date,
-    end: nextPeriod.date,
-    type: UNITS.day,
-    date: nextPeriod.date,
-  }
+  navigateToDate(nextPeriod.date, currentView.value)
 }
 
 // No longer needed - go() handles this automatically
 
 function handleMonthSelect(month: Period) {
-  temporal.browsing.value = {
-    start: month.date,
-    end: month.date,
-    type: 'day' as const,
-    date: month.date,
-  }
-  currentView.value = 'month'
+  navigateToDate(month.date, 'month')
 }
 
 function handleDaySelect(day: Period) {
-  temporal.browsing.value = {
-    start: day.date,
-    end: day.date,
-    type: 'day' as const,
-    date: day.date,
-  }
-  currentView.value = 'day'
+  navigateToDate(day.date, 'day')
 }
+
+// Watch for route changes and update temporal state
+watch(
+  () => route.params,
+  (params) => {
+    if (params.year) {
+      const year = parseInt(params.year as string)
+      const month = params.month ? parseInt(params.month as string) - 1 : 0
+      const day = params.day ? parseInt(params.day as string) : 1
+      const week = params.week ? parseInt(params.week as string) : 1
+      
+      const date = new Date(year, month, day)
+      
+      // If week view, calculate date from week number
+      if (route.name === 'week' && params.week) {
+        const janFirst = new Date(year, 0, 1)
+        const daysOffset = (week - 1) * 7
+        date.setTime(janFirst.getTime() + daysOffset * 24 * 60 * 60 * 1000)
+        // Adjust to start of week
+        const dayOfWeek = date.getDay()
+        const diff = date.getDate() - dayOfWeek + (dayOfWeek === 0 ? -6 : 1)
+        date.setDate(diff)
+      }
+      
+      temporal.browsing.value = {
+        start: date,
+        end: date,
+        type: DAY,
+        date: date,
+      }
+    }
+  },
+  { immediate: true }
+)
+
+// Update currentView when route changes
+watch(
+  () => route.name,
+  (name) => {
+    if (name && typeof name === 'string') {
+      currentView.value = name as ViewType
+    }
+  },
+  { immediate: true }
+)
 </script>
 
 <style scoped>
