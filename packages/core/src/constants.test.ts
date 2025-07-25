@@ -16,12 +16,12 @@ import {
 import { createTemporal } from "./createTemporal";
 import { createPeriod, divide, isSame } from "./operations";
 import { createMockAdapter } from "./test/functionalMockAdapter";
-import { testDates } from "./test/testDates";
+import { timeDates } from "./test/testDates";
 
 describe("Unit Constants", () => {
   const adapter = createMockAdapter({ weekStartsOn: 1 });
   const temporal = createTemporal({
-    date: testDates.noon,
+    date: timeDates.noon,
     adapter,
     weekStartsOn: 1,
   });

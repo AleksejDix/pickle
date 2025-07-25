@@ -1,4 +1,4 @@
-import type { Period, Unit, Temporal } from "../types";
+import type { Period, Unit, Temporal, AdapterUnit } from "../types";
 import { getUnitDefinition } from "../unit-registry";
 
 /**
@@ -92,7 +92,7 @@ export function divide(
       end = unitEnd;
     } else {
       // Use adapter built-in units
-      const safeUnit = unit as Exclude<Unit, "custom" | "stableMonth">;
+      const safeUnit = unit as AdapterUnit;
       start = adapter.startOf(current, safeUnit);
       end = adapter.endOf(current, safeUnit);
     }
@@ -112,7 +112,7 @@ export function divide(
       // For custom units, move to the day after the end
       current = new Date(end.getTime() + 24 * 60 * 60 * 1000);
     } else {
-      const safeUnit = unit as Exclude<Unit, "custom" | "stableMonth">;
+      const safeUnit = unit as AdapterUnit;
       current = adapter.add(current, 1, safeUnit);
     }
 

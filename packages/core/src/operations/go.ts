@@ -1,4 +1,4 @@
-import type { Period, Unit, Temporal, AdapterUnit } from "../types";
+import type { Period, Temporal, AdapterUnit } from "../types";
 import { createPeriod } from "./createPeriod";
 import { getUnitDefinition } from "../unit-registry";
 

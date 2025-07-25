@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
-import { getUnitDefinition, hasUnit, clearUnitRegistry } from "../unit-registry";
+import { describe, it, expect, vi } from "vitest";
+import { getUnitDefinition, hasUnit } from "../unit-registry";
 import { mockAdapter } from "../test/functionalMockAdapter";
 import "../units/definitions"; // Import to register units
 

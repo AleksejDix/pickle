@@ -4,6 +4,7 @@ import { createTemporal } from "../createTemporal";
 import { createMockAdapter } from "../test/functionalMockAdapter";
 import { TEST_DATE, testDates } from "../test/testDates";
 import type { Period } from "../types";
+import { contains } from "./contains";
 
 describe("zoomIn", () => {
   const temporal = createTemporal({
@@ -12,7 +13,7 @@ describe("zoomIn", () => {
     weekStartsOn: 1, // Monday
   });
 
-  it("should zoom from year to months", () => {
+  it("should zoom from year to month containing browsing date", () => {
     const year: Period = {
       start: testDates.jan1,
       end: testDates.dec31,
@@ -20,14 +21,14 @@ describe("zoomIn", () => {
       date: testDates.jun15,
     };
 
-    const months = zoomIn(temporal, year, "month");
+    const month = zoomIn(temporal, year, "month");
 
-    expect(months).toHaveLength(12);
-    expect(months[0].start.getMonth()).toBe(0); // January
-    expect(months[11].start.getMonth()).toBe(11); // December
+    expect(month.type).toBe("month");
+    expect(month.start.getMonth()).toBe(5); // June (since browsing date is in June)
+    expect(contains(year, month)).toBe(true);
   });
 
-  it("should zoom from month to weeks", () => {
+  it("should zoom from month to week containing browsing date", () => {
     const january: Period = {
       start: testDates.jan1,
       end: new Date(2024, 0, 31, 23, 59, 59, 999),
@@ -35,13 +36,22 @@ describe("zoomIn", () => {
       date: testDates.jan15,
     };
 
-    const weeks = zoomIn(temporal, january, "week");
+    // Update temporal browsing to be in January
+    temporal.browsing.value = {
+      start: testDates.jan15,
+      end: testDates.jan15,
+      type: "day",
+      date: testDates.jan15,
+    };
 
-    expect(weeks.length).toBeGreaterThanOrEqual(4);
-    expect(weeks.length).toBeLessThanOrEqual(6);
+    const week = zoomIn(temporal, january, "week");
+
+    expect(week.type).toBe("week");
+    expect(contains(january, week)).toBe(true);
+    expect(contains(week, testDates.jan15)).toBe(true);
   });
 
-  it("should zoom from week to days", () => {
+  it("should zoom from week to day containing browsing date", () => {
     const week: Period = {
       start: new Date(2024, 0, 8), // Monday
       end: new Date(2024, 0, 14, 23, 59, 59, 999), // Sunday
@@ -49,122 +59,95 @@ describe("zoomIn", () => {
       date: testDates.jan10,
     };
 
-    const days = zoomIn(temporal, week, "day");
+    // Update temporal browsing to be Jan 10 (Wednesday)
+    temporal.browsing.value = {
+      start: testDates.jan10,
+      end: testDates.jan10,
+      type: "day",
+      date: testDates.jan10,
+    };
 
-    expect(days).toHaveLength(7);
-    expect(days[0].start.getDay()).toBe(1); // Monday
-    expect(days[6].start.getDay()).toBe(0); // Sunday
+    const day = zoomIn(temporal, week, "day");
+
+    expect(day.type).toBe("day");
+    expect(day.start.getDate()).toBe(10); // January 10
+    expect(contains(week, day)).toBe(true);
   });
 
-  it("should zoom from day to hours", () => {
-    const day: Period = {
-      start: new Date(2024, 0, 15, 0, 0, 0),
-      end: new Date(2024, 0, 15, 23, 59, 59, 999),
+  it("should zoom from day to hour containing browsing date", () => {
+    const period: Period = {
+      start: new Date(2024, 5, 15, 0, 0, 0),
+      end: new Date(2024, 5, 15, 23, 59, 59, 999),
+      type: "day",
+      date: TEST_DATE, // 14:30
+    };
+
+    // Reset temporal browsing to TEST_DATE
+    temporal.browsing.value = {
+      start: TEST_DATE,
+      end: TEST_DATE,
+      type: "day",
+      date: TEST_DATE,
+    };
+
+    const hour = zoomIn(temporal, period, "hour");
+
+    expect(hour.type).toBe("hour");
+    expect(hour.start.getHours()).toBe(14); // 2 PM (since TEST_DATE is 14:30)
+    expect(contains(period, hour)).toBe(true);
+  });
+
+  it("should fall back to period's date when browsing date is out of range", () => {
+    const march: Period = {
+      start: new Date(2024, 2, 1),
+      end: new Date(2024, 2, 31, 23, 59, 59, 999),
+      type: "month",
+      date: new Date(2024, 2, 15),
+    };
+
+    // Set browsing to a date outside of March
+    temporal.browsing.value = {
+      start: testDates.jan15,
+      end: testDates.jan15,
       type: "day",
       date: testDates.jan15,
     };
 
-    const hours = zoomIn(temporal, day, "hour");
+    const week = zoomIn(temporal, march, "week");
 
-    expect(hours).toHaveLength(24);
+    expect(week.type).toBe("week");
+    expect(contains(march, week)).toBe(true);
+    expect(contains(week, march.date)).toBe(true); // Should contain March 15
   });
 
-  it("should zoom from custom period", () => {
-    const sprint: Period = {
-      start: new Date(2024, 0, 1),
-      end: new Date(2024, 0, 14, 23, 59, 59, 999),
-      type: "custom",
-      date: new Date(2024, 0, 7),
-    };
-
-    const days = zoomIn(temporal, sprint, "day");
-
-    expect(days).toHaveLength(14);
-    expect(days[0].start.getDate()).toBe(1);
-    expect(days[13].start.getDate()).toBe(14);
-  });
-
-  it("should zoom from hour to minutes", () => {
-    const hour: Period = {
-      start: new Date(2024, 0, 15, 14, 0, 0),
-      end: new Date(2024, 0, 15, 14, 59, 59, 999),
-      type: "hour",
-      date: new Date(2024, 0, 15, 14, 30),
-    };
-
-    const minutes = zoomIn(temporal, hour, "minute");
-
-    expect(minutes).toHaveLength(60);
-  });
-
-  it("should preserve period properties when zooming", () => {
-    const month: Period = {
-      start: testDates.jun1,
-      end: testDates.jun30,
-      type: "month",
-      date: testDates.jun15,
-    };
-
-    const days = zoomIn(temporal, month, "day");
-
-    expect(days).toHaveLength(30); // June has 30 days
-
-    // All days should be within the month
-    days.forEach((day) => {
-      expect(day.start.getMonth()).toBe(5); // June
-      expect(day.end.getMonth()).toBe(5);
-    });
-  });
-
-  it("should handle quarter zoom to months", () => {
-    const q2: Period = {
-      start: new Date(2024, 3, 1),
-      end: testDates.jun30,
-      type: "quarter",
-      date: testDates.may15,
-    };
-
-    const months = zoomIn(temporal, q2, "month");
-
-    expect(months).toHaveLength(3);
-  });
-
-  it("should handle stableMonth zoom to days", () => {
-    const stableMonth: Period = {
-      start: new Date(2024, 0, 29), // Monday before Feb 1
-      end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
-      type: "stableMonth",
-      date: testDates.feb15,
-    };
-
-    const days = zoomIn(temporal, stableMonth, "day");
-
-    expect(days).toHaveLength(42); // 6 weeks * 7 days
-  });
-
-  it("should handle stableMonth zoom to weeks", () => {
-    const stableMonth: Period = {
-      start: new Date(2024, 0, 29), // Monday before Feb 1
-      end: new Date(2024, 2, 10, 23, 59, 59, 999), // Sunday
-      type: "stableMonth",
-      date: testDates.feb15,
-    };
-
-    const weeks = zoomIn(temporal, stableMonth, "week");
-
-    expect(weeks).toHaveLength(6);
-  });
-
-  it("should throw error when trying to zoom to stableMonth", () => {
-    const month: Period = {
+  it("should handle nested zooming", () => {
+    const year: Period = {
       start: testDates.jan1,
-      end: new Date(2024, 0, 31),
-      type: "month",
-      date: testDates.jan15,
+      end: testDates.dec31,
+      type: "year",
+      date: TEST_DATE,
     };
 
-    expect(() => zoomIn(temporal, month, "stableMonth")).toThrow(
-      "Cannot divide by stableMonth. Use useStableMonth() instead."
-    );
+    // Reset browsing to TEST_DATE
+    temporal.browsing.value = {
+      start: TEST_DATE,
+      end: TEST_DATE,
+      type: "day",
+      date: TEST_DATE,
+    };
+
+    const month = zoomIn(temporal, year, "month");
+    const week = zoomIn(temporal, month, "week");
+    const day = zoomIn(temporal, week, "day");
+
+    expect(contains(year, month)).toBe(true);
+    expect(contains(month, week)).toBe(true);
+    expect(contains(week, day)).toBe(true);
+    expect(contains(year, day)).toBe(true);
+
+    // Should all contain the browsing date
+    expect(contains(month, TEST_DATE)).toBe(true);
+    expect(contains(week, TEST_DATE)).toBe(true);
+    expect(contains(day, TEST_DATE)).toBe(true);
   });
 });

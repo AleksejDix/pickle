@@ -164,6 +164,8 @@ export function createMockAdapter(options?: {
           const yearDiff = to.getFullYear() - from.getFullYear();
           return yearDiff * 4 + (toQuarter - fromQuarter);
         }
+        default:
+          throw new Error(`Unknown unit: ${unit}`);
       }
     },
   };

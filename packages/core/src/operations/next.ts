@@ -1,4 +1,4 @@
-import type { Period, Unit, Temporal } from "../types";
+import type { Period, Temporal, AdapterUnit } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
@@ -39,7 +39,7 @@ export function next(temporal: Temporal, period: Period): Period {
   const nextValue = adapter.add(
     period.date,
     1,
-    period.type as Exclude<Unit, "custom" | "stableMonth">
+    period.type as AdapterUnit
   );
 
   // Create a temporary point-in-time period for the new date

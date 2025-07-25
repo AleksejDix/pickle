@@ -1,4 +1,4 @@
-import type { Period, Unit, Temporal } from "../types";
+import type { Period, Unit, Temporal, AdapterUnit } from "../types";
 
 /**
  * Check if two periods are the same for a given unit
@@ -47,11 +47,11 @@ export function isSame(
   // For all other units, compare by checking if startOf values are equal
   const startA = temporal.adapter.startOf(
     dateA,
-    unit as Exclude<Unit, "custom" | "stableMonth">
+    unit as AdapterUnit
   );
   const startB = temporal.adapter.startOf(
     dateB,
-    unit as Exclude<Unit, "custom" | "stableMonth">
+    unit as AdapterUnit
   );
   return startA.getTime() === startB.getTime();
 }

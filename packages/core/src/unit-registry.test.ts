@@ -189,7 +189,7 @@ describe("unit-registry", () => {
   describe("Complex unit examples", () => {
     it("should support academic semester unit", () => {
       const semesterDefinition: UnitDefinition = {
-        createPeriod: (date, adapter) => {
+        createPeriod: (date) => {
           const month = date.getMonth();
           const year = date.getFullYear();
           
@@ -218,19 +218,19 @@ describe("unit-registry", () => {
       // Test fall semester
       const fallDate = new Date("2024-09-01");
       const fallResult = def?.createPeriod(fallDate, mockAdapter);
-      expect(fallResult?.start).toEqual(new Date("2024-08-15"));
-      expect(fallResult?.end).toEqual(new Date("2024-12-15"));
+      expect(fallResult?.start).toEqual(new Date(2024, 7, 15)); // Aug 15
+      expect(fallResult?.end).toEqual(new Date(2024, 11, 15));  // Dec 15
       
       // Test spring semester
       const springDate = new Date("2024-02-01");
       const springResult = def?.createPeriod(springDate, mockAdapter);
-      expect(springResult?.start).toEqual(new Date("2024-01-15"));
-      expect(springResult?.end).toEqual(new Date("2024-05-15"));
+      expect(springResult?.start).toEqual(new Date(2024, 0, 15)); // Jan 15
+      expect(springResult?.end).toEqual(new Date(2024, 4, 15));   // May 15
     });
 
     it("should support business quarter with fiscal year offset", () => {
       const fiscalQuarterDefinition: UnitDefinition = {
-        createPeriod: (date, adapter) => {
+        createPeriod: (date) => {
           // Fiscal year starts April 1
           const month = date.getMonth();
           const year = date.getFullYear();
