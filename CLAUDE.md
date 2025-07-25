@@ -4,9 +4,76 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-useTemporal is a revolutionary time library featuring a unique `divide()` pattern for hierarchical time management. The project is organized as a monorepo with framework-agnostic architecture, supporting Vue, React, Angular, Svelte, and vanilla JavaScript.
+useTemporal is a revolutionary time library featuring a unique `divide()` pattern for hierarchical time management. The project is organized as a monorepo with framework-agnostic architecture.
 
-Key innovation: The library provides the only JavaScript time handling with the `divide()` pattern, allowing infinite subdivision of time units with perfect synchronization.
+**Current API Status (v2.0.0)**: The library has been significantly simplified with a unified functional API. There are NO individual time unit composables like `useYear()` or `useMonth()` - only `usePeriod()` exists.
+
+## Documentation Structure
+
+The project follows BMad-Method documentation patterns with clear separation between user and developer documentation:
+
+### User Documentation (`/vitepress`)
+- End-user guides for using the library
+- API reference for public functions
+- Examples and tutorials
+- Hosted documentation site
+
+### Developer Documentation (`/docs`)
+Following BMad-Method structure:
+- **`/docs/prd/`** - Product Requirements Documents
+  - Main PRD: `usetemporal-prd.md`
+- **`/docs/architecture/`** - Technical Architecture
+  - Main Architecture: `usetemporal-architecture.md`
+- **`/docs/epics/`** - Feature epics grouping related stories
+- **`/docs/stories/`** - User stories for implementation
+- **`/docs/development/`** - Developer guides and processes
+
+### Key Documents for AI Agents
+1. **Architecture**: `/docs/architecture/usetemporal-architecture.md` - Current system state, not idealized
+2. **PRD**: `/docs/prd/usetemporal-prd.md` - Requirements and planned enhancements
+3. **Stories**: `/docs/stories/` - Actionable development tasks with full context
+4. **This file**: `CLAUDE.md` - AI agent guidance
+
+### Working with Stories
+When implementing a story:
+1. Read the complete story file including all 9 sections
+2. Check Dev Notes for technical context and architecture references
+3. Update story status when beginning work
+4. Mark tasks complete as you progress
+5. Fill in Dev Agent Record section
+
+## Core Philosophy: "Calculus for Time"
+
+This library follows a minimal philosophy inspired by calculus - provide fundamental operations that compose into complex solutions:
+
+1. **Fundamental Operations Only** - Like derivatives and integrals in calculus, we provide only the essential building blocks
+2. **Composition Over Convenience** - Users compose operations rather than relying on pre-built conveniences
+3. **Pure Functions** - All operations are pure, returning new values without mutations
+4. **Minimal API Surface** - Every addition must be truly fundamental and irreducible
+
+### Examples of the Philosophy
+
+```typescript
+// Fundamental operations (like dx, ∫)
+createPeriod(temporal, date, unit)  // Create any period
+divide(temporal, period, unit)      // Break down periods
+merge(temporal, periods)            // Combine periods
+next/previous/go                    // Navigate relatively
+
+// Everything else is composition
+today(temporal, unit) = createPeriod(temporal, new Date(), unit)
+
+// Users can compose their own abstractions
+const isThisWeek = (period, temporal) => 
+  isSame(temporal, period, createPeriod(temporal, new Date(), "week"), "week");
+```
+
+### What This Means for Development
+
+- **Question every addition**: Can this be easily composed from existing operations?
+- **Reject trivial wrappers**: Functions that just reorder parameters or save a few characters
+- **Document patterns**: Instead of adding conveniences, show users how to compose
+- **Trust users**: They can create their own abstractions when needed
 
 ## Commands
 
@@ -28,6 +95,9 @@ npm run test:watch
 # Run tests with coverage
 npm run test:coverage
 
+# Run a single test file
+npx vitest run path/to/test.test.ts
+
 # Type checking for all packages
 npm run type-check
 
@@ -37,138 +107,146 @@ npm run lint
 # Format code with Prettier
 npm run format
 
+# Check formatting without writing
+npm run format:check
+
 # Clean all build artifacts
 npm run clean
 
-# Build and publish packages
+# Build and publish packages (requires changeset)
 npm run release
+
+# Documentation
+npm run docs:dev      # Start docs dev server
+npm run docs:build    # Build documentation
+npm run docs:preview  # Preview built docs
 ```
 
 ### Package-Specific Commands
 
-Run commands for specific packages using workspace syntax:
-
 ```bash
-# Run dev mode for a specific package
-npm run dev --workspace=@usetemporal/core
-
-# Build a specific package
-npm run build --workspace=@usetemporal/adapter-luxon
-
-# Test a specific package
-npm test --workspace=@usetemporal/core
-```
-
-### Example Application Commands
-
-```bash
-# Start Vue example application (port 5173)
-cd examples/vue
+# Run dev mode for core
 npm run dev
 
-# Build Vue example
-npm run build
+# Build specific package
+npm run build --workspace=@usetemporal/adapter-luxon
 
-# Preview production build
-npm run preview
+# Test specific package
+npm test --workspace=@usetemporal/core
+
+# Run any command in a specific workspace
+npm run <command> --workspace=<package-name>
 ```
 
 ## Architecture
+
+### Current API Design (IMPORTANT)
+
+The library uses a **functional, Period-centric architecture**:
+
+```typescript
+// Core types
+interface Period {
+  type: Unit;    // 'year' | 'month' | 'week' | 'day' | 'hour' | 'minute' | 'second'
+  date: Date;    // Representative date
+  start: Date;   // Period start
+  end: Date;     // Period end (exclusive)
+}
+
+interface Temporal {
+  adapter: Adapter;
+  weekStartsOn: number;
+  browsing: Ref<Period>;  // Currently browsed period
+  now: Ref<Period>;       // Current time period
+}
+```
+
+### Key API Elements
+
+1. **Factory Function**: `createTemporal(options)` - requires an adapter
+2. **Single Composable**: `usePeriod(temporal, unit)` - creates reactive periods
+3. **Operations**: All are pure functions that work with Period objects
+   - `divide(temporal, period, unit)` - The revolutionary pattern
+   - `next()`, `previous()`, `go()` - Navigation
+   - `contains()`, `isSame()` - Comparison
+   - `zoomIn()`, `zoomOut()`, `zoomTo()` - Zooming
+   - `split()`, `merge()` - Advanced operations
 
 ### Monorepo Structure
 
 ```
 pickle/
 ├── packages/
-│   ├── core/                    # @usetemporal/core - Core library with reactive time units
-│   ├── adapter-native/          # @usetemporal/adapter-native - Native JS Date adapter
-│   ├── adapter-date-fns/        # @usetemporal/adapter-date-fns - date-fns adapter
-│   ├── adapter-luxon/           # @usetemporal/adapter-luxon - Luxon adapter
-│   ├── adapter-temporal/        # @usetemporal/adapter-temporal - Temporal API adapter
-│   ├── usetemporal/            # Main package bundling core + native adapter
-│   └── tsconfig/               # Shared TypeScript configurations
+│   ├── core/                    # Core library (functional API)
+│   ├── adapter-native/          # Native JS Date adapter
+│   ├── adapter-date-fns/        # date-fns adapter
+│   ├── adapter-luxon/           # Luxon adapter
+│   ├── adapter-temporal/        # Temporal API adapter
+│   ├── usetemporal/            # Meta package (core + native adapter)
+│   └── tsconfig/               # Shared TypeScript configs
 ├── examples/
-│   └── vue/                    # Vue.js demo application
-└── coverage/                   # Test coverage reports
+│   └── vue/                    # Vue.js example with routing
+├── docs/                       # VitePress documentation
+└── research/                   # RFCs and design documents
 ```
 
-### Core Library Architecture
+### Adapter System
 
-The core library (`packages/core/src/`) provides:
-
-- `createTemporal()` - Main factory function
-- Time unit composables: `useYear()`, `useMonth()`, `useWeek()`, `useDay()`, `useHour()`
-- Reactive properties using `@vue/reactivity` (not Vue framework)
-- TypeScript type definitions
-
-### Key Design Patterns
-
-1. **Reactive Core**: Uses `@vue/reactivity` for framework-agnostic reactivity
-2. **Adapter Pattern**: Pluggable date library support with separate packages
-3. **Composable Pattern**: Each time unit follows a consistent interface
-4. **Functional Architecture**: No classes, pure functional design
-5. **Modular Packages**: Each adapter is a separate, tree-shakeable package
-
-### Revolutionary divide() Pattern
+Adapters must implement this minimal interface:
 
 ```typescript
-const temporal = createTemporal();
-const year = useYear(temporal);
-const months = temporal.divide(year, "month"); // Returns 12 month units
-const weeks = temporal.divide(month, "week"); // Returns ~4 week units
-const days = temporal.divide(week, "day"); // Returns 7 day units
+interface Adapter {
+  startOf(date: Date, unit: AdapterUnit): Date;
+  endOf(date: Date, unit: AdapterUnit): Date;
+  add(date: Date, value: number, unit: AdapterUnit): Date;
+  diff(start: Date, end: Date, unit: AdapterUnit): number;
+}
 ```
 
-### Date Adapter System
+### Unit Registry System
 
-The library supports multiple date libraries through adapter packages:
+The library supports custom units through module augmentation:
 
-- `@usetemporal/adapter-native` - Native JavaScript Date (zero dependencies)
-- `@usetemporal/adapter-date-fns` - date-fns integration
-- `@usetemporal/adapter-luxon` - Luxon integration
-- `@usetemporal/adapter-temporal` - Temporal API (future-proof)
+```typescript
+// Define custom unit
+defineUnit('fortnight', {
+  duration: { weeks: 2 },
+  validate: (adapter, date) => boolean
+});
 
-Installation examples:
-
-```bash
-# Basic installation (includes native adapter)
-npm install usetemporal
-
-# With specific adapter
-npm install @usetemporal/core @usetemporal/adapter-luxon luxon
+// TypeScript augmentation
+declare module '@usetemporal/core' {
+  interface UnitRegistry {
+    fortnight: true;
+  }
+}
 ```
 
 ## Important Implementation Notes
 
-1. **Framework Agnostic**: The library uses only `@vue/reactivity`, not the Vue framework. All imports must be from `@vue/reactivity`, not `vue`.
+1. **NO Vue Framework Dependency**: Uses only `@vue/reactivity` for reactivity
+2. **Functional Design**: No classes, all operations are pure functions
+3. **ESM Only**: All packages use `"type": "module"`
+4. **Unified Types**: Single `Unit` type, single `Period` type
+5. **Required Adapters**: `createTemporal()` requires an adapter instance
 
-2. **Zero Dependencies Goal**: The native adapter provides full functionality without external dependencies. Other adapters require their respective date libraries as peer dependencies.
+## Testing Guidelines
 
-3. **ESM Only**: All packages use `"type": "module"` and are ESM-only. No CommonJS builds are provided.
+- Tests use Vitest and are located in `src/__tests__/`
+- Mock adapter available in `src/test/mockAdapter.ts`
+- Test utilities in `src/test/utils.ts`
+- Focus on Period operations and reactivity
 
-4. **TypeScript**: The project uses TypeScript with shared configurations in `packages/tsconfig/`. Each package extends from the base configuration.
+## Common Pitfalls
 
-5. **Testing**: Uses Vitest for testing. Tests are located in each package's `src/__tests__/` directory.
+1. **Don't import from 'vue'** - Always use '@vue/reactivity'
+2. **Don't use old API** - No `useYear()`, `useMonth()` etc., only `usePeriod()`
+3. **Adapters are required** - Always pass an adapter to `createTemporal()`
+4. **Operations are functions** - `divide()` is not a method on temporal
 
-6. **Linting**: Uses `oxlint` for fast linting. Configuration is in `oxlintrc.json`.
+## Current Development Focus
 
-7. **Bundle Size**: Target bundle size is <6KB for core + native adapter.
-
-## Development Workflow
-
-1. **Monorepo Management**: Uses npm workspaces for dependency management
-2. **Version Management**: Uses changesets for coordinated releases
-3. **Build Tool**: Vite for fast builds and development
-4. **Test Runner**: Vitest for unit testing
-5. **Type Checking**: TypeScript strict mode enabled
-
-## Current Status
-
-The project is at v2.0.0-alpha.1 with:
-
-- ✅ Framework-agnostic architecture complete
-- ✅ Modular adapter system with separate packages
-- ✅ Professional API naming (createTemporal)
-- ✅ Zero-dependency native adapter
-- 🔄 Bundle size optimization in progress
-- 🔄 Additional framework examples needed beyond Vue
+- Bundle size optimization (target <6KB)
+- Performance improvements for divide() operations
+- Additional framework examples
+- Documentation improvements
