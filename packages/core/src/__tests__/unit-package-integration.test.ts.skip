@@ -1,0 +1,421 @@
+import { describe, it, expect, beforeAll } from "vitest";
+import { createTemporal, defineUnit, usePeriod } from "../index";
+import { divide, next, previous, merge } from "../operations";
+import { mockAdapter } from "../test/functionalMockAdapter";
+import type { Temporal, Period, UnitDefinition } from "../types";
+
+// Simulate @usetemporal/units-business package
+const businessUnitsPackage = () => {
+  // Quarter unit
+  defineUnit("quarter", {
+    createPeriod: (date, adapter) => {
+      const month = date.getMonth();
+      const quarter = Math.floor(month / 3);
+      const year = date.getFullYear();
+      const startMonth = quarter * 3;
+      
+      return {
+        start: new Date(year, startMonth, 1),
+        end: new Date(year, startMonth + 3, 0, 23, 59, 59, 999),
+      };
+    },
+    divisions: ["month", "week", "day"],
+    mergesTo: "year",
+  });
+
+  // Fiscal year (July 1 - June 30)
+  defineUnit("fiscal-year", {
+    createPeriod: (date, adapter) => {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const fiscalYear = month >= 6 ? year : year - 1;
+      
+      return {
+        start: new Date(fiscalYear, 6, 1), // July 1
+        end: new Date(fiscalYear + 1, 5, 30, 23, 59, 59, 999), // June 30
+      };
+    },
+    divisions: ["fiscal-quarter", "month"],
+  });
+
+  // Business day (excludes weekends)
+  defineUnit("business-day", {
+    createPeriod: (date, adapter) => {
+      let currentDate = new Date(date);
+      const dayOfWeek = currentDate.getDay();
+      
+      // If weekend, move to Monday
+      if (dayOfWeek === 0) currentDate.setDate(currentDate.getDate() + 1);
+      if (dayOfWeek === 6) currentDate.setDate(currentDate.getDate() + 2);
+      
+      const start = adapter.startOf(currentDate, "day");
+      const end = adapter.endOf(currentDate, "day");
+      
+      return { start, end };
+    },
+    divisions: ["hour"],
+  });
+
+  // Business quarter (aligned with fiscal year)
+  defineUnit("fiscal-quarter", {
+    createPeriod: (date, adapter) => {
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      
+      // Q1: Jul-Sep, Q2: Oct-Dec, Q3: Jan-Mar, Q4: Apr-Jun
+      let quarterStart, quarterEnd;
+      
+      if (month >= 6 && month <= 8) {
+        quarterStart = new Date(year, 6, 1);
+        quarterEnd = new Date(year, 8, 30, 23, 59, 59, 999);
+      } else if (month >= 9 && month <= 11) {
+        quarterStart = new Date(year, 9, 1);
+        quarterEnd = new Date(year, 11, 31, 23, 59, 59, 999);
+      } else if (month >= 0 && month <= 2) {
+        quarterStart = new Date(year, 0, 1);
+        quarterEnd = new Date(year, 2, 31, 23, 59, 59, 999);
+      } else {
+        quarterStart = new Date(year, 3, 1);
+        quarterEnd = new Date(year, 5, 30, 23, 59, 59, 999);
+      }
+      
+      return {
+        start: quarterStart,
+        end: quarterEnd,
+      };
+    },
+    divisions: ["month", "week", "day"],
+    mergesTo: "fiscal-year",
+  });
+};
+
+// Simulate @usetemporal/units-academic package
+const academicUnitsPackage = () => {
+  // Academic year (September 1 - August 31)
+  defineUnit("academic-year", {
+    createPeriod: (date, adapter) => {
+      const year = date.getFullYear();
+      const month = date.getMonth();
+      const academicYear = month >= 8 ? year : year - 1;
+      
+      return {
+        start: new Date(academicYear, 8, 1), // September 1
+        end: new Date(academicYear + 1, 7, 31, 23, 59, 59, 999), // August 31
+      };
+    },
+    divisions: ["semester", "term", "month"],
+  });
+
+  // Semester (Fall: Sep-Dec, Spring: Jan-May, Summer: Jun-Aug)
+  defineUnit("semester", {
+    createPeriod: (date, adapter) => {
+      const month = date.getMonth();
+      const year = date.getFullYear();
+      
+      if (month >= 8 && month <= 11) {
+        // Fall semester
+        return {
+          start: new Date(year, 8, 1),
+          end: new Date(year, 11, 31, 23, 59, 59, 999),
+        };
+      } else if (month >= 0 && month <= 4) {
+        // Spring semester
+        return {
+          start: new Date(year, 0, 1),
+          end: new Date(year, 4, 31, 23, 59, 59, 999),
+        };
+      } else {
+        // Summer semester
+        return {
+          start: new Date(year, 5, 1),
+          end: new Date(year, 7, 31, 23, 59, 59, 999),
+        };
+      }
+    },
+    divisions: ["month", "week"],
+    mergesTo: "academic-year",
+  });
+
+  // Term (10 weeks)
+  defineUnit("term", {
+    createPeriod: (date, adapter) => {
+      const academicYearStart = new Date(date.getFullYear(), 8, 1);
+      if (date < academicYearStart) {
+        academicYearStart.setFullYear(academicYearStart.getFullYear() - 1);
+      }
+      
+      const weeksSinceStart = Math.floor((date.getTime() - academicYearStart.getTime()) / (7 * 24 * 60 * 60 * 1000));
+      const termNumber = Math.floor(weeksSinceStart / 10);
+      const termStart = new Date(academicYearStart);
+      termStart.setDate(termStart.getDate() + termNumber * 10 * 7);
+      
+      const termEnd = new Date(termStart);
+      termEnd.setDate(termEnd.getDate() + 10 * 7 - 1);
+      termEnd.setHours(23, 59, 59, 999);
+      
+      return {
+        start: termStart,
+        end: termEnd,
+      };
+    },
+    divisions: ["week", "day"],
+    mergesTo: "academic-year",
+  });
+};
+
+// Simulate @usetemporal/units-agile package  
+const agileUnitsPackage = () => {
+  // Sprint (2 weeks)
+  defineUnit("sprint", {
+    createPeriod: (date, adapter) => {
+      // Find the Monday of the current week
+      const start = adapter.startOf(date, "week");
+      // Check if this is week 1 or week 2 of the sprint
+      const weeksSinceEpoch = Math.floor(start.getTime() / (7 * 24 * 60 * 60 * 1000));
+      const sprintNumber = Math.floor(weeksSinceEpoch / 2);
+      const sprintStart = new Date(sprintNumber * 2 * 7 * 24 * 60 * 60 * 1000);
+      
+      // Adjust to nearest Monday
+      const dayOfWeek = sprintStart.getDay();
+      const daysToMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
+      sprintStart.setDate(sprintStart.getDate() + daysToMonday);
+      
+      const end = new Date(sprintStart);
+      end.setDate(end.getDate() + 13);
+      end.setHours(23, 59, 59, 999);
+      
+      return {
+        start: sprintStart,
+        end,
+      };
+    },
+    divisions: ["week", "day"],
+    mergesTo: "pi",
+  });
+
+  // PI (Program Increment - 5 sprints)
+  defineUnit("pi", {
+    createPeriod: (date, adapter) => {
+      // Get the sprint for the current date
+      const sprintDef = getUnitDefinition("sprint");
+      if (!sprintDef) throw new Error("Sprint unit not defined");
+      
+      const sprint = sprintDef.createPeriod(date, adapter);
+      const sprintNumber = Math.floor(sprint.start.getTime() / (14 * 24 * 60 * 60 * 1000));
+      const piNumber = Math.floor(sprintNumber / 5);
+      const piStart = new Date(piNumber * 5 * 14 * 24 * 60 * 60 * 1000);
+      
+      // Adjust to nearest Monday
+      const dayOfWeek = piStart.getDay();
+      const daysToMonday = dayOfWeek === 0 ? 1 : (8 - dayOfWeek) % 7;
+      piStart.setDate(piStart.getDate() + daysToMonday);
+      
+      const piEnd = new Date(piStart);
+      piEnd.setDate(piEnd.getDate() + 5 * 14 - 1);
+      piEnd.setHours(23, 59, 59, 999);
+      
+      return {
+        start: piStart,
+        end: piEnd,
+      };
+    },
+    divisions: ["sprint", "week", "day"],
+  });
+};
+
+import { getUnitDefinition, clearUnitRegistry } from "../unit-registry";
+import "../units/definitions"; // Import core unit definitions
+
+describe("Unit Package Integration", () => {
+  let temporal: Temporal;
+
+  beforeAll(() => {
+    // Clear and reload units
+    clearUnitRegistry();
+    import("../units/definitions"); // Re-import core units
+    
+    // Load all unit packages
+    businessUnitsPackage();
+    academicUnitsPackage();
+    agileUnitsPackage();
+    
+    temporal = createTemporal({
+      adapter: mockAdapter,
+      weekStartsOn: 1,
+    });
+  });
+
+  describe("Business Units Package", () => {
+    it("should handle quarters correctly", () => {
+      const quarter = usePeriod(temporal, "quarter");
+      expect(quarter.value.type).toBe("quarter");
+      
+      // Q2 2024
+      temporal.browsing.value = {
+        start: new Date(2024, 4, 15), // May 15
+        end: new Date(2024, 4, 15),
+        type: "day",
+        date: new Date(2024, 4, 15),
+      };
+      
+      const q2 = usePeriod(temporal, "quarter");
+      expect(q2.value.start.getMonth()).toBe(3); // April
+      expect(q2.value.end.getMonth()).toBe(5); // June
+    });
+
+    it("should handle fiscal years", () => {
+      temporal.browsing.value = {
+        start: new Date(2024, 0, 15), // January 15
+        end: new Date(2024, 0, 15),
+        type: "day", 
+        date: new Date(2024, 0, 15),
+      };
+      
+      const fiscalYear = usePeriod(temporal, "fiscal-year");
+      expect(fiscalYear.value.start.getFullYear()).toBe(2023);
+      expect(fiscalYear.value.start.getMonth()).toBe(6); // July
+    });
+
+    it("should handle business days", () => {
+      // Saturday
+      temporal.browsing.value = {
+        start: new Date(2024, 0, 6), // Saturday
+        end: new Date(2024, 0, 6),
+        type: "day",
+        date: new Date(2024, 0, 6),
+      };
+      
+      const businessDay = usePeriod(temporal, "business-day");
+      expect(businessDay.value.start.getDay()).toBe(1); // Monday
+    });
+
+    it("should divide fiscal year into quarters", () => {
+      const fiscalYear = usePeriod(temporal, "fiscal-year");
+      const quarters = divide(temporal, fiscalYear.value, "fiscal-quarter");
+      
+      expect(quarters).toHaveLength(4);
+      expect(quarters[0].start.getMonth()).toBe(6); // July
+      expect(quarters[3].end.getMonth()).toBe(5); // June
+    });
+  });
+
+  describe("Academic Units Package", () => {
+    it("should handle academic years", () => {
+      temporal.browsing.value = {
+        start: new Date(2024, 9, 15), // October 15
+        end: new Date(2024, 9, 15),
+        type: "day",
+        date: new Date(2024, 9, 15),
+      };
+      
+      const academicYear = usePeriod(temporal, "academic-year");
+      expect(academicYear.value.start.getFullYear()).toBe(2024);
+      expect(academicYear.value.start.getMonth()).toBe(8); // September
+    });
+
+    it("should handle semesters", () => {
+      const semester = usePeriod(temporal, "semester");
+      expect(semester.value.start.getMonth()).toBe(8); // Fall semester
+      
+      // Navigate to spring
+      temporal.browsing.value = {
+        start: new Date(2025, 2, 15), // March 15
+        end: new Date(2025, 2, 15),
+        type: "day",
+        date: new Date(2025, 2, 15),
+      };
+      
+      const spring = usePeriod(temporal, "semester");
+      expect(spring.value.start.getMonth()).toBe(0); // January
+    });
+
+    it("should divide academic year into terms", () => {
+      const academicYear = usePeriod(temporal, "academic-year");
+      const terms = divide(temporal, academicYear.value, "term");
+      
+      expect(terms.length).toBeGreaterThan(3); // At least 3 terms
+    });
+  });
+
+  describe("Agile Units Package", () => {
+    it("should handle sprints", () => {
+      temporal.browsing.value = {
+        start: new Date(2024, 0, 15), // January 15
+        end: new Date(2024, 0, 15),
+        type: "day",
+        date: new Date(2024, 0, 15),
+      };
+      
+      const sprint = usePeriod(temporal, "sprint");
+      expect(sprint.value.type).toBe("sprint");
+      
+      // Sprint should be 2 weeks
+      const duration = sprint.value.end.getTime() - sprint.value.start.getTime();
+      const days = duration / (24 * 60 * 60 * 1000);
+      expect(Math.round(days)).toBe(13); // 14 days - 1
+    });
+
+    it("should handle PIs", () => {
+      const pi = usePeriod(temporal, "pi");
+      expect(pi.value.type).toBe("pi");
+      
+      // PI should be 10 weeks (5 sprints)
+      const duration = pi.value.end.getTime() - pi.value.start.getTime();
+      const days = duration / (24 * 60 * 60 * 1000);
+      expect(Math.round(days)).toBe(69); // 70 days - 1
+    });
+
+    it("should navigate sprints", () => {
+      const sprint = usePeriod(temporal, "sprint");
+      const nextSprint = next(temporal, sprint.value);
+      
+      expect(nextSprint.type).toBe("sprint");
+      expect(nextSprint.start.getTime()).toBeGreaterThan(sprint.value.end.getTime());
+    });
+
+    it("should divide PI into sprints", () => {
+      const pi = usePeriod(temporal, "pi");
+      const sprints = divide(temporal, pi.value, "sprint");
+      
+      expect(sprints).toHaveLength(5);
+    });
+  });
+
+  describe("Cross-Package Integration", () => {
+    it("should handle mixed unit operations", () => {
+      // Get a fiscal quarter
+      temporal.browsing.value = {
+        start: new Date(2024, 7, 15), // August 15
+        end: new Date(2024, 7, 15),
+        type: "day",
+        date: new Date(2024, 7, 15),
+      };
+      
+      const fiscalQuarter = usePeriod(temporal, "fiscal-quarter");
+      
+      // Divide into business days
+      const businessDays = divide(temporal, fiscalQuarter.value, "business-day");
+      
+      // Should exclude weekends
+      const weekendDays = businessDays.filter(day => {
+        const dayOfWeek = day.start.getDay();
+        return dayOfWeek === 0 || dayOfWeek === 6;
+      });
+      
+      expect(weekendDays).toHaveLength(0);
+    });
+
+    it("should merge quarters into fiscal year", () => {
+      const q1Period: Period = {
+        start: new Date(2023, 6, 1), // July 1
+        end: new Date(2023, 8, 30),  // September 30
+        type: "fiscal-quarter",
+        date: new Date(2023, 7, 15),
+      };
+      
+      const fiscalYear = merge(temporal, [q1Period], "fiscal-year");
+      expect(fiscalYear.type).toBe("fiscal-year");
+      expect(fiscalYear.start.getFullYear()).toBe(2023);
+    });
+  });
+});

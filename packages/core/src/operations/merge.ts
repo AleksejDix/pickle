@@ -1,10 +1,10 @@
-import type { Period, Temporal } from "../types";
+import type { Period, Temporal, Unit } from "../types";
 import { createPeriod } from "./createPeriod";
 
 /**
  * Merge multiple periods into a single period
  */
-export function merge(temporal: Temporal, periods: Period[]): Period | null {
+export function merge(temporal: Temporal, periods: Period[], targetUnit?: Unit): Period | null {
   if (periods.length === 0) return null;
   if (periods.length === 1) return periods[0];
 
@@ -43,6 +43,19 @@ export function merge(temporal: Temporal, periods: Period[]): Period | null {
     ) {
       return createPeriod(temporal, "quarter", periods[1]);
     }
+  }
+
+  // If target unit is specified, create a period of that type
+  if (targetUnit) {
+    // Use the middle date as reference
+    const middleDate = new Date((start.getTime() + end.getTime()) / 2);
+    const tempPeriod: Period = {
+      start: middleDate,
+      end: middleDate,
+      type: "second",
+      date: middleDate,
+    };
+    return createPeriod(temporal, targetUnit, tempPeriod);
   }
 
   // Return custom period

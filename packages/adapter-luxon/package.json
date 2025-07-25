@@ -4,15 +4,15 @@
   "type": "module",
   "description": "Luxon adapter for useTemporal",
   "license": "MIT",
-  "author": "useTemporal Contributors",
-  "homepage": "https://github.com/usetemporal/usetemporal#readme",
+  "author": "Aleksej Dix <git@aleksejdix.com>",
+  "homepage": "https://github.com/AleksejDix/pickle#readme",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/usetemporal/usetemporal.git",
+    "url": "git+https://github.com/AleksejDix/pickle.git",
     "directory": "packages/adapter-luxon"
   },
   "bugs": {
-    "url": "https://github.com/usetemporal/usetemporal/issues"
+    "url": "https://github.com/AleksejDix/pickle/issues"
   },
   "sideEffects": false,
   "exports": {

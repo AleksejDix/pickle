@@ -151,4 +151,67 @@ describe("previous", () => {
     expect(q1.type).toBe("quarter");
     // The exact boundaries depend on the adapter implementation
   });
+
+  describe("custom period handling", () => {
+    it("should move to previous custom period", () => {
+      const customPeriod: Period = {
+        start: new Date(2024, 0, 20), // Jan 20
+        end: new Date(2024, 0, 29, 23, 59, 59, 999), // Jan 29 (10-day period)
+        type: "custom",
+        date: new Date(2024, 0, 25),
+      };
+
+      const prevCustom = previous(temporal, customPeriod);
+
+      // Should end immediately before the current period starts
+      expect(prevCustom.start).toEqual(new Date(2024, 0, 10)); // Jan 10
+      expect(prevCustom.end).toEqual(new Date(2024, 0, 19, 23, 59, 59, 999)); // Jan 19
+      expect(prevCustom.type).toBe("custom");
+      expect(prevCustom.date).toEqual(prevCustom.start);
+    });
+
+    it("should handle custom period with single day", () => {
+      const singleDayCustom: Period = {
+        start: new Date(2024, 0, 16),
+        end: new Date(2024, 0, 16, 23, 59, 59, 999),
+        type: "custom",
+        date: new Date(2024, 0, 16),
+      };
+
+      const prevSingleDay = previous(temporal, singleDayCustom);
+
+      expect(prevSingleDay.start).toEqual(new Date(2024, 0, 15));
+      expect(prevSingleDay.end).toEqual(new Date(2024, 0, 15, 23, 59, 59, 999));
+    });
+
+    it("should handle custom period crossing month boundary", () => {
+      const customPeriod: Period = {
+        start: new Date(2024, 1, 1), // Feb 1
+        end: new Date(2024, 1, 7, 23, 59, 59, 999), // Feb 7 (7-day period)
+        type: "custom",
+        date: new Date(2024, 1, 4),
+      };
+
+      const prevCustom = previous(temporal, customPeriod);
+
+      expect(prevCustom.start).toEqual(new Date(2024, 0, 25)); // Jan 25
+      expect(prevCustom.end).toEqual(new Date(2024, 0, 31, 23, 59, 59, 999)); // Jan 31
+    });
+
+    it("should handle custom period with exact millisecond precision", () => {
+      const customPeriod: Period = {
+        start: new Date(2024, 0, 10, 11, 30, 45, 123),
+        end: new Date(2024, 0, 10, 12, 30, 45, 122), // Exactly 1 hour - 1ms
+        type: "custom",
+        date: new Date(2024, 0, 10, 12, 0, 0),
+      };
+
+      const prevCustom = previous(temporal, customPeriod);
+
+      // Should end at the millisecond before start
+      expect(prevCustom.end).toEqual(new Date(2024, 0, 10, 11, 30, 45, 122));
+      // Duration should be preserved (1 hour)
+      expect(prevCustom.start).toEqual(new Date(2024, 0, 10, 10, 30, 45, 123));
+    });
+  });
 });

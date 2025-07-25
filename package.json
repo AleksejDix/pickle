@@ -1,6 +1,17 @@
 {
   "name": "usetemporal",
   "private": true,
+  "description": "Revolutionary time library with unique divide() pattern for hierarchical time management",
+  "author": "Aleksej Dix <git@aleksejdix.com>",
+  "license": "MIT",
+  "homepage": "https://github.com/AleksejDix/pickle#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AleksejDix/pickle.git"
+  },
+  "bugs": {
+    "url": "https://github.com/AleksejDix/pickle/issues"
+  },
   "workspaces": [
     "packages/*",
     "examples/*"

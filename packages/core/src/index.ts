@@ -12,9 +12,6 @@ export {
   previous,
   go,
   contains,
-  zoomIn,
-  zoomOut,
-  zoomTo,
   createPeriod,
   split,
   merge,
@@ -23,6 +20,9 @@ export {
   toPeriod,
 } from "./operations";
 export type { SplitOptions } from "./types";
+
+// Utility functions
+export { isWeekend, isWeekday, isToday } from "./operations/utils";
 
 // Types
 export type {

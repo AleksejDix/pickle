@@ -4,9 +4,9 @@
 
 ```typescript
 // Divide any time unit into smaller units
-const months = temporal.divide(year, "month");
-const days = temporal.divide(month, "day");
-const hours = temporal.divide(day, "hour");
+const months = divide(temporal, year, 'month')
+const days = divide(temporal, month, 'day')
+const hours = divide(temporal, day, 'hour')
 ```
 
 ## 🚀 Features
@@ -29,135 +29,199 @@ npm install usetemporal
 ### Basic Usage
 
 ```typescript
-import { createTemporal, useYear, useMonth } from "usetemporal";
+import { createTemporal, usePeriod, divide } from 'usetemporal'
+import { createNativeAdapter } from '@usetemporal/adapter-native'
 
+// Create temporal instance with adapter
 const temporal = createTemporal({
-  date: new Date(),
-  locale: "en-US",
-});
+  adapter: createNativeAdapter(),
+  weekStartsOn: 1 // Monday
+})
 
-const year = useYear(temporal);
-const months = temporal.divide(year, "month");
+// Create reactive periods
+const year = usePeriod(temporal, 'year')
+const month = usePeriod(temporal, 'month')
+
+// Use the revolutionary divide() pattern
+const months = divide(temporal, year.value, 'month')
+const days = divide(temporal, month.value, 'day')
 ```
 
 ### Vue Example
 
 ```vue
-<script setup>
-import { createTemporal, useYear, useMonth } from "usetemporal";
-
-const temporal = createTemporal();
-const year = useYear(temporal);
-const months = temporal.divide(year, "month");
-</script>
-
 <template>
   <div>
-    <h2>{{ year.name.value }}</h2>
-    <div v-for="month in months" :key="month.key.value">
-      {{ month.name.value }}
+    <h2>{{ monthLabel }}</h2>
+    <div v-for="day in days" :key="day.date.toISOString()">
+      {{ day.date.getDate() }}
     </div>
   </div>
 </template>
+
+<script setup>
+import { computed } from 'vue'
+import { createTemporal, usePeriod, divide } from 'usetemporal'
+import { createNativeAdapter } from '@usetemporal/adapter-native'
+
+const temporal = createTemporal({
+  adapter: createNativeAdapter()
+})
+
+const month = usePeriod(temporal, 'month')
+const days = computed(() => divide(temporal, month.value, 'day'))
+
+const monthLabel = computed(() => 
+  month.value.date.toLocaleDateString('en', { month: 'long', year: 'numeric' })
+)
+</script>
 ```
 
 ### React Example
 
-```jsx
-import { createTemporal, useYear } from "usetemporal";
-import { useEffect, useState } from "react";
+```tsx
+import { useMemo } from 'react'
+import { createTemporal, usePeriod, divide } from 'usetemporal'
+import { createNativeAdapter } from '@usetemporal/adapter-native'
 
 function Calendar() {
-  const [temporal] = useState(() => createTemporal());
-  const [year, setYear] = useState(null);
-
-  useEffect(() => {
-    const yearUnit = useYear(temporal);
-    setYear(yearUnit);
-  }, [temporal]);
-
-  return <div>{year?.name.value}</div>;
+  const temporal = useMemo(() => createTemporal({
+    adapter: createNativeAdapter()
+  }), [])
+  
+  const month = usePeriod(temporal, 'month')
+  const days = useMemo(() => 
+    divide(temporal, month.value, 'day'),
+    [month.value]
+  )
+  
+  return (
+    <div>
+      <h2>
+        {month.value.date.toLocaleDateString('en', { 
+          month: 'long', 
+          year: 'numeric' 
+        })}
+      </h2>
+      {days.map(day => (
+        <div key={day.date.toISOString()}>
+          {day.date.getDate()}
+        </div>
+      ))}
+    </div>
+  )
 }
 ```
 
-## 🔬 Core Concepts
+## 🔧 Core API
 
-### The divide() Pattern
-
-The revolutionary `divide()` method allows you to break down any time unit into its constituent parts:
+### Factory Function
 
 ```typescript
-const year = useYear(temporal);
-const months = temporal.divide(year, "month"); // 12 months
-const weeks = temporal.divide(months[0], "week"); // ~4 weeks
-const days = temporal.divide(weeks[0], "day"); // 7 days
+import { createTemporal } from 'usetemporal'
+import { createNativeAdapter } from '@usetemporal/adapter-native'
+
+const temporal = createTemporal({
+  adapter: createNativeAdapter(), // Required
+  date: new Date(),              // Initial browsing date
+  weekStartsOn: 1                // 0 = Sunday, 1 = Monday
+})
 ```
 
-### Reactive Updates
-
-All time units stay synchronized automatically:
+### Period Composable
 
 ```typescript
-// Change the date
-temporal.picked.value = new Date(2024, 11, 25);
+// Create reactive periods that update with navigation
+const year = usePeriod(temporal, 'year')
+const month = usePeriod(temporal, 'month')
+const day = usePeriod(temporal, 'day')
 
-// All units update automatically
-console.log(year.name.value); // "2024"
-console.log(month.name.value); // "December 2024"
+// Period structure
+interface Period {
+  type: Unit    // 'year' | 'month' | 'week' | 'day' | etc.
+  date: Date    // Representative date
+  start: Date   // Period start
+  end: Date     // Period end (exclusive)
+}
 ```
+
+### Operations
+
+All operations are pure functions:
+
+```typescript
+import { 
+  divide,    // Subdivide periods
+  next,      // Get next period
+  previous,  // Get previous period
+  go,        // Navigate by steps
+  contains,  // Check containment
+  isSame,    // Compare periods
+  zoomIn,    // Zoom into smaller unit
+  zoomOut,   // Zoom to larger unit
+} from 'usetemporal'
+
+// Examples
+const months = divide(temporal, year.value, 'month')
+const nextMonth = next(temporal, month.value)
+const isInMonth = contains(month.value, new Date())
+```
+
+## 📚 Documentation
+
+Visit our [documentation site](https://usetemporal.dev) for:
+
+- [Getting Started Guide](https://usetemporal.dev/guide/getting-started)
+- [The divide() Pattern](https://usetemporal.dev/guide/divide-pattern)
+- [API Reference](https://usetemporal.dev/api/)
+- [Examples](https://usetemporal.dev/examples/)
 
 ## 🔌 Date Adapters
 
-UseTemporal supports multiple date libraries through adapters:
+Choose your preferred date library:
+
+```bash
+# Native JavaScript Date (included by default)
+npm install usetemporal
+
+# With date-fns
+npm install @usetemporal/adapter-date-fns date-fns
+
+# With Luxon
+npm install @usetemporal/adapter-luxon luxon
+
+# With Temporal API (future)
+npm install @usetemporal/adapter-temporal
+```
+
+## 🎯 Why useTemporal?
+
+Traditional date libraries require manual calculation for time subdivisions:
+
+```javascript
+// Traditional approach 😢
+const year = 2024
+const months = []
+for (let i = 0; i < 12; i++) {
+  const start = new Date(year, i, 1)
+  const end = new Date(year, i + 1, 0)
+  months.push({ start, end })
+}
+```
+
+With useTemporal's divide() pattern:
 
 ```typescript
-// Native JavaScript Date (default, zero dependencies)
-const temporal = createTemporal({ dateAdapter: "native" });
-
-// date-fns (requires date-fns installation)
-const temporal = createTemporal({ dateAdapter: "date-fns" });
-
-// Luxon (requires luxon installation)
-const temporal = createTemporal({ dateAdapter: "luxon" });
+// useTemporal approach 🎉
+const year = usePeriod(temporal, 'year')
+const months = divide(temporal, year.value, 'month')
+// That's it! Full reactivity included!
 ```
 
-## 📚 Examples
+## 🤝 Contributing
 
-Check out the `examples/` directory for complete examples:
-
-```bash
-# Run the Vue example
-npm run example:vue
-```
-
-## 🛠️ Development
-
-```bash
-# Install dependencies
-npm install
-
-# Build library
-npm run build
-
-# Run tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
-
-# Type checking
-npm run type-check
-
-# Linting
-npm run lint
-
-# Format code
-npm run format
-```
+Contributions are welcome! Please read our [Contributing Guide](CONTRIBUTING.md) for details.
 
 ## 📄 License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT © [useTemporal Contributors](https://github.com/your-username/usetemporal/graphs/contributors)

@@ -1,0 +1,439 @@
+import { describe, it, expect, beforeEach, vi } from "vitest";
+import { defineUnit, createPeriod, divide, next, previous, contains, merge } from "../operations";
+import { createTemporal, usePeriod } from "../index";
+import { mockAdapter } from "../test/functionalMockAdapter";
+import type { Period, Temporal, UnitDefinition } from "../types";
+
+describe("Unit Plugin System - Branded Types", () => {
+  let temporal: Temporal;
+
+  beforeEach(() => {
+    // Clear any registered units between tests
+    vi.clearAllMocks();
+    temporal = createTemporal({
+      date: new Date("2024-01-15"),
+      adapter: mockAdapter,
+    });
+  });
+
+  describe("Basic Unit Registration", () => {
+    it("should register a simple unit definition", () => {
+      const sprintUnit: UnitDefinition = (date, context) => {
+        const start = context.adapter.startOf(date, "week");
+        const end = context.adapter.add(start, 13, "day");
+        return {
+          start,
+          end,
+          type: "sprint",
+        };
+      };
+
+      defineUnit("sprint", sprintUnit);
+
+      const sprint = usePeriod(temporal, "sprint");
+      expect(sprint.value.type).toBe("sprint");
+      expect(sprint.value.end.getTime() - sprint.value.start.getTime()).toBe(
+        13 * 24 * 60 * 60 * 1000
+      );
+    });
+
+    it("should allow any string as a unit type", () => {
+      const customUnit: UnitDefinition = (date) => ({
+        start: date,
+        end: new Date(date.getTime() + 7 * 24 * 60 * 60 * 1000),
+        type: "my-custom-unit-123",
+      });
+
+      defineUnit("my-custom-unit-123", customUnit);
+
+      const period = usePeriod(temporal, "my-custom-unit-123");
+      expect(period.value.type).toBe("my-custom-unit-123");
+    });
+
+    it("should handle unit registration with metadata", () => {
+      const quarterUnit: UnitDefinition = (date, context) => {
+        const month = date.getMonth();
+        const quarter = Math.floor(month / 3);
+        const startMonth = quarter * 3;
+        
+        const start = new Date(date.getFullYear(), startMonth, 1);
+        const end = new Date(date.getFullYear(), startMonth + 3, 0, 23, 59, 59, 999);
+        
+        return {
+          start,
+          end,
+          type: "quarter",
+        };
+      };
+
+      defineUnit("quarter", quarterUnit);
+
+      const q1 = usePeriod(temporal, "quarter");
+      expect(q1.value.start).toEqual(new Date("2024-01-01"));
+      expect(q1.value.end).toEqual(new Date("2024-03-31T23:59:59.999Z"));
+    });
+  });
+
+  describe("Operations with Custom Units", () => {
+    beforeEach(() => {
+      // Register test units
+      defineUnit("sprint", (date, context) => {
+        const start = context.adapter.startOf(date, "week");
+        const end = context.adapter.add(start, 13, "day");
+        return { start, end, type: "sprint" };
+      });
+
+      defineUnit("quarter", (date) => {
+        const month = date.getMonth();
+        const quarter = Math.floor(month / 3);
+        const startMonth = quarter * 3;
+        const start = new Date(date.getFullYear(), startMonth, 1);
+        const end = new Date(date.getFullYear(), startMonth + 3, 0, 23, 59, 59, 999);
+        return { start, end, type: "quarter" };
+      });
+    });
+
+    it("should work with next() operation", () => {
+      const sprint = usePeriod(temporal, "sprint");
+      const nextSprint = next(sprint.value, temporal);
+
+      expect(nextSprint.type).toBe("sprint");
+      expect(nextSprint.start).toEqual(
+        new Date(sprint.value.end.getTime() + 1)
+      );
+    });
+
+    it("should work with previous() operation", () => {
+      const quarter = usePeriod(temporal, "quarter");
+      const prevQuarter = previous(quarter.value, temporal);
+
+      expect(prevQuarter.type).toBe("quarter");
+      expect(prevQuarter.end.getTime()).toBeLessThan(
+        quarter.value.start.getTime()
+      );
+    });
+
+    it("should work with divide() operation", () => {
+      const quarter = usePeriod(temporal, "quarter");
+      const weeks = divide(quarter.value, "week", temporal);
+
+      expect(weeks.length).toBeGreaterThan(10); // ~13 weeks in a quarter
+      expect(weeks[0].type).toBe("week");
+    });
+
+    it("should work with contains() operation", () => {
+      const sprint = usePeriod(temporal, "sprint");
+      const midPoint = new Date(
+        sprint.value.start.getTime() + 7 * 24 * 60 * 60 * 1000
+      );
+
+      expect(contains(sprint.value, midPoint)).toBe(true);
+      expect(contains(sprint.value, new Date("2025-01-01"))).toBe(false);
+    });
+
+    it("should work with merge() operation", () => {
+      const sprint1 = usePeriod(temporal, "sprint");
+      const sprint2Period = next(sprint1.value, temporal);
+      
+      const merged = merge([sprint1.value, sprint2Period], temporal);
+      
+      expect(merged).not.toBeNull();
+      expect(merged!.start).toEqual(sprint1.value.start);
+      expect(merged!.end).toEqual(sprint2Period.end);
+    });
+  });
+
+  describe("Direct Period Creation (No Registration)", () => {
+    it("should allow direct period creation without registration", () => {
+      const customPeriod: Period = {
+        start: new Date("2024-01-01"),
+        end: new Date("2024-03-31"),
+        type: "q1-2024",
+      };
+
+      // Operations should work on any Period
+      const weeks = divide(customPeriod, "week", temporal);
+      expect(weeks.length).toBeGreaterThan(0);
+      expect(weeks[0].type).toBe("week");
+
+      const nextPeriod = next(customPeriod, temporal);
+      expect(nextPeriod.type).toBe("q1-2024");
+      expect(nextPeriod.start).toEqual(new Date("2024-04-01"));
+    });
+
+    it("should handle arbitrary period types in operations", () => {
+      const fiscalYear: Period = {
+        start: new Date("2023-07-01"),
+        end: new Date("2024-06-30"),
+        type: "fy-2024",
+      };
+
+      const months = divide(fiscalYear, "month", temporal);
+      expect(months).toHaveLength(12);
+      expect(months.every(m => m.type === "month")).toBe(true);
+    });
+  });
+
+  describe("Type Safety and Validation", () => {
+    it("should prevent prototype pollution in unit names", () => {
+      expect(() => {
+        defineUnit("__proto__", () => ({
+          start: new Date(),
+          end: new Date(),
+          type: "__proto__",
+        }));
+      }).toThrow("Invalid unit type");
+
+      expect(() => {
+        defineUnit("constructor.prototype", () => ({
+          start: new Date(),
+          end: new Date(),
+          type: "constructor.prototype",
+        }));
+      }).toThrow("Invalid unit type");
+    });
+
+    it("should handle unit name conflicts gracefully", () => {
+      const firstDef: UnitDefinition = (date) => ({
+        start: date,
+        end: new Date(date.getTime() + 1000),
+        type: "custom",
+      });
+
+      const secondDef: UnitDefinition = (date) => ({
+        start: date,
+        end: new Date(date.getTime() + 2000),
+        type: "custom",
+      });
+
+      defineUnit("custom", firstDef);
+      defineUnit("custom", secondDef); // Should override
+
+      const period = usePeriod(temporal, "custom");
+      expect(period.value.end.getTime() - period.value.start.getTime()).toBe(
+        2000
+      );
+    });
+  });
+
+  describe("Business Units Examples", () => {
+    beforeEach(() => {
+      // Define business units
+      defineUnit("fiscal-year", (date) => {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        // Fiscal year starts July 1
+        const fiscalYear = month >= 6 ? year : year - 1;
+        return {
+          start: new Date(fiscalYear, 6, 1), // July 1
+          end: new Date(fiscalYear + 1, 5, 30, 23, 59, 59, 999), // June 30
+          type: "fiscal-year",
+        };
+      });
+
+      defineUnit("business-quarter", (date) => {
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        // Fiscal quarters: Q1=Jul-Sep, Q2=Oct-Dec, Q3=Jan-Mar, Q4=Apr-Jun
+        const quarterMap = [2, 2, 2, 3, 3, 3, 0, 0, 0, 1, 1, 1];
+        const quarter = quarterMap[month];
+        const startMonths = [6, 9, 0, 3]; // Jul, Oct, Jan, Apr
+        
+        const startMonth = startMonths[quarter];
+        const startYear = startMonth === 0 || startMonth === 3 ? year : year;
+        
+        return {
+          start: new Date(startYear, startMonth, 1),
+          end: new Date(startYear, startMonth + 3, 0, 23, 59, 59, 999),
+          type: "business-quarter",
+        };
+      });
+    });
+
+    it("should handle fiscal year calculations", () => {
+      const fy = usePeriod(temporal, "fiscal-year");
+      expect(fy.value.start).toEqual(new Date("2023-07-01"));
+      expect(fy.value.end).toEqual(new Date("2024-06-30T23:59:59.999Z"));
+
+      // Test with date in second half of fiscal year
+      temporal.browsing.value = new Date("2024-08-15");
+      const fy2 = usePeriod(temporal, "fiscal-year");
+      expect(fy2.value.start).toEqual(new Date("2024-07-01"));
+    });
+
+    it("should handle business quarters", () => {
+      // Q3 of fiscal year (Jan-Mar)
+      const q3 = usePeriod(temporal, "business-quarter");
+      expect(q3.value.start).toEqual(new Date("2024-01-01"));
+      expect(q3.value.end).toEqual(new Date("2024-03-31T23:59:59.999Z"));
+
+      // Q1 of fiscal year (Jul-Sep)
+      temporal.browsing.value = new Date("2024-08-15");
+      const q1 = usePeriod(temporal, "business-quarter");
+      expect(q1.value.start).toEqual(new Date("2024-07-01"));
+      expect(q1.value.end).toEqual(new Date("2024-09-30T23:59:59.999Z"));
+    });
+  });
+
+  describe("Academic Units Examples", () => {
+    beforeEach(() => {
+      defineUnit("semester", (date) => {
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        
+        // Fall: Aug-Dec, Spring: Jan-May, Summer: Jun-Jul
+        if (month >= 7 && month <= 11) {
+          // Fall semester
+          return {
+            start: new Date(year, 7, 15), // Aug 15
+            end: new Date(year, 11, 20, 23, 59, 59, 999), // Dec 20
+            type: "semester",
+          };
+        } else if (month >= 0 && month <= 4) {
+          // Spring semester
+          return {
+            start: new Date(year, 0, 10), // Jan 10
+            end: new Date(year, 4, 15, 23, 59, 59, 999), // May 15
+            type: "semester",
+          };
+        } else {
+          // Summer semester
+          return {
+            start: new Date(year, 5, 1), // Jun 1
+            end: new Date(year, 6, 31, 23, 59, 59, 999), // Jul 31
+            type: "semester",
+          };
+        }
+      });
+
+      defineUnit("academic-year", (date) => {
+        const month = date.getMonth();
+        const year = date.getFullYear();
+        // Academic year runs Aug-Jul
+        const academicYear = month >= 7 ? year : year - 1;
+        
+        return {
+          start: new Date(academicYear, 7, 1), // Aug 1
+          end: new Date(academicYear + 1, 6, 31, 23, 59, 59, 999), // Jul 31
+          type: "academic-year",
+        };
+      });
+    });
+
+    it("should handle semester calculations", () => {
+      // Spring semester
+      const spring = usePeriod(temporal, "semester");
+      expect(spring.value.start).toEqual(new Date("2024-01-10"));
+      expect(spring.value.end).toEqual(new Date("2024-05-15T23:59:59.999Z"));
+
+      // Fall semester
+      temporal.browsing.value = new Date("2024-09-15");
+      const fall = usePeriod(temporal, "semester");
+      expect(fall.value.start).toEqual(new Date("2024-08-15"));
+      expect(fall.value.end).toEqual(new Date("2024-12-20T23:59:59.999Z"));
+    });
+
+    it("should handle academic year", () => {
+      const ay = usePeriod(temporal, "academic-year");
+      expect(ay.value.start).toEqual(new Date("2023-08-01"));
+      expect(ay.value.end).toEqual(new Date("2024-07-31T23:59:59.999Z"));
+
+      // Test with date in new academic year
+      temporal.browsing.value = new Date("2024-09-01");
+      const ay2 = usePeriod(temporal, "academic-year");
+      expect(ay2.value.start).toEqual(new Date("2024-08-01"));
+    });
+  });
+
+  describe("Edge Cases and Error Handling", () => {
+    it("should handle units that cross year boundaries", () => {
+      defineUnit("winter-season", (date) => {
+        const year = date.getFullYear();
+        const month = date.getMonth();
+        // Winter: Dec-Feb
+        const winterYear = month === 11 ? year : year - 1;
+        
+        return {
+          start: new Date(winterYear, 11, 1), // Dec 1
+          end: new Date(winterYear + 1, 1, 28, 23, 59, 59, 999), // Feb 28
+          type: "winter-season",
+        };
+      });
+
+      temporal.browsing.value = new Date("2024-01-15");
+      const winter = usePeriod(temporal, "winter-season");
+      expect(winter.value.start).toEqual(new Date("2023-12-01"));
+      expect(winter.value.end).toEqual(new Date("2024-02-28T23:59:59.999Z"));
+    });
+
+    it("should handle leap year edge cases", () => {
+      defineUnit("february", (date) => {
+        const year = date.getFullYear();
+        const start = new Date(year, 1, 1); // Feb 1
+        const end = new Date(year, 2, 0, 23, 59, 59, 999); // Last day of Feb
+        
+        return {
+          start,
+          end,
+          type: "february",
+        };
+      });
+
+      // Leap year
+      temporal.browsing.value = new Date("2024-02-15");
+      const feb2024 = usePeriod(temporal, "february");
+      expect(feb2024.value.end.getDate()).toBe(29);
+
+      // Non-leap year
+      temporal.browsing.value = new Date("2023-02-15");
+      const feb2023 = usePeriod(temporal, "february");
+      expect(feb2023.value.end.getDate()).toBe(28);
+    });
+
+    it("should handle invalid unit types gracefully", () => {
+      expect(() => {
+        usePeriod(temporal, "non-existent-unit" as any);
+      }).toThrow();
+    });
+  });
+
+  describe("Performance Considerations", () => {
+    it("should not impact performance of core operations", () => {
+      const period: Period = {
+        start: new Date("2024-01-01"),
+        end: new Date("2024-12-31"),
+        type: "custom-year",
+      };
+
+      const startTime = performance.now();
+      
+      // Run many operations
+      for (let i = 0; i < 1000; i++) {
+        next(period, temporal);
+        previous(period, temporal);
+        contains(period, new Date("2024-06-15"));
+      }
+      
+      const endTime = performance.now();
+      const duration = endTime - startTime;
+
+      // Operations should be fast (< 100ms for 3000 operations)
+      expect(duration).toBeLessThan(100);
+    });
+
+    it("should allow tree-shaking of unused units", () => {
+      // This test would be validated at build time
+      // Just documenting the expected behavior
+      
+      // When importing only specific units:
+      // import { quarterUnit } from '@usetemporal/units-business/quarter';
+      // 
+      // The bundle should NOT include:
+      // - fiscalYearUnit
+      // - businessDayUnit
+      // - Other unused units
+      
+      expect(true).toBe(true); // Placeholder
+    });
+  });
+});

@@ -1,0 +1,211 @@
+import { describe, it, expectTypeOf } from "vitest";
+import type { Unit, Period } from "../types";
+import { usePeriod } from "../composables/usePeriod";
+import type { Temporal } from "../types";
+
+// Test module augmentation
+declare module "../types" {
+  interface UnitRegistry {
+    "sprint": true;
+    "quarter": true;
+    "fiscal-year": true;
+    "semester": true;
+  }
+}
+
+describe("Unit Type Augmentation", () => {
+  it("should provide type safety for registered units", () => {
+    // Create a mock temporal for type testing
+    const temporal = {} as Temporal;
+
+    // These should be type-safe
+    const sprint = usePeriod(temporal, "sprint");
+    const quarter = usePeriod(temporal, "quarter");
+    const fiscalYear = usePeriod(temporal, "fiscal-year");
+    const semester = usePeriod(temporal, "semester");
+
+    // Type assertions
+    expectTypeOf(sprint.value).toMatchTypeOf<Period>();
+    expectTypeOf(sprint.value.type).toEqualTypeOf<string>();
+    
+    // The Unit type should accept registered units
+    type TestUnit = Unit;
+    expectTypeOf<"sprint">().toMatchTypeOf<TestUnit>();
+    expectTypeOf<"quarter">().toMatchTypeOf<TestUnit>();
+    
+    // But also accept any string (for unregistered units)
+    expectTypeOf<"custom-unit">().toMatchTypeOf<TestUnit>();
+  });
+
+  it("should maintain backward compatibility with core units", () => {
+    const temporal = {} as Temporal;
+
+    // Core units should still work
+    const year = usePeriod(temporal, "year");
+    const month = usePeriod(temporal, "month");
+    const week = usePeriod(temporal, "week");
+    const day = usePeriod(temporal, "day");
+    const hour = usePeriod(temporal, "hour");
+    const minute = usePeriod(temporal, "minute");
+    const second = usePeriod(temporal, "second");
+
+    expectTypeOf(year.value).toMatchTypeOf<Period>();
+    expectTypeOf(month.value).toMatchTypeOf<Period>();
+  });
+
+  it("should allow operations with any period type", () => {
+    // Test that operations accept any period regardless of type
+    const customPeriod: Period = {
+      start: new Date(),
+      end: new Date(),
+      type: "my-custom-type-123",
+    };
+
+    const businessPeriod: Period = {
+      start: new Date(),
+      end: new Date(),
+      type: "fiscal-quarter",
+    };
+
+    // All periods should be assignable to Period type
+    expectTypeOf(customPeriod).toMatchTypeOf<Period>();
+    expectTypeOf(businessPeriod).toMatchTypeOf<Period>();
+    
+    // Type field should accept any string
+    expectTypeOf(customPeriod.type).toEqualTypeOf<string>();
+    expectTypeOf(businessPeriod.type).toEqualTypeOf<string>();
+  });
+
+  it("should support generic period operations", () => {
+    // Import operation types
+    type DivideOperation = (period: Period, unit: string, context: Temporal) => Period[];
+    type NextOperation = (period: Period, context: Temporal) => Period;
+    type ContainsOperation = (period: Period, date: Date) => boolean;
+
+    // Operations should work with any period type
+    const anyPeriod: Period = {
+      start: new Date(),
+      end: new Date(),
+      type: "anything", // Any string is valid
+    };
+
+    // These should all be valid
+    expectTypeOf(anyPeriod).toMatchTypeOf<Parameters<DivideOperation>[0]>();
+    expectTypeOf(anyPeriod).toMatchTypeOf<Parameters<NextOperation>[0]>();
+    expectTypeOf(anyPeriod).toMatchTypeOf<Parameters<ContainsOperation>[0]>();
+  });
+});
+
+// Test for unit package type definitions
+describe("Unit Package Type Definitions", () => {
+  it("should demonstrate business units package types", () => {
+    // This is how @usetemporal/units-business would augment types
+    declare module "../types" {
+      interface UnitRegistry {
+        "business-quarter": true;
+        "business-day": true;
+        "fiscal-month": true;
+        "fiscal-week": true;
+      }
+    }
+
+    type BusinessUnits = keyof UnitRegistry;
+    
+    // All business units should be valid
+    expectTypeOf<"business-quarter">().toMatchTypeOf<BusinessUnits>();
+    expectTypeOf<"business-day">().toMatchTypeOf<BusinessUnits>();
+    expectTypeOf<"fiscal-month">().toMatchTypeOf<BusinessUnits>();
+    expectTypeOf<"fiscal-week">().toMatchTypeOf<BusinessUnits>();
+  });
+
+  it("should demonstrate academic units package types", () => {
+    // This is how @usetemporal/units-academic would augment types
+    declare module "../types" {
+      interface UnitRegistry {
+        "academic-year": true;
+        "academic-semester": true;
+        "academic-term": true;
+        "academic-quarter": true;
+        "course-week": true;
+      }
+    }
+
+    type AcademicUnits = keyof UnitRegistry;
+    
+    // All academic units should be valid
+    expectTypeOf<"academic-year">().toMatchTypeOf<AcademicUnits>();
+    expectTypeOf<"academic-semester">().toMatchTypeOf<AcademicUnits>();
+    expectTypeOf<"academic-term">().toMatchTypeOf<AcademicUnits>();
+  });
+});
+
+// Test for simplified Period type
+describe("Simplified Period Type", () => {
+  it("should have minimal required fields", () => {
+    const minimalPeriod: Period = {
+      start: new Date("2024-01-01"),
+      end: new Date("2024-12-31"),
+      type: "year",
+    };
+
+    // Only these fields should be required
+    expectTypeOf(minimalPeriod).toHaveProperty("start");
+    expectTypeOf(minimalPeriod).toHaveProperty("end");
+    expectTypeOf(minimalPeriod).toHaveProperty("type");
+    
+    // Type should be string (the brand)
+    expectTypeOf(minimalPeriod.type).toEqualTypeOf<string>();
+  });
+
+  it("should not require date or value fields", () => {
+    // This should be a valid Period
+    const period: Period = {
+      start: new Date(),
+      end: new Date(),
+      type: "custom",
+    };
+
+    expectTypeOf(period).toMatchTypeOf<Period>();
+  });
+});
+
+// Test for unit definition type
+describe("Unit Definition Type", () => {
+  it("should be a simple function", () => {
+    type UnitDefinition = (date: Date, context: Temporal) => Period;
+
+    const sprintDefinition: UnitDefinition = (date, context) => {
+      return {
+        start: date,
+        end: new Date(date.getTime() + 14 * 24 * 60 * 60 * 1000),
+        type: "sprint",
+      };
+    };
+
+    // Definition should return a Period
+    expectTypeOf(sprintDefinition).returns.toMatchTypeOf<Period>();
+    
+    // Parameters should be Date and Temporal
+    expectTypeOf(sprintDefinition).parameter(0).toEqualTypeOf<Date>();
+    expectTypeOf(sprintDefinition).parameter(1).toMatchTypeOf<Temporal>();
+  });
+});
+
+// Test for extensible Unit type
+describe("Extensible Unit Type", () => {
+  it("should allow both known and unknown units", () => {
+    // The Unit type should be: keyof UnitRegistry | (string & {})
+    type TestUnit = Unit;
+
+    // Known units from registry
+    expectTypeOf<"year">().toMatchTypeOf<TestUnit>();
+    expectTypeOf<"sprint">().toMatchTypeOf<TestUnit>(); // From augmentation
+    
+    // Unknown units (any string)
+    expectTypeOf<"my-custom-unit">().toMatchTypeOf<TestUnit>();
+    expectTypeOf<"anything-goes-here">().toMatchTypeOf<TestUnit>();
+    
+    // Should still be assignable to string
+    expectTypeOf<TestUnit>().toMatchTypeOf<string>();
+  });
+});

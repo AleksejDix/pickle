@@ -151,4 +151,67 @@ describe("next", () => {
     expect(q2.type).toBe("quarter");
     // The exact boundaries depend on the adapter implementation
   });
+
+  describe("custom period handling", () => {
+    it("should move to next custom period", () => {
+      const customPeriod: Period = {
+        start: new Date(2024, 0, 10), // Jan 10
+        end: new Date(2024, 0, 19, 23, 59, 59, 999), // Jan 19 (10-day period)
+        type: "custom",
+        date: new Date(2024, 0, 15),
+      };
+
+      const nextCustom = next(temporal, customPeriod);
+
+      // Should start immediately after the current period ends
+      expect(nextCustom.start).toEqual(new Date(2024, 0, 20)); // Jan 20
+      expect(nextCustom.end).toEqual(new Date(2024, 0, 29, 23, 59, 59, 999)); // Jan 29
+      expect(nextCustom.type).toBe("custom");
+      expect(nextCustom.date).toEqual(nextCustom.start);
+    });
+
+    it("should handle custom period with single day", () => {
+      const singleDayCustom: Period = {
+        start: new Date(2024, 0, 15),
+        end: new Date(2024, 0, 15, 23, 59, 59, 999),
+        type: "custom",
+        date: new Date(2024, 0, 15),
+      };
+
+      const nextSingleDay = next(temporal, singleDayCustom);
+
+      expect(nextSingleDay.start).toEqual(new Date(2024, 0, 16));
+      expect(nextSingleDay.end).toEqual(new Date(2024, 0, 16, 23, 59, 59, 999));
+    });
+
+    it("should handle custom period crossing month boundary", () => {
+      const customPeriod: Period = {
+        start: new Date(2024, 0, 25), // Jan 25
+        end: new Date(2024, 0, 31, 23, 59, 59, 999), // Jan 31 (7-day period)
+        type: "custom",
+        date: new Date(2024, 0, 28),
+      };
+
+      const nextCustom = next(temporal, customPeriod);
+
+      expect(nextCustom.start).toEqual(new Date(2024, 1, 1)); // Feb 1
+      expect(nextCustom.end).toEqual(new Date(2024, 1, 7, 23, 59, 59, 999)); // Feb 7
+    });
+
+    it("should handle custom period with exact millisecond precision", () => {
+      const customPeriod: Period = {
+        start: new Date(2024, 0, 10, 10, 30, 45, 123),
+        end: new Date(2024, 0, 10, 11, 30, 45, 122), // Exactly 1 hour - 1ms
+        type: "custom",
+        date: new Date(2024, 0, 10, 11, 0, 0),
+      };
+
+      const nextCustom = next(temporal, customPeriod);
+
+      // Should start at the next millisecond
+      expect(nextCustom.start).toEqual(new Date(2024, 0, 10, 11, 30, 45, 123));
+      // Duration should be preserved (1 hour)
+      expect(nextCustom.end).toEqual(new Date(2024, 0, 10, 12, 30, 45, 122));
+    });
+  });
 });

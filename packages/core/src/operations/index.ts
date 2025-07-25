@@ -9,6 +9,4 @@ export { next } from "./next";
 export { previous } from "./previous";
 export { split } from "./split";
 export { toPeriod } from "./toPeriod";
-export { zoomIn } from "./zoomIn";
-export { zoomOut } from "./zoomOut";
-export { zoomTo } from "./zoomTo";
+export { isWeekend, isWeekday, isToday } from "./utils";
